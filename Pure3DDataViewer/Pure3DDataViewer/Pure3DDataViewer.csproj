@@ -28,13 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\Pictures\Programming Icon\128x128.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Be.Windows.Forms.HexBox.Net5" Version="1.8.0" />
   </ItemGroup>
 
