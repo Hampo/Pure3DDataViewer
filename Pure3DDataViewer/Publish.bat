@@ -8,8 +8,8 @@ dotnet publish Pure3DDataViewer\Pure3DDataViewer.csproj -c release -r win-x64 -p
 copy Pure3DDataViewer\bin\publish\Pure3DDataViewer.exe Publish\Pure3DDataViewer.exe
 copy Pure3DDataViewer\bin\publish\Pure3DDataViewerPluginAPI.dll Publish\Pure3DDataViewerPluginAPI.dll
 
-dotnet publish ImportExportTexture\ImportExportTexture.csproj -c release -r win-x64 --self-contained false -o ImportExportTexture\bin\publish
-copy ImportExportTexture\bin\publish\ImportExportTexture.dll Publish\Plugins\ImportExportTexture.dll
+dotnet publish ImportExportImages\ImportExportImages.csproj -c release -r win-x64 --self-contained false -o ImportExportImages\bin\publish
+copy ImportExportImages\bin\publish\ImportExportImages.dll Publish\Plugins\ImportExportImages.dll
 
 dotnet publish Sort\Sort.csproj -c release -r win-x64 --self-contained false -o Sort\bin\publish
 copy Sort\bin\publish\Sort.dll Publish\Plugins\Sort.dll
