@@ -39,11 +39,11 @@ public class DeduplicateChunks : IFileHandler
 
         if (removedCount == 0)
         {
-            MessageBox.Show("No duplicate chunks found.", "Remove Duplicate Chunks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("No duplicate chunks found.", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return FileCallbackResult.Unchanged;
         }
 
-        if (MessageBox.Show($"Found {removedCount} duplicate chunk{(removedCount == 1 ? "" : "s")}.\nDo you want to remove {(removedCount == 1 ? "it" : "them")}?", "Remove Duplicate Chunks", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (MessageBox.Show($"Found {removedCount} duplicate chunk{(removedCount == 1 ? "" : "s")}.\nDo you want to remove {(removedCount == 1 ? "it" : "them")}?", Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return FileCallbackResult.Unchanged;
 
         p3dFile.Chunks.Clear();

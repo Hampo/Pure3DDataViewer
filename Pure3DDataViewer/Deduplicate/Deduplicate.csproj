@@ -18,10 +18,12 @@
 
 	<ItemGroup>
 	  <None Remove="RemoveFromCollection_16x.png" />
+	  <None Remove="SearchProperty_16x.png" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="RemoveFromCollection_16x.png" />
+	  <EmbeddedResource Include="SearchProperty_16x.png" />
 	</ItemGroup>
 
 	<ItemGroup>

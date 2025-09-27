@@ -10,11 +10,13 @@ public class DeduplicatePlugin : IPlugin
     private static readonly List<IFileHandler> FileHandlers;
 
     internal static Image DeduplicateImage;
+    internal static Image FindDuplicateNamedImage;
 
     static DeduplicatePlugin()
     {
         FileHandlers = [
 
+            new Handlers.FindDuplicateNamedChunks(),
             new Handlers.DeduplicateChunks(),
         ];
 
@@ -22,6 +24,9 @@ public class DeduplicatePlugin : IPlugin
 
         using (var stream = assembly.GetManifestResourceStream("Deduplicate.RemoveFromCollection_16x.png"))
             DeduplicateImage = Image.FromStream(stream!);
+
+        using (var stream = assembly.GetManifestResourceStream("Deduplicate.SearchProperty_16x.png"))
+            FindDuplicateNamedImage = Image.FromStream(stream!);
     }
 
     public IEnumerable<IFileHandler>? GetFileHandlers() => FileHandlers;
