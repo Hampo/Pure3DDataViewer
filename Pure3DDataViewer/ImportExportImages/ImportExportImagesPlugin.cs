@@ -8,22 +8,28 @@ public class ImportExportImagesPlugin : IPlugin
 {
     public string Name => "Import/Export Images";
 
-    private static readonly List<IChunkHandler<TextureChunk>> TextureChunkHandlers;
     private static readonly List<IFileHandler> FileHandlers;
+    private static readonly List<IChunkHandler> ChunkHandlers;
 
     internal static Image ImportImage;
     internal static Image ExportImage;
 
+    internal static Guid ImportGuid = new("e7effd7e-405d-4056-9866-32f656a08ad2");
+    internal static Guid ExportGuid = new("6d1b4f0e-9342-4b69-82e8-4d1509352b44");
+    internal static Guid ExportAllGuid = new("3ba41a48-caea-47ec-86d8-6622da9a99ca");
+
     static ImportExportImagesPlugin()
     {
-        TextureChunkHandlers = [
-            new Handlers.ExportTexture(),
-            new Handlers.ImportTexture(),
+        FileHandlers = [
+            new Handlers.ExportAllTextures(),
         ];
 
-        FileHandlers = [
+        ChunkHandlers = [
+            new Handlers.ExportTexture(),
+            new Handlers.ImportTexture(),
 
-            new Handlers.ExportAllTextures(),
+            new Handlers.ExportImage(),
+            new Handlers.ImportImage(),
         ];
 
         var assembly = Assembly.GetExecutingAssembly();
@@ -37,5 +43,5 @@ public class ImportExportImagesPlugin : IPlugin
     
     public IEnumerable<IFileHandler>? GetFileHandlers() => FileHandlers;
 
-    public IEnumerable<IChunkHandler>? GetChunkHandlers() => TextureChunkHandlers;
+    public IEnumerable<IChunkHandler>? GetChunkHandlers() => ChunkHandlers;
 }

@@ -4,9 +4,9 @@ using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
 
 namespace ImportExportImages.Handlers;
-public class ExportTexture : IChunkHandler<TextureChunk>
+public class ExportImage : IChunkHandler<ImageChunk>
 {
-    public string Name => "Export Texture";
+    public string Name => "Export Image";
 
     public Image? Image => ImportExportImagesPlugin.ExportImage;
 
@@ -15,15 +15,8 @@ public class ExportTexture : IChunkHandler<TextureChunk>
     public void SetSetting(string name, bool value)
     { }
 
-    public ChunkCallbackResult Handle(TextureChunk texture)
+    public ChunkCallbackResult Handle(ImageChunk image)
     {
-        var image = texture.GetFirstChunkOfType<ImageChunk>();
-        if (image == null)
-        {
-            MessageBox.Show("Texture contains no child image to export.", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return ChunkCallbackResult.Unchanged;
-        }
-
         if (!image.CanExportFormat())
         {
             MessageBox.Show($"Texture contains a currently unsupported format {image.Format}.", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -43,7 +36,7 @@ public class ExportTexture : IChunkHandler<TextureChunk>
             CheckWriteAccess = true,
             OverwritePrompt = true,
             Filter = "PNG Files (*.png)|*.png",
-            FileName = $"{texture.Name.SanitizeFileName()}.png",
+            FileName = $"{image.Name.SanitizeFileName()}.png",
         };
         if (sfd.ShowDialog() != DialogResult.OK)
             return ChunkCallbackResult.Unchanged;
@@ -52,16 +45,16 @@ public class ExportTexture : IChunkHandler<TextureChunk>
         {
             if (image.SaveImage(sfd.FileName))
             {
-                MessageBox.Show($"Saved texture \"{texture.Name}\" to \"{sfd.FileName}\".", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Saved texture \"{image.Name}\" to \"{sfd.FileName}\".", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show($"Unable to save texture \"{texture.Name}\".", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Unable to save texture \"{image.Name}\".", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error saving texture \"{texture.Name}\" to \"{sfd.FileName}\": {ex}", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Error saving texture \"{image.Name}\" to \"{sfd.FileName}\": {ex}", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         return ChunkCallbackResult.Unchanged;

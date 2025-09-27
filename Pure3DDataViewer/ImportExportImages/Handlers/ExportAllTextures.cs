@@ -1,4 +1,6 @@
-﻿using ImportExportImages.Helpers;
+﻿using ImportExportImages.Enums;
+using ImportExportImages.Forms;
+using ImportExportImages.Helpers;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI;
@@ -27,7 +29,7 @@ public class ExportAllTextures : IFileHandler
 
         using var fbd = new FolderBrowserDialog()
         {
-            ClientGuid = new("3ba41a48-caea-47ec-86d8-6622da9a99ca"),
+            ClientGuid = ImportExportImagesPlugin.ExportAllGuid,
             Description = "Choose folder to export all textures to",
             ShowNewFolderButton = true,
             UseDescriptionForTitle = true,
@@ -37,6 +39,7 @@ public class ExportAllTextures : IFileHandler
 
         long exportedTextures = 0;
         long skippedTextures = 0;
+        FileExistsResult? fileExistsResult = null;
         foreach (var texture in textures)
         {
             var image = texture.GetFirstChunkOfType<ImageChunk>();
@@ -54,7 +57,42 @@ public class ExportAllTextures : IFileHandler
 
             try
             {
-                if (image.SaveImage(Path.Combine(fbd.SelectedPath, $"{texture.Name.SanitizeFileName()}.png")))
+                var filePath = Path.Combine(fbd.SelectedPath, $"{texture.Name.SanitizeFileName()}.png");
+
+                if (File.Exists(filePath))
+                {
+                    FileExistsResult result;
+                    if (fileExistsResult.HasValue)
+                    {
+                        result = fileExistsResult.Value;
+                    }
+                    else
+                    {
+                        using var fileExistsPrompt = new FrmFileExistsPrompt(filePath);
+                        fileExistsPrompt.ShowDialog();
+
+                        if (fileExistsPrompt.ApplyToAll)
+                            fileExistsResult = fileExistsPrompt.Result;
+
+                        result = fileExistsPrompt.Result;
+                    }
+
+                    switch (result)
+                    {
+                        case FileExistsResult.KeepOriginal:
+                            continue;
+                        case FileExistsResult.KeepBoth:
+                            var count = 1;
+
+                            do
+                                filePath = Path.Combine(fbd.SelectedPath, $"{texture.Name.SanitizeFileName()} ({count++}).png");
+                            while (File.Exists(filePath));
+
+                            break;
+                    }
+                }
+
+                if (image.SaveImage(filePath))
                     exportedTextures++;
                 else
                     skippedTextures++;

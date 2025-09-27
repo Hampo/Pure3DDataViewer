@@ -5,9 +5,9 @@ using Pure3DDataViewerPluginAPI.Enums;
 using System.Drawing.Imaging;
 
 namespace ImportExportImages.Handlers;
-public class ImportTexture : IChunkHandler<TextureChunk>
+public class ImportImage : IChunkHandler<ImageChunk>
 {
-    public string Name => "Import Texture";
+    public string Name => "Import Image";
 
     public Image? Image => ImportExportImagesPlugin.ImportImage;
 
@@ -16,7 +16,7 @@ public class ImportTexture : IChunkHandler<TextureChunk>
     public void SetSetting(string name, bool value)
     { }
 
-    public ChunkCallbackResult Handle(TextureChunk textureChunk)
+    public ChunkCallbackResult Handle(ImageChunk imageChunk)
     {
         using var ofd = new OpenFileDialog()
         {
@@ -45,18 +45,15 @@ public class ImportTexture : IChunkHandler<TextureChunk>
             img.Save(ms, ImageFormat.Png);
             pngBytes = ms.ToArray();
 
-            for (int i = textureChunk.Children.Count - 1; i >= 0; i--)
-                if (textureChunk.Children[i].ID == (uint)ChunkIdentifier.Image)
-                    textureChunk.Children.RemoveAt(i);
+            for (int i = imageChunk.Children.Count - 1; i >= 0; i--)
+                if (imageChunk.Children[i].ID == (uint)ChunkIdentifier.Image_Data)
+                    imageChunk.Children.RemoveAt(i);
 
-            textureChunk.Width = width;
-            textureChunk.Height = height;
-            textureChunk.Bpp = bpp;
-            textureChunk.AlphaDepth = alphaDepth;
-            textureChunk.TextureType = isPalettized ? TextureChunk.TextureTypes.Palettized : TextureChunk.TextureTypes.RGB;
-
-            var imageChunk = new ImageChunk(textureChunk.Name, 14000, width, height, bpp, isPalettized, hasAlpha, ImageChunk.Formats.PNG);
-            textureChunk.Children.Add(imageChunk);
+            imageChunk.Width = width;
+            imageChunk.Height = height;
+            imageChunk.Bpp = bpp;
+            imageChunk.HasAlpha = hasAlpha;
+            imageChunk.Palettized = isPalettized;
 
             var imageDataChunk = new ImageDataChunk(pngBytes);
             imageChunk.Children.Add(imageDataChunk);
@@ -65,7 +62,7 @@ public class ImportTexture : IChunkHandler<TextureChunk>
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"There was an error importing texture \"{ofd.FileName}\": {ex}", "Error Importing Texture", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"There was an error importing image \"{ofd.FileName}\": {ex}", "Error Importing Image", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         return ChunkCallbackResult.Unchanged;
