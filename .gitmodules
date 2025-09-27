@@ -1,0 +1,6 @@
+[submodule "external/NetP3DLib"]
+	path = external/NetP3DLib
+	url = https://github.com/Hampo/NetP3DLib
+[submodule "external/SHARMemory"]
+	path = external/SHARMemory
+	url = https://github.com/Hampo/SHARMemory

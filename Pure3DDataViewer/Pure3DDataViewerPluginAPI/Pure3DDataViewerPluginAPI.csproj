@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<UseWindowsForms>true</UseWindowsForms>
+	<Title>Pure3D Data Viewer Plugin API</Title>
+	<Authors>Proddy</Authors>
+	<Company>Donut Team</Company>
+	<Product>Pure3D Data Viewer</Product>
+	<Description>The plugin API for the Pure3D Data Viewer.</Description>
+	<Copyright>Donut Team 2025</Copyright>
+	<PlatformTarget>x64</PlatformTarget>
+	<PublishSingleFile>true</PublishSingleFile>
+	<SelfContained>false</SelfContained>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\NetP3DLib\NetP3DLib\NetP3DLib\NetP3DLib.csproj" />
+  </ItemGroup>
+
+</Project>
