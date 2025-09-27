@@ -1,8 +1,15 @@
 ﻿using NetP3DLib.P3D.Chunks;
 
-namespace ImportExportTexture.Helpers;
+namespace ImportExportImages.Helpers;
 internal static class ImageHelper
 {
+    private readonly static HashSet<ImageChunk.Formats> SupportedFormats =
+    [
+        ImageChunk.Formats.PNG,
+        ImageChunk.Formats.BMP,
+    ];
+    public static bool CanExportFormat(this ImageChunk imageChunk) => SupportedFormats.Contains(imageChunk.Format);
+
     public static bool SaveImage(this ImageChunk imageChunk, string filePath)
     {
         using var image = imageChunk.GetImage();
@@ -16,6 +23,8 @@ internal static class ImageHelper
 
     public static Image? GetImage(this ImageChunk imageChunk)
     {
+        if (!imageChunk.CanExportFormat())
+            return null;
         var imageData = imageChunk.GetFirstChunkOfType<ImageDataChunk>();
         if (imageData == null)
             return null;

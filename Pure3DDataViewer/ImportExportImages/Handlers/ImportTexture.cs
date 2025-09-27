@@ -4,12 +4,12 @@ using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
 using System.Drawing.Imaging;
 
-namespace ImportExportTexture.Handlers;
+namespace ImportExportImages.Handlers;
 public class ImportTexture : IChunkHandler<TextureChunk>
 {
     public string Name => "Import Texture";
 
-    public Image? Image => ImportExportTexturePlugin.ImportImage;
+    public Image? Image => ImportExportImagesPlugin.ImportImage;
 
     public IList<(string Name, bool Value)>? GetSettings() => null;
 

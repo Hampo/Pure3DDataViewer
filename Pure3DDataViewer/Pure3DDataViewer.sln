@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pure3DDataViewerPluginAPI",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportExportTexture", "ImportExportTexture\ImportExportTexture.csproj", "{26F8EF8B-984D-4107-A9A1-8313D76E87D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportExportImages", "ImportExportImages\ImportExportImages.csproj", "{26F8EF8B-984D-4107-A9A1-8313D76E87D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sort", "Sort\Sort.csproj", "{0EC630AB-2B2A-49E0-A98D-D007BEE79C2D}"
 EndProject

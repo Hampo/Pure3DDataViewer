@@ -2,11 +2,11 @@
 using Pure3DDataViewerPluginAPI;
 using System.Reflection;
 
-namespace ImportExportTexture;
+namespace ImportExportImages;
 
-public class ImportExportTexturePlugin : IPlugin
+public class ImportExportImagesPlugin : IPlugin
 {
-    public string Name => "Import/Export Textures";
+    public string Name => "Import/Export Images";
 
     private static readonly List<IChunkHandler<TextureChunk>> TextureChunkHandlers;
     private static readonly List<IFileHandler> FileHandlers;
@@ -14,7 +14,7 @@ public class ImportExportTexturePlugin : IPlugin
     internal static Image ImportImage;
     internal static Image ExportImage;
 
-    static ImportExportTexturePlugin()
+    static ImportExportImagesPlugin()
     {
         TextureChunkHandlers = [
             new Handlers.ExportTexture(),
@@ -28,10 +28,10 @@ public class ImportExportTexturePlugin : IPlugin
 
         var assembly = Assembly.GetExecutingAssembly();
 
-        using (var stream = assembly.GetManifestResourceStream("ImportExportTexture.ExportTheme_16x.png"))
+        using (var stream = assembly.GetManifestResourceStream("ImportExportImages.ExportTheme_16x.png"))
             ExportImage = Image.FromStream(stream!);
 
-        using (var stream = assembly.GetManifestResourceStream("ImportExportTexture.ImportTheme_16x.png"))
+        using (var stream = assembly.GetManifestResourceStream("ImportExportImages.ImportTheme_16x.png"))
             ImportImage = Image.FromStream(stream!);
     }
     

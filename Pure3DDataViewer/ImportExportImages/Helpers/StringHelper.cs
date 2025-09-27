@@ -1,4 +1,4 @@
-﻿namespace ImportExportTexture.Helpers;
+﻿namespace ImportExportImages.Helpers;
 internal static class StringHelper
 {
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();

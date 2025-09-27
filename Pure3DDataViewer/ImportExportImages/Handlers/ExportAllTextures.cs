@@ -1,15 +1,15 @@
-﻿using ImportExportTexture.Helpers;
+﻿using ImportExportImages.Helpers;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
 
-namespace ImportExportTexture.Handlers;
+namespace ImportExportImages.Handlers;
 public class ExportAllTextures : IFileHandler
 {
     public string Name => "Export All Textures";
 
-    public Image? Image => ImportExportTexturePlugin.ExportImage;
+    public Image? Image => ImportExportImagesPlugin.ExportImage;
 
     public IList<(string Name, bool Value)>? GetSettings() => null;
 
@@ -41,6 +41,12 @@ public class ExportAllTextures : IFileHandler
         {
             var image = texture.GetFirstChunkOfType<ImageChunk>();
             if (image == null)
+            {
+                skippedTextures++;
+                continue;
+            }
+
+            if (!image.CanExportFormat())
             {
                 skippedTextures++;
                 continue;
