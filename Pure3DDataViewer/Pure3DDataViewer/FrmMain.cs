@@ -714,11 +714,22 @@ public partial class FrmMain : Form
         }
         else if (propertyType == typeof(Color))
         {
-            using var colourEditor = new FrmColourEditor(property.Name, (Color?)oldValue);
-            if (colourEditor.ShowDialog() != DialogResult.OK)
+            //using var colourEditor = new FrmColourEditor(property.Name, (Color?)oldValue);
+            //if (colourEditor.ShowDialog() != DialogResult.OK)
+            //    return false;
+
+            //newValue = colourEditor.Value;
+
+            using var colorPicker = new Cyotek.Windows.Forms.ColorPickerDialog()
+            {
+                Color = (Color?)oldValue ?? Color.White,
+                ShowAlphaChannel = true,
+                Text = $"Edit Value: {property.Name}",
+            };
+            if (colorPicker.ShowDialog() != DialogResult.OK)
                 return false;
 
-            newValue = colourEditor.Value;
+            newValue = colorPicker.Color;
         }
         else if (propertyType == typeof(bool))
         {

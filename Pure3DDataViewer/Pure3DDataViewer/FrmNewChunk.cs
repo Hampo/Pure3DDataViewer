@@ -195,11 +195,22 @@ public partial class FrmNewChunk : Form
         }
         else if (parameterType == typeof(Color))
         {
-            using var colourEditor = new FrmColourEditor(parameterName, (Color?)oldValue);
-            if (colourEditor.ShowDialog() != DialogResult.OK)
+            //using var colourEditor = new FrmColourEditor(parameterName, (Color?)oldValue);
+            //if (colourEditor.ShowDialog() != DialogResult.OK)
+            //    return;
+
+            //newValue = colourEditor.Value;
+
+            using var colorPicker = new Cyotek.Windows.Forms.ColorPickerDialog()
+            {
+                Color = (Color?)oldValue ?? Color.White,
+                ShowAlphaChannel = true,
+                Text = $"Edit Value: {parameterName}",
+            };
+            if (colorPicker.ShowDialog() != DialogResult.OK)
                 return;
 
-            newValue = colourEditor.Value;
+            newValue = colorPicker.Color;
         }
         else if (parameterType == typeof(bool))
         {
