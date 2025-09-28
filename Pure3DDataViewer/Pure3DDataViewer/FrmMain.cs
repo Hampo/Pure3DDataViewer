@@ -14,6 +14,7 @@ namespace Pure3DDataViewer;
 public partial class FrmMain : Form
 {
     private P3DFile P3DFile = new();
+    private string _Text = string.Empty;
     private string _lastPath = string.Empty;
     private string LastPath
     {
@@ -27,7 +28,6 @@ public partial class FrmMain : Form
             UpdateText();
         }
     }
-    private string _Text = string.Empty;
     private bool _unsavedChanges = false;
     private bool UnsavedChanges
     {
