@@ -15,6 +15,7 @@ public class LocationFromGamePlugin : IPlugin
     {
         ChunkHandlers = [
             new Handlers.LocatorFromGame(),
+            new Handlers.TriggerVolumeFromGame(),
         ];
 
         var assembly = Assembly.GetExecutingAssembly();
