@@ -127,7 +127,7 @@ public partial class FrmMain : Form
                 }
             }
             TSMITools.DropDownItems.Add(new ToolStripSeparator());
-            CMSTVChunks.Items.Add(new ToolStripSeparator());
+            //CMSTVChunks.Items.Add(new ToolStripSeparator());
             foreach (var plugin in PluginLoader.Plugins)
             {
                 var chunkHandlers = plugin.GetChunkHandlers();
@@ -227,9 +227,9 @@ public partial class FrmMain : Form
                             var parentNode = node.Parent;
 
                             if (parentNode.Tag is Chunk parentChunk)
-                                parentChunk.Children.Remove(chunk);
+                                parentChunk.Children.RemoveAt(node.Index);
                             else if (parentNode.Tag is P3DFile parentFile)
-                                parentFile.Chunks.Remove(chunk);
+                                parentFile.Chunks.RemoveAt(node.Index);
                             UnsavedChanges = true;
 
                             TVChunks.BeginUpdate();
@@ -515,9 +515,9 @@ public partial class FrmMain : Form
             foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                 if (child.Tag is IChunkHandler)
                     child.Visible = false;
-            var tssIndex = CMSTVChunks.Items.IndexOf(TSS6);
-            for (int i = tssIndex + 1; i < CMSTVChunks.Items.Count; i++)
-                if (CMSTVChunks.Items[i] is ToolStripMenuItem child && child.Tag is IChunkHandler)
+
+            foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
+                if (child.Tag is IChunkHandler || child.Tag is IFileHandler)
                     child.Visible = false;
 
             if (e.Node?.Tag is P3DFile p3dFile)
@@ -526,6 +526,10 @@ public partial class FrmMain : Form
                 lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
                 LVValues.Items.Add(lvi);
                 HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Bytes);
+
+                foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
+                    if (child.Tag is IFileHandler)
+                        child.Visible = true;
 
                 return;
             }
@@ -547,8 +551,8 @@ public partial class FrmMain : Form
                 foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
                         child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunk.GetType();
-                for (int i = tssIndex + 1; i < CMSTVChunks.Items.Count; i++)
-                    if (CMSTVChunks.Items[i] is ToolStripMenuItem child && child.Tag is IChunkHandler chunkHandler)
+                foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
+                    if (child.Tag is IChunkHandler chunkHandler)
                         child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunk.GetType();
 
                 var type = chunk.GetType();
@@ -838,9 +842,9 @@ public partial class FrmMain : Form
                 var parentNode = node.Parent;
 
                 if (parentNode.Tag is Chunk parentChunk)
-                    parentChunk.Children.Remove(chunk);
+                    parentChunk.Children.RemoveAt(node.Index);
                 else if (parentNode.Tag is P3DFile p3dFile)
-                    p3dFile.Chunks.Remove(chunk);
+                    p3dFile.Chunks.RemoveAt(node.Index);
                 UnsavedChanges = true;
 
                 TVChunks.BeginUpdate();
@@ -1020,9 +1024,9 @@ public partial class FrmMain : Form
         var parentNode = node.Parent;
 
         if (parentNode.Tag is Chunk parentChunk)
-            parentChunk.Children.Remove(chunk);
+            parentChunk.Children.RemoveAt(node.Index);
         else if (parentNode.Tag is P3DFile p3dFile)
-            p3dFile.Chunks.Remove(chunk);
+            p3dFile.Chunks.RemoveAt(node.Index);
         UnsavedChanges = true;
 
         TVChunks.BeginUpdate();
