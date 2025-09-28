@@ -1,4 +1,4 @@
-﻿using Pure3DDataViewerPluginAPI;
+﻿using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Reflection;
 
 namespace Pure3DDataViewer;

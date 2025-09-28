@@ -1,7 +1,7 @@
 ﻿using NetP3DLib.P3D;
 using Pure3DDataViewerPluginAPI.Enums;
 
-namespace Pure3DDataViewerPluginAPI;
+namespace Pure3DDataViewerPluginAPI.Interfaces;
 
 public interface IFileHandler
 {

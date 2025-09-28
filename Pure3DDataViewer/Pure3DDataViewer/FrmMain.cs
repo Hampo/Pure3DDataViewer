@@ -3,7 +3,7 @@ using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
 using Pure3DDataViewer.Controls;
 using Pure3DDataViewer.Editors;
-using Pure3DDataViewerPluginAPI;
+using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -89,7 +89,6 @@ public partial class FrmMain : Form
         while (version.EndsWith(".0"))
             version = version[..^2];
         _Text = $"{Text} v{version}";
-        Clipboard.SetText(_Text);
         UpdateText();
 
         PluginLoader.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));

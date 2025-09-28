@@ -1,7 +1,7 @@
 ﻿using ImportExportImages.Helpers;
 using NetP3DLib.P3D.Chunks;
-using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
+using Pure3DDataViewerPluginAPI.Interfaces;
 
 namespace ImportExportImages.Handlers;
 public class ExportTexture : IChunkHandler<TextureChunk>

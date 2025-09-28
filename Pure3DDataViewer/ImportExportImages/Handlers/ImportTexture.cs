@@ -1,7 +1,7 @@
 ﻿using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
-using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
+using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Drawing.Imaging;
 
 namespace ImportExportImages.Handlers;

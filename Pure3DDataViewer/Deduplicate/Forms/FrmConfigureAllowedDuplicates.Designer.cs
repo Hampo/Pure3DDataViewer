@@ -34,13 +34,15 @@ partial class FrmConfigureAllowedDuplicates
         LBAllowedTypes = new ListBox();
         BtnAdd = new Button();
         BtnRemove = new Button();
+        LblDisallowed = new Label();
+        LblAllowed = new Label();
         SuspendLayout();
         // 
         // BtnCancel
         // 
         BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
         BtnCancel.DialogResult = DialogResult.Cancel;
-        BtnCancel.Location = new Point(530, 296);
+        BtnCancel.Location = new Point(530, 292);
         BtnCancel.Name = "BtnCancel";
         BtnCancel.Size = new Size(75, 23);
         BtnCancel.TabIndex = 5;
@@ -51,7 +53,7 @@ partial class FrmConfigureAllowedDuplicates
         // 
         BtnOK.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
         BtnOK.DialogResult = DialogResult.OK;
-        BtnOK.Location = new Point(449, 296);
+        BtnOK.Location = new Point(449, 292);
         BtnOK.Name = "BtnOK";
         BtnOK.Size = new Size(75, 23);
         BtnOK.TabIndex = 4;
@@ -63,10 +65,10 @@ partial class FrmConfigureAllowedDuplicates
         LBDisallowedTypes.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
         LBDisallowedTypes.FormattingEnabled = true;
         LBDisallowedTypes.ItemHeight = 15;
-        LBDisallowedTypes.Location = new Point(12, 12);
+        LBDisallowedTypes.Location = new Point(12, 27);
         LBDisallowedTypes.Name = "LBDisallowedTypes";
         LBDisallowedTypes.SelectionMode = SelectionMode.MultiExtended;
-        LBDisallowedTypes.Size = new Size(278, 274);
+        LBDisallowedTypes.Size = new Size(278, 259);
         LBDisallowedTypes.TabIndex = 6;
         LBDisallowedTypes.Format += LBTypes_Format;
         // 
@@ -75,17 +77,17 @@ partial class FrmConfigureAllowedDuplicates
         LBAllowedTypes.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         LBAllowedTypes.FormattingEnabled = true;
         LBAllowedTypes.ItemHeight = 15;
-        LBAllowedTypes.Location = new Point(327, 12);
+        LBAllowedTypes.Location = new Point(327, 27);
         LBAllowedTypes.Name = "LBAllowedTypes";
         LBAllowedTypes.SelectionMode = SelectionMode.MultiExtended;
-        LBAllowedTypes.Size = new Size(278, 274);
+        LBAllowedTypes.Size = new Size(278, 259);
         LBAllowedTypes.TabIndex = 7;
         LBAllowedTypes.Format += LBTypes_Format;
         // 
         // BtnAdd
         // 
         BtnAdd.Anchor = AnchorStyles.None;
-        BtnAdd.Location = new Point(296, 123);
+        BtnAdd.Location = new Point(296, 128);
         BtnAdd.Name = "BtnAdd";
         BtnAdd.Size = new Size(25, 23);
         BtnAdd.TabIndex = 8;
@@ -96,7 +98,7 @@ partial class FrmConfigureAllowedDuplicates
         // BtnRemove
         // 
         BtnRemove.Anchor = AnchorStyles.None;
-        BtnRemove.Location = new Point(296, 153);
+        BtnRemove.Location = new Point(296, 158);
         BtnRemove.Name = "BtnRemove";
         BtnRemove.Size = new Size(25, 23);
         BtnRemove.TabIndex = 9;
@@ -104,13 +106,33 @@ partial class FrmConfigureAllowedDuplicates
         BtnRemove.UseVisualStyleBackColor = true;
         BtnRemove.Click += BtnRemove_Click;
         // 
+        // LblDisallowed
+        // 
+        LblDisallowed.AutoSize = true;
+        LblDisallowed.Location = new Point(12, 9);
+        LblDisallowed.Name = "LblDisallowed";
+        LblDisallowed.Size = new Size(67, 15);
+        LblDisallowed.TabIndex = 10;
+        LblDisallowed.Text = "Disallowed:";
+        // 
+        // LblAllowed
+        // 
+        LblAllowed.AutoSize = true;
+        LblAllowed.Location = new Point(327, 9);
+        LblAllowed.Name = "LblAllowed";
+        LblAllowed.Size = new Size(53, 15);
+        LblAllowed.TabIndex = 11;
+        LblAllowed.Text = "Allowed:";
+        // 
         // FrmConfigureAllowedDuplicates
         // 
         AcceptButton = BtnOK;
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         CancelButton = BtnCancel;
-        ClientSize = new Size(617, 331);
+        ClientSize = new Size(617, 327);
+        Controls.Add(LblAllowed);
+        Controls.Add(LblDisallowed);
         Controls.Add(BtnRemove);
         Controls.Add(BtnAdd);
         Controls.Add(LBAllowedTypes);
@@ -127,6 +149,7 @@ partial class FrmConfigureAllowedDuplicates
         Text = "Configure Allowed Duplicates";
         Load += FrmConfigureAllowedDuplicates_Load;
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion
@@ -137,4 +160,6 @@ partial class FrmConfigureAllowedDuplicates
     private ListBox LBAllowedTypes;
     private Button BtnAdd;
     private Button BtnRemove;
+    private Label LblDisallowed;
+    private Label LblAllowed;
 }

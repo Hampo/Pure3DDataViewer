@@ -1,6 +1,6 @@
 ﻿using NetP3DLib.P3D;
 
-namespace Pure3DDataViewerPluginAPI;
+namespace Pure3DDataViewerPluginAPI.Interfaces;
 
 public interface IPlugin
 {

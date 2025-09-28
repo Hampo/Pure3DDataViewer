@@ -14,7 +14,7 @@ public partial class FrmConfigureAllowedDuplicates : Form
     private void FrmConfigureAllowedDuplicates_Load(object sender, EventArgs e)
     {
         var allowedTypes = FindDuplicateNamedChunks.AllowedDuplicates;
-        foreach (var type in ChunkLoader.ChunkTypes.Values.Select(x => x.Item1))
+        foreach (var type in ChunkLoader.ChunkTypes.Values.Select(x => x.Item1).Where(x => x.IsSubclassOf(typeof(NamedChunk))))
             if (allowedTypes.Contains(type))
                 LBAllowedTypes.Items.Add(type);
             else

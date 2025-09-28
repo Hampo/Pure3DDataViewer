@@ -8,6 +8,9 @@ dotnet publish Pure3DDataViewer\Pure3DDataViewer\Pure3DDataViewer.csproj -c rele
 copy Pure3DDataViewer\Pure3DDataViewer\bin\publish\Pure3DDataViewer.exe Publish\Pure3DDataViewer.exe
 copy Pure3DDataViewer\Pure3DDataViewer\bin\publish\Pure3DDataViewerPluginAPI.dll Publish\Pure3DDataViewerPluginAPI.dll
 
+dotnet publish Pure3DDataViewer\Pure3DDataViewerPluginAPIMemoryTunnel\Pure3DDataViewerPluginAPIMemoryTunnel.csproj -c release -r win-x86 -p:PublishSingleFile=true --self-contained false -o Pure3DDataViewer\Pure3DDataViewerPluginAPIMemoryTunnel\bin\publish
+copy Pure3DDataViewer\Pure3DDataViewerPluginAPIMemoryTunnel\bin\publish\Pure3DDataViewerPluginAPIMemoryTunnel.exe Publish\Pure3DDataViewerPluginAPIMemoryTunnel.exe
+
 dotnet publish Pure3DDataViewer\ImportExportImages\ImportExportImages.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\ImportExportImages\bin\publish
 copy Pure3DDataViewer\ImportExportImages\bin\publish\ImportExportImages.dll Publish\Plugins\ImportExportImages.dll
 

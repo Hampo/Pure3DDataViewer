@@ -11,10 +11,9 @@
 	<Product>Pure3D Data Viewer</Product>
 	<Description>The plugin API for the Pure3D Data Viewer.</Description>
 	<Copyright>Donut Team 2025</Copyright>
-	<PlatformTarget>x64</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<PublishSingleFile>true</PublishSingleFile>
 	<SelfContained>false</SelfContained>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
