@@ -29,7 +29,7 @@ public class ImportExportImagesPlugin : IPlugin
             new Handlers.ImportTexture(),
 
             new Handlers.ExportImage(),
-            new Handlers.ImportImage(),
+            //new Handlers.ImportImage(),
         ];
 
         var assembly = Assembly.GetExecutingAssembly();
