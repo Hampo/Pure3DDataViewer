@@ -513,6 +513,7 @@ partial class FrmMain
         // 
         // TSMIAbout
         // 
+        TSMIAbout.Image = Properties.Resources.InformationSymbol_16x;
         TSMIAbout.Name = "TSMIAbout";
         TSMIAbout.Size = new Size(180, 22);
         TSMIAbout.Text = "About";
