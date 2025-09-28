@@ -2,7 +2,7 @@
 using System.Numerics;
 
 namespace Pure3DDataViewerPluginAPI;
-public static class MemoryTunnel
+public static class MemoryUtils
 {
     public static SHARMemory.SHAR.Memory? GetSHARMemory()
     {

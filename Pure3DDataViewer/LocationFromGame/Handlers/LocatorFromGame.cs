@@ -16,7 +16,7 @@ internal class LocatorFromGame : IChunkHandler<LocatorChunk>
 
     public ChunkCallbackResult Handle(LocatorChunk chunk)
     {
-        var pos = MemoryTunnel.GetPosition();
+        var pos = MemoryUtils.GetPosition();
 
         if (!pos.HasValue)
         {

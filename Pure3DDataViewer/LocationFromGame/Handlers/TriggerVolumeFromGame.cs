@@ -16,7 +16,7 @@ internal class TriggerVolumeFromGame : IChunkHandler<TriggerVolumeChunk>
 
     public ChunkCallbackResult Handle(TriggerVolumeChunk chunk)
     {
-        var pos = MemoryTunnel.GetPosition();
+        var pos = MemoryUtils.GetPosition();
 
         if (!pos.HasValue)
         {
