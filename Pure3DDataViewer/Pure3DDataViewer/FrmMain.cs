@@ -240,6 +240,12 @@ public partial class FrmMain : Form
                             else
                                 TVChunks.SelectedNode = parentNode;
                             parentNode.Nodes.Remove(node);
+                            for (int i = 0; i < parentNode.Nodes.Count; i++)
+                            {
+                                var childNode = parentNode.Nodes[i];
+                                if (childNode.Tag is Chunk nodeChunk)
+                                    childNode.Text = $"{childNode.Index}. {nodeChunk}";
+                            }
                             TVChunks.EndUpdate();
                             break;
                     }
@@ -845,6 +851,12 @@ public partial class FrmMain : Form
                 else
                     TVChunks.SelectedNode = parentNode;
                 parentNode.Nodes.Remove(node);
+                for (int i = 0; i < parentNode.Nodes.Count; i++)
+                {
+                    var childNode = parentNode.Nodes[i];
+                    if (childNode.Tag is Chunk nodeChunk)
+                        childNode.Text = $"{childNode.Index}. {nodeChunk}";
+                }
                 TVChunks.EndUpdate();
 
                 break;
@@ -1021,6 +1033,12 @@ public partial class FrmMain : Form
         else
             TVChunks.SelectedNode = parentNode;
         parentNode.Nodes.Remove(node);
+        for (int i = 0; i < parentNode.Nodes.Count; i++)
+        {
+            var childNode = parentNode.Nodes[i];
+            if (childNode.Tag is Chunk nodeChunk)
+                childNode.Text = $"{childNode.Index}. {nodeChunk}";
+        }
         TVChunks.EndUpdate();
     }
 
