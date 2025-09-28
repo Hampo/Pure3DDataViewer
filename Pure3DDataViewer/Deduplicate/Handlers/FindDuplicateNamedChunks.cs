@@ -1,15 +1,11 @@
-﻿using NetP3DLib.P3D;
-using NetP3DLib.P3D.Chunks;
+﻿using Deduplicate.Forms;
+using NetP3DLib.P3D;
 using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
 
 namespace Deduplicate.Handlers;
 public class FindDuplicateNamedChunks : IFileHandler
 {
-    private static HashSet<Type> AllowedDuplicates = [
-        typeof(StaticEntityChunk)
-    ];
-
     public string Name => "Find Duplicate Named Chunks";
 
     public Image? Image => DeduplicatePlugin.FindDuplicateNamedImage;
@@ -20,8 +16,34 @@ public class FindDuplicateNamedChunks : IFileHandler
         set => RegistryUtils.SetBoolean("DeduplicateIgnoreAllowedDuplicates", value);
     }
 
+    internal static HashSet<Type> AllowedDuplicates
+    {
+        get
+        {
+            var typeNames = RegistryUtils.GetStringArray("FindDuplicateNamedChunksAllowedDuplicates", [
+                "NetP3DLib.P3D.Chunks.StaticEntityChunk, NetP3DLib",
+            ]);
+            if (typeNames == null)
+                return [];
+
+            var allowedDuplicates = new HashSet<Type>(typeNames.Length);
+            foreach (var typeName in typeNames)
+            {
+                var type = Type.GetType(typeName, false);
+                if (type == null)
+                    continue;
+
+                allowedDuplicates.Add(type);
+            }
+
+            return allowedDuplicates;
+        }
+        set => RegistryUtils.SetStringArray("FindDuplicateNamedChunksAllowedDuplicates", [.. value.Where(x => x != null).Select(x => $"{x.FullName}, {x.Assembly.GetName().Name}")]);
+    }
+
     public IList<(string Name, bool Value)>? GetSettings() => [
         ( "Ignore Allowed Duplicates", IgnoreAllowedDuplicates ),
+        ( "Configure Allowed Duplicates", false),
     ];
 
     public void SetSetting(string name, bool value)
@@ -30,6 +52,15 @@ public class FindDuplicateNamedChunks : IFileHandler
         {
             case "Ignore Allowed Duplicates":
                 IgnoreAllowedDuplicates = value;
+                break;
+            case "Configure Allowed Duplicates":
+                using (var frmConfigureAllowedDuplicates = new FrmConfigureAllowedDuplicates())
+                {
+                    if (frmConfigureAllowedDuplicates.ShowDialog() != DialogResult.OK)
+                        return;
+
+                    AllowedDuplicates = frmConfigureAllowedDuplicates.AllowedDuplicates;
+                }
                 break;
             default:
                 MessageBox.Show($"Unsupported setting name: {name}", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
