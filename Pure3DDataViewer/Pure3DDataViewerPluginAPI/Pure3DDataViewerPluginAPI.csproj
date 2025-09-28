@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\external\NetP3DLib\NetP3DLib\NetP3DLib\NetP3DLib.csproj" />
+    <ProjectReference Include="..\..\external\SHARMemory\SHARMemory\SHARMemory\SHARMemory.csproj" />
   </ItemGroup>
 
 </Project>
