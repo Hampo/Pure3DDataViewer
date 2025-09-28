@@ -92,62 +92,69 @@ public partial class FrmMain : Form
         Clipboard.SetText(_Text);
         UpdateText();
 
-        PluginLoader.LoadPlugins("Plugins");
-        foreach (var plugin in PluginLoader.Plugins)
+        PluginLoader.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));
+        if (PluginLoader.Plugins.Count == 0)
         {
-            var fileHandlers = plugin.GetFileHandlers();
-            if (fileHandlers != null)
+            TSMITools.Visible = false;
+        }
+        else
+        {
+            foreach (var plugin in PluginLoader.Plugins)
             {
-                foreach (var fileHandler in fileHandlers)
+                var fileHandlers = plugin.GetFileHandlers();
+                if (fileHandlers != null)
                 {
-                    if (fileHandler == null)
-                        continue;
-
-                    var tsmi = new ToolStripMenuItem(fileHandler.Name)
+                    foreach (var fileHandler in fileHandlers)
                     {
-                        Image = fileHandler.Image,
-                        Tag = fileHandler
-                    };
-                    tsmi.Click += TSMIPlugin_Click;
-                    TSMITools.DropDownItems.Add(tsmi);
+                        if (fileHandler == null)
+                            continue;
 
-                    tsmi = new ToolStripMenuItem(fileHandler.Name)
-                    {
-                        Image = fileHandler.Image,
-                        Tag = fileHandler
-                    };
-                    tsmi.Click += TSMIPlugin_Click;
-                    CMSTVChunks.Items.Add(tsmi);
+                        var tsmi = new ToolStripMenuItem(fileHandler.Name)
+                        {
+                            Image = fileHandler.Image,
+                            Tag = fileHandler
+                        };
+                        tsmi.Click += TSMIPlugin_Click;
+                        TSMITools.DropDownItems.Add(tsmi);
+
+                        tsmi = new ToolStripMenuItem(fileHandler.Name)
+                        {
+                            Image = fileHandler.Image,
+                            Tag = fileHandler
+                        };
+                        tsmi.Click += TSMIPlugin_Click;
+                        CMSTVChunks.Items.Add(tsmi);
+                    }
                 }
             }
-        }
-        TSMITools.DropDownItems.Add(new ToolStripSeparator());
-        CMSTVChunks.Items.Add(new ToolStripSeparator());
-        foreach (var plugin in PluginLoader.Plugins)
-        {
-            var chunkHandlers = plugin.GetChunkHandlers();
-            if (chunkHandlers != null)
+            TSMITools.DropDownItems.Add(new ToolStripSeparator());
+            CMSTVChunks.Items.Add(new ToolStripSeparator());
+            foreach (var plugin in PluginLoader.Plugins)
             {
-                foreach (var chunkHandler in chunkHandlers)
+                var chunkHandlers = plugin.GetChunkHandlers();
+                if (chunkHandlers != null)
                 {
-                    if (chunkHandler == null)
-                        continue;
-
-                    var tsmi = new ToolStripMenuItem(chunkHandler.Name)
+                    foreach (var chunkHandler in chunkHandlers)
                     {
-                        Image = chunkHandler.Image,
-                        Tag = chunkHandler
-                    };
-                    tsmi.Click += TSMIPlugin_Click;
-                    TSMITools.DropDownItems.Add(tsmi);
+                        if (chunkHandler == null)
+                            continue;
 
-                    tsmi = new ToolStripMenuItem(chunkHandler.Name)
-                    {
-                        Image = chunkHandler.Image,
-                        Tag = chunkHandler
-                    };
-                    tsmi.Click += TSMIPlugin_Click;
-                    CMSTVChunks.Items.Add(tsmi);
+                        var tsmi = new ToolStripMenuItem(chunkHandler.Name)
+                        {
+                            Image = chunkHandler.Image,
+                            Tag = chunkHandler
+                        };
+                        tsmi.Click += TSMIPlugin_Click;
+                        TSMITools.DropDownItems.Add(tsmi);
+
+                        tsmi = new ToolStripMenuItem(chunkHandler.Name)
+                        {
+                            Image = chunkHandler.Image,
+                            Tag = chunkHandler
+                        };
+                        tsmi.Click += TSMIPlugin_Click;
+                        CMSTVChunks.Items.Add(tsmi);
+                    }
                 }
             }
         }
