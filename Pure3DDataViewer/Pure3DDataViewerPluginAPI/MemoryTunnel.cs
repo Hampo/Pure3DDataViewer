@@ -7,8 +7,7 @@ namespace Pure3DDataViewerPluginAPI;
 public static class MemoryTunnel
 {
     public const string TunnelName = "Pure3DDataViewerPluginAPIMemoryTunnel";
-    private static readonly string TunnelExePath = Path.Combine(AppContext.BaseDirectory, "Pure3DDataViewerPluginAPIMemoryTunnel.exe");
-
+    public static readonly string TunnelExePath = Path.Combine(AppContext.BaseDirectory, "Pure3DDataViewerPluginAPIMemoryTunnel.exe");
     public static bool TunnelExeExists => File.Exists(TunnelExePath);
 
     private static string? Send(string request)
