@@ -1,5 +1,4 @@
-﻿using NetP3DLib.P3D.Chunks;
-using Pure3DDataViewerPluginAPI.Interfaces;
+﻿using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Reflection;
 
 namespace ImportExportImages;
