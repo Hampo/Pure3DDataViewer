@@ -127,7 +127,7 @@ public partial class FrmMain : Form
                 }
             }
             TSMITools.DropDownItems.Add(new ToolStripSeparator());
-            //CMSTVChunks.Items.Add(new ToolStripSeparator());
+
             foreach (var plugin in PluginLoader.Plugins)
             {
                 var chunkHandlers = plugin.GetChunkHandlers();
@@ -408,10 +408,7 @@ public partial class FrmMain : Form
         }
     }
 
-    private void TSMIExit_Click(object sender, EventArgs e)
-    {
-        Application.Exit();
-    }
+    private void TSMIExit_Click(object sender, EventArgs e) => Application.Exit();
 
     private void LoadP3DFile(string filePath)
     {
@@ -1325,5 +1322,11 @@ public partial class FrmMain : Form
                 item.DropDownItems.Add(tsmi);
             }
         }
+    }
+
+    private void TSMIAbout_Click(object sender, EventArgs e)
+    {
+        using var frmAbout = new FrmAbout();
+        frmAbout.ShowDialog();
     }
 }
