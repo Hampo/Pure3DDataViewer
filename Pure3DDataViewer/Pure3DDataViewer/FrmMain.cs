@@ -1003,7 +1003,7 @@ public partial class FrmMain : Form
         var found = FindNextNode(searchQuery);
         if (found == null)
         {
-            MessageBox.Show("Reached end of file", "No match found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Reached end of file.", "Find", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 

@@ -8,6 +8,7 @@ partial class FrmAbout : Form
         "- SHARMemory:\r\nhttps://github.com/Hampo/SHARMemory",
         "- Be.HexEditor:\r\nhttps://www.nuget.org/packages/Be.Windows.Forms.HexBox.Net8",
         "- Cyotek ColorPicker:\r\nhttps://www.nuget.org/packages/Cyotek.Windows.Forms.ColorPicker",
+        "- DirectXTexNet:\r\nhttps://www.nuget.org/packages/DirectXTexNet",
     ];
 
     public FrmAbout()
@@ -29,16 +30,17 @@ partial class FrmAbout : Form
     {
         get
         {
-            object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-            if (attributes.Length > 0)
+            var assembly = Assembly.GetExecutingAssembly();
+
+            // Prefer the [AssemblyTitle] attribute if present
+            var titleAttribute = assembly.GetCustomAttribute<AssemblyTitleAttribute>();
+            if (titleAttribute != null && !string.IsNullOrWhiteSpace(titleAttribute.Title))
             {
-                AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-                if (titleAttribute.Title != "")
-                {
-                    return titleAttribute.Title;
-                }
+                return titleAttribute.Title;
             }
-            return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+
+            // Fallback: use the file name without extension
+            return assembly.GetName().Name ?? "Unknown";
         }
     }
 
@@ -46,7 +48,8 @@ partial class FrmAbout : Form
     {
         get
         {
-            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            return version?.ToString() ?? "1.0.0.0";
         }
     }
 

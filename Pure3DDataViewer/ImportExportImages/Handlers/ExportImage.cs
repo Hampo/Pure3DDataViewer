@@ -1,4 +1,4 @@
-﻿using ImportExportImages.Helpers;
+﻿using Pure3DDataViewerPluginAPI.Extensions;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;

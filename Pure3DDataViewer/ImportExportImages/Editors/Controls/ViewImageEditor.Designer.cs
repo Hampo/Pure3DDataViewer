@@ -28,12 +28,17 @@ partial class ViewImageEditor
     /// </summary>
     private void InitializeComponent()
     {
+        components = new System.ComponentModel.Container();
         PBImage = new PictureBox();
+        CMSPBImage = new ContextMenuStrip(components);
+        TSMISetBackgroundColour = new ToolStripMenuItem();
         ((System.ComponentModel.ISupportInitialize)PBImage).BeginInit();
+        CMSPBImage.SuspendLayout();
         SuspendLayout();
         // 
         // PBImage
         // 
+        PBImage.ContextMenuStrip = CMSPBImage;
         PBImage.Dock = DockStyle.Fill;
         PBImage.Location = new Point(0, 0);
         PBImage.Name = "PBImage";
@@ -41,17 +46,34 @@ partial class ViewImageEditor
         PBImage.TabIndex = 0;
         PBImage.TabStop = false;
         // 
-        // ViewTexture
+        // CMSPBImage
+        // 
+        CMSPBImage.Items.AddRange(new ToolStripItem[] { TSMISetBackgroundColour });
+        CMSPBImage.Name = "CMSPBImage";
+        CMSPBImage.Size = new Size(197, 48);
+        // 
+        // TSMISetBackgroundColour
+        // 
+        TSMISetBackgroundColour.Image = Properties.Resources.BackgroundColor_16x;
+        TSMISetBackgroundColour.Name = "TSMISetBackgroundColour";
+        TSMISetBackgroundColour.Size = new Size(196, 22);
+        TSMISetBackgroundColour.Text = "Set Background Colour";
+        TSMISetBackgroundColour.Click += TSMISetBackgroundColour_Click;
+        // 
+        // ViewImageEditor
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(PBImage);
-        Name = "ViewTexture";
+        Name = "ViewImageEditor";
         ((System.ComponentModel.ISupportInitialize)PBImage).EndInit();
+        CMSPBImage.ResumeLayout(false);
         ResumeLayout(false);
     }
 
     #endregion
 
     private PictureBox PBImage;
+    private ContextMenuStrip CMSPBImage;
+    private ToolStripMenuItem TSMISetBackgroundColour;
 }

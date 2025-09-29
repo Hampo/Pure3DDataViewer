@@ -14,13 +14,15 @@
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<PublishSingleFile>true</PublishSingleFile>
 	<SelfContained>false</SelfContained>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Be.Windows.Forms.HexBox.Net5" Version="1.8.0" />
-		<PackageReference Include="Cyotek.Windows.Forms.ColorPicker" Version="1.7.2">
-			<NoWarn>NU1701</NoWarn>
-		</PackageReference>
+    <PackageReference Include="DirectXTexNet" Version="1.0.7" />
+	<PackageReference Include="Cyotek.Windows.Forms.ColorPicker" Version="1.7.2">
+		<NoWarn>NU1701</NoWarn>
+	</PackageReference>
   </ItemGroup>
 
   <ItemGroup>
