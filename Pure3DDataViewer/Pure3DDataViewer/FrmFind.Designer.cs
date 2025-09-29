@@ -63,6 +63,7 @@ partial class FrmFind
         BtnCancel.TabIndex = 6;
         BtnCancel.Text = "Cancel";
         BtnCancel.UseVisualStyleBackColor = true;
+        BtnCancel.Click += BtnCancel_Click;
         // 
         // TxtFind
         // 

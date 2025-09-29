@@ -58,4 +58,6 @@ public partial class FrmFind : Form
 
         Settings.FindWindowLocation = Location;
     }
+
+    private void BtnCancel_Click(object sender, EventArgs e) => Close();
 }
