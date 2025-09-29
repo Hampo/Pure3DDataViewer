@@ -9,6 +9,7 @@ public class ImportExportImagesPlugin : IPlugin
 
     private static readonly List<IFileHandler> FileHandlers;
     private static readonly List<IChunkHandler> ChunkHandlers;
+    private static readonly List<IChunkEditor> ChunkEditors;
 
     internal static Image ImportImage;
     internal static Image ExportImage;
@@ -31,6 +32,11 @@ public class ImportExportImagesPlugin : IPlugin
             //new Handlers.ImportImage(),
         ];
 
+        ChunkEditors = [
+            new Editors.ViewTexture(),
+            new Editors.ViewImage(),
+        ];
+
         var assembly = Assembly.GetExecutingAssembly();
 
         using (var stream = assembly.GetManifestResourceStream("ImportExportImages.ExportTheme_16x.png"))
@@ -43,4 +49,6 @@ public class ImportExportImagesPlugin : IPlugin
     public IEnumerable<IFileHandler>? GetFileHandlers() => FileHandlers;
 
     public IEnumerable<IChunkHandler>? GetChunkHandlers() => ChunkHandlers;
+
+    public IEnumerable<IChunkEditor>? GetChunkEditors() => ChunkEditors;
 }

@@ -27,4 +27,6 @@ public class LocationFromGamePlugin : IPlugin
     public IEnumerable<IFileHandler>? GetFileHandlers() => null;
 
     public IEnumerable<IChunkHandler>? GetChunkHandlers() => ChunkHandlers;
+
+    public IEnumerable<IChunkEditor>? GetChunkEditors() => null;
 }

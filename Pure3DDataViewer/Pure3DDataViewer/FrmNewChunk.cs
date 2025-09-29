@@ -2,8 +2,9 @@
 using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
-using Pure3DDataViewer.Controls;
-using Pure3DDataViewer.Editors;
+using Pure3DDataViewerPluginAPI.Controls;
+using Pure3DDataViewerPluginAPI.Editors;
+using Pure3DDataViewerPluginAPI.Extensions;
 using System.ComponentModel;
 using System.Reflection;
 

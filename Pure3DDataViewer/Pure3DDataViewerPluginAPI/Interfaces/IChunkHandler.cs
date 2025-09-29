@@ -27,5 +27,5 @@ public interface IChunkHandler<T> : IChunkHandler where T : Chunk
         return Handle((T)chunk);
     }
 
-    ChunkCallbackResult Handle(T chunk);
+    public ChunkCallbackResult Handle(T chunk);
 }

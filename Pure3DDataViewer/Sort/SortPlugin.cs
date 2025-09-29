@@ -27,4 +27,6 @@ public class SortPlugin : IPlugin
     public IEnumerable<IFileHandler>? GetFileHandlers() => FileHandlers;
 
     public IEnumerable<IChunkHandler>? GetChunkHandlers() => null;
+
+    public IEnumerable<IChunkEditor>? GetChunkEditors() => null;
 }

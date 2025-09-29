@@ -17,8 +17,54 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Be.Windows.Forms.HexBox.Net5" Version="1.8.0" />
+		<PackageReference Include="Cyotek.Windows.Forms.ColorPicker" Version="1.7.2">
+			<NoWarn>NU1701</NoWarn>
+		</PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\external\NetP3DLib\NetP3DLib\NetP3DLib\NetP3DLib.csproj" />
     <ProjectReference Include="..\..\external\SHARMemory\SHARMemory\SHARMemory\SHARMemory.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\ColorPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Controls\ExplorerThemedTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\NumericTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmBooleanEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmByteArrayEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmColourEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmEnumEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmEnumFlagsEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmKnownStringEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmNumericEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmStringEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmStructEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>

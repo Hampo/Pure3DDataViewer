@@ -28,38 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Be.Windows.Forms.HexBox.Net5" Version="1.8.0" />
-	  <PackageReference Include="Cyotek.Windows.Forms.ColorPicker" Version="1.7.2">
-		  <NoWarn>NU1701</NoWarn>
-	  </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Pure3DDataViewerPluginAPI\Pure3DDataViewerPluginAPI.csproj">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Editors\FrmColourEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Editors\FrmBooleanEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Editors\FrmEnumFlagsEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Editors\FrmNumericEditor.cs" />
-    <Compile Update="Editors\FrmEnumEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Editors\FrmByteArrayEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Editors\FrmKnownStringEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -1,4 +1,4 @@
-﻿using Pure3DDataViewer.Controls;
+﻿using Pure3DDataViewerPluginAPI.Controls;
 
 namespace Pure3DDataViewer;
 
@@ -46,7 +46,7 @@ partial class FrmMain
         TSMIPasteAfter2 = new ToolStripMenuItem();
         TSMIPasteInside2 = new ToolStripMenuItem();
         TSS6 = new ToolStripSeparator();
-        tabControl1 = new TabControl();
+        TCEditors = new TabControl();
         TPValues = new TabPage();
         LVValues = new ListView();
         CHName = new ColumnHeader();
@@ -86,7 +86,7 @@ partial class FrmMain
         SC1.Panel2.SuspendLayout();
         SC1.SuspendLayout();
         CMSTVChunks.SuspendLayout();
-        tabControl1.SuspendLayout();
+        TCEditors.SuspendLayout();
         TPValues.SuspendLayout();
         TPHex.SuspendLayout();
         MS1.SuspendLayout();
@@ -105,7 +105,7 @@ partial class FrmMain
         // 
         // SC1.Panel2
         // 
-        SC1.Panel2.Controls.Add(tabControl1);
+        SC1.Panel2.Controls.Add(TCEditors);
         SC1.Size = new Size(933, 495);
         SC1.SplitterDistance = 464;
         SC1.SplitterWidth = 5;
@@ -216,16 +216,17 @@ partial class FrmMain
         TSS6.Name = "TSS6";
         TSS6.Size = new Size(136, 6);
         // 
-        // tabControl1
+        // TCEditors
         // 
-        tabControl1.Controls.Add(TPValues);
-        tabControl1.Controls.Add(TPHex);
-        tabControl1.Dock = DockStyle.Fill;
-        tabControl1.Location = new Point(0, 0);
-        tabControl1.Name = "tabControl1";
-        tabControl1.SelectedIndex = 0;
-        tabControl1.Size = new Size(464, 495);
-        tabControl1.TabIndex = 1;
+        TCEditors.Controls.Add(TPValues);
+        TCEditors.Controls.Add(TPHex);
+        TCEditors.Dock = DockStyle.Fill;
+        TCEditors.Location = new Point(0, 0);
+        TCEditors.Name = "TCEditors";
+        TCEditors.SelectedIndex = 0;
+        TCEditors.Size = new Size(464, 495);
+        TCEditors.TabIndex = 1;
+        TCEditors.SelectedIndexChanged += TCEditors_SelectedIndexChanged;
         // 
         // TPValues
         // 
@@ -515,7 +516,7 @@ partial class FrmMain
         // 
         TSMIAbout.Image = Properties.Resources.InformationSymbol_16x;
         TSMIAbout.Name = "TSMIAbout";
-        TSMIAbout.Size = new Size(180, 22);
+        TSMIAbout.Size = new Size(107, 22);
         TSMIAbout.Text = "About";
         TSMIAbout.Click += TSMIAbout_Click;
         // 
@@ -540,7 +541,7 @@ partial class FrmMain
         ((System.ComponentModel.ISupportInitialize)SC1).EndInit();
         SC1.ResumeLayout(false);
         CMSTVChunks.ResumeLayout(false);
-        tabControl1.ResumeLayout(false);
+        TCEditors.ResumeLayout(false);
         TPValues.ResumeLayout(false);
         TPHex.ResumeLayout(false);
         MS1.ResumeLayout(false);
@@ -566,7 +567,7 @@ partial class FrmMain
     private ListView LVValues;
     private ColumnHeader CHName;
     private ColumnHeader CHValue;
-    private TabControl tabControl1;
+    private TabControl TCEditors;
     private TabPage TPValues;
     private TabPage TPHex;
     private Be.Windows.Forms.HexBox HBHex;

@@ -13,4 +13,10 @@ public interface IPlugin
     public IEnumerable<IChunkHandler>? GetChunkHandlers(Type chunkType) => GetChunkHandlers()?.Where(x => x.GetType() == chunkType);
 
     public IEnumerable<IChunkHandler>? GetChunkHandlers<T>() where T : Chunk => GetChunkHandlers(typeof(T));
+
+    public IEnumerable<IChunkEditor>? GetChunkEditors();
+
+    public IEnumerable<IChunkEditor>? GetChunkEditors(Type chunkType) => GetChunkEditors()?.Where(x => x.GetType() == chunkType);
+
+    public IEnumerable<IChunkEditor>? GetChunkEditors<T>() where T : Chunk => GetChunkEditors(typeof(T));
 }

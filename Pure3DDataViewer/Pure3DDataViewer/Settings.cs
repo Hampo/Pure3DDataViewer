@@ -3,32 +3,6 @@
 namespace Pure3DDataViewer;
 public static class Settings
 {
-    public static int[]? CustomColours
-    {
-        get
-        {
-            var values = RegistryUtils.GetStringArray("CustomColours");
-            if (values == null)
-                return null;
-
-            var registryColours = new List<int>(16);
-            foreach (var value in values)
-            {
-                if (!int.TryParse(value, out int colour))
-                    continue;
-                registryColours.Add(colour);
-                if (registryColours.Count >= 16)
-                    break;
-            }
-
-            return [.. registryColours];
-        }
-        set
-        {
-            RegistryUtils.SetStringArray("CustomColours", value?.Select(x => x.ToString()).ToArray());
-        }
-    }
-
     public static IReadOnlyList<string> RecentFiles
     {
         get => RegistryUtils.GetStringArray("RecentFiles", Array.Empty<string>())!.AsReadOnly();

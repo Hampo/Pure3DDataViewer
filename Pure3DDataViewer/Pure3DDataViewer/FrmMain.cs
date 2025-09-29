@@ -1,8 +1,10 @@
 ﻿using Be.Windows.Forms;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
-using Pure3DDataViewer.Controls;
-using Pure3DDataViewer.Editors;
+using Pure3DDataViewerPluginAPI.Controls;
+using Pure3DDataViewerPluginAPI.Editors;
+using Pure3DDataViewerPluginAPI.Events;
+using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
 using System.Reflection;
@@ -44,6 +46,8 @@ public partial class FrmMain : Form
             UpdateText();
         }
     }
+
+    private readonly Dictionary<Type, List<IChunkEditor>> _pluginChunkEditors = [];
 
     private void UpdateText()
     {
@@ -101,29 +105,29 @@ public partial class FrmMain : Form
             foreach (var plugin in PluginLoader.Plugins)
             {
                 var fileHandlers = plugin.GetFileHandlers();
-                if (fileHandlers != null)
+                if (fileHandlers == null)
+                    continue;
+
+                foreach (var fileHandler in fileHandlers)
                 {
-                    foreach (var fileHandler in fileHandlers)
+                    if (fileHandler == null)
+                        continue;
+
+                    var tsmi = new ToolStripMenuItem(fileHandler.Name)
                     {
-                        if (fileHandler == null)
-                            continue;
+                        Image = fileHandler.Image,
+                        Tag = fileHandler
+                    };
+                    tsmi.Click += TSMIPlugin_Click;
+                    TSMITools.DropDownItems.Add(tsmi);
 
-                        var tsmi = new ToolStripMenuItem(fileHandler.Name)
-                        {
-                            Image = fileHandler.Image,
-                            Tag = fileHandler
-                        };
-                        tsmi.Click += TSMIPlugin_Click;
-                        TSMITools.DropDownItems.Add(tsmi);
-
-                        tsmi = new ToolStripMenuItem(fileHandler.Name)
-                        {
-                            Image = fileHandler.Image,
-                            Tag = fileHandler
-                        };
-                        tsmi.Click += TSMIPlugin_Click;
-                        CMSTVChunks.Items.Add(tsmi);
-                    }
+                    tsmi = new ToolStripMenuItem(fileHandler.Name)
+                    {
+                        Image = fileHandler.Image,
+                        Tag = fileHandler
+                    };
+                    tsmi.Click += TSMIPlugin_Click;
+                    CMSTVChunks.Items.Add(tsmi);
                 }
             }
             TSMITools.DropDownItems.Add(new ToolStripSeparator());
@@ -131,29 +135,50 @@ public partial class FrmMain : Form
             foreach (var plugin in PluginLoader.Plugins)
             {
                 var chunkHandlers = plugin.GetChunkHandlers();
-                if (chunkHandlers != null)
+                if (chunkHandlers == null)
+                    continue;
+
+                foreach (var chunkHandler in chunkHandlers)
                 {
-                    foreach (var chunkHandler in chunkHandlers)
+                    if (chunkHandler == null)
+                        continue;
+
+                    var tsmi = new ToolStripMenuItem(chunkHandler.Name)
                     {
-                        if (chunkHandler == null)
-                            continue;
+                        Image = chunkHandler.Image,
+                        Tag = chunkHandler
+                    };
+                    tsmi.Click += TSMIPlugin_Click;
+                    TSMITools.DropDownItems.Add(tsmi);
 
-                        var tsmi = new ToolStripMenuItem(chunkHandler.Name)
-                        {
-                            Image = chunkHandler.Image,
-                            Tag = chunkHandler
-                        };
-                        tsmi.Click += TSMIPlugin_Click;
-                        TSMITools.DropDownItems.Add(tsmi);
+                    tsmi = new ToolStripMenuItem(chunkHandler.Name)
+                    {
+                        Image = chunkHandler.Image,
+                        Tag = chunkHandler
+                    };
+                    tsmi.Click += TSMIPlugin_Click;
+                    CMSTVChunks.Items.Add(tsmi);
+                }
+            }
 
-                        tsmi = new ToolStripMenuItem(chunkHandler.Name)
-                        {
-                            Image = chunkHandler.Image,
-                            Tag = chunkHandler
-                        };
-                        tsmi.Click += TSMIPlugin_Click;
-                        CMSTVChunks.Items.Add(tsmi);
+            foreach (var plugin in PluginLoader.Plugins)
+            {
+                var chunkEditors = plugin.GetChunkEditors();
+                if (chunkEditors == null)
+                    continue;
+
+                foreach (var chunkEditor in chunkEditors)
+                {
+                    var type = chunkEditor.ChunkType;
+
+                    chunkEditor.UpdatedChunk += IChunkEditor_UpdatedChunk;
+
+                    if (!_pluginChunkEditors.TryGetValue(type, out var editors))
+                    {
+                        _pluginChunkEditors[type] = [chunkEditor];
+                        continue;
                     }
+                    editors.Add(chunkEditor);
                 }
             }
         }
@@ -169,6 +194,28 @@ public partial class FrmMain : Form
         }
 
         PopulateData();
+    }
+
+    private void IChunkEditor_UpdatedChunk(object? sender, UpdatedChunkEventArgs e)
+    {
+        var node = TVChunks.SelectedNode;
+        if (node == null)
+            return;
+
+        var parent = node.Parent!;
+        var index = node.Index;
+        var chunk = e.Chunk;
+
+        parent.Nodes.RemoveAt(index);
+        TVChunks.SelectedNode = AddChunk(parent, chunk, index);
+
+        UnsavedChanges = true;
+
+        node.Text = $"{node.Index}. {chunk}";
+
+        UnsavedChanges = true;
+
+        TVChunks_AfterSelect(TVChunks, new(node));
     }
 
     private void TSMIPlugin_Click(object? sender, EventArgs e)
@@ -490,10 +537,24 @@ public partial class FrmMain : Form
     }
 
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "Children", "HeaderSize", "Size", "Bytes"];
+    private readonly Dictionary<Type, (int Index, string Name)> LastEditorTab = [];
+    private bool _afterSelectUpdating = false;
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
     {
+        _afterSelectUpdating = true;
         LVValues.BeginUpdate();
         LVValues.Items.Clear();
+
+        TCEditors.SuspendLayout();
+
+        for (int i = TCEditors.TabCount - 1; i >= 2; i--)
+        {
+            var tp = TCEditors.TabPages[i];
+            TCEditors.TabPages.RemoveAt(i);
+            tp.Dispose();
+        }
+
+        var tag = e.Node?.Tag;
 
         try
         {
@@ -517,7 +578,7 @@ public partial class FrmMain : Form
                 if (child.Tag is IChunkHandler || child.Tag is IFileHandler)
                     child.Visible = false;
 
-            if (e.Node?.Tag is P3DFile p3dFile)
+            if (tag is P3DFile p3dFile)
             {
                 var lvi = new ListViewItem("Size");
                 lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
@@ -531,7 +592,7 @@ public partial class FrmMain : Form
                 return;
             }
 
-            if (e.Node?.Tag is Chunk chunk)
+            if (tag is Chunk chunk)
             {
                 TSMICut1.Enabled = true;
                 TSMICopyThis1.Enabled = true;
@@ -551,6 +612,22 @@ public partial class FrmMain : Form
                 foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
                         child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunk.GetType();
+
+                if (_pluginChunkEditors.TryGetValue(chunk.GetType(), out var editors))
+                {
+                    foreach (var editor in editors)
+                    {
+                        var editorControl = editor.GetEditor(chunk);
+                        editorControl.Dock = DockStyle.Fill;
+
+                        var tp = new TabPage(editor.Name)
+                        {
+                            Tag = editor
+                        };
+                        tp.Controls.Add(editorControl);
+                        TCEditors.TabPages.Add(tp);
+                    }
+                }
 
                 var type = chunk.GetType();
                 var properties = type.GetProperties().OrderBy(x => x.DeclaringType == type);
@@ -602,7 +679,25 @@ public partial class FrmMain : Form
             if (LVValues.Items.Count > 0)
                 LVValues.Items[0].Selected = true;
             LVValues.EndUpdate();
+
+            if (tag != null && LastEditorTab.TryGetValue(tag.GetType(), out var lastEditor) && TCEditors.TabCount > lastEditor.Index && TCEditors.TabPages[lastEditor.Index].Text == lastEditor.Name)
+                TCEditors.SelectedIndex = lastEditor.Index;
+
+            TCEditors.ResumeLayout();
+            _afterSelectUpdating = false;
         }
+    }
+
+    private void TCEditors_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (_afterSelectUpdating)
+            return;
+
+        var tag = TVChunks.SelectedNode?.Tag;
+        if (tag == null)
+            return;
+
+        LastEditorTab[tag.GetType()] = (TCEditors.SelectedIndex, TCEditors.SelectedTab!.Text);
     }
 
     private void LVValues_Resize(object sender, EventArgs e)
