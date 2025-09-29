@@ -30,6 +30,9 @@ public class ImportExportImagesPlugin : IPlugin
 
             new Handlers.ExportImage(),
             //new Handlers.ImportImage(),
+
+            new Handlers.ExportSet(),
+            //new Handlers.ImportSet(),
         ];
 
         ChunkEditors = [

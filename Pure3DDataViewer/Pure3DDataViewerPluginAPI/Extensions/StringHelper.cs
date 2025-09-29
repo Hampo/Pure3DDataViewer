@@ -12,4 +12,16 @@ public static class StringHelper
 
         return name;
     }
+
+    private static readonly char[] InvalidDirectoryNameChars = [.. InvalidFileNameChars.Concat([':', '*', '?', '"', '<', '>', '|']).Distinct()];
+    public static string SanitizeDirectoryName(this string name, char replaceCharacter = '_')
+    {
+        if (string.IsNullOrEmpty(name))
+            return replaceCharacter.ToString();
+
+        foreach (var c in InvalidDirectoryNameChars)
+            name = name.Replace(c, replaceCharacter);
+
+        return name;
+    }
 }
