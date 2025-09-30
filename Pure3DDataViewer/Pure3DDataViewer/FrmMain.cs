@@ -830,11 +830,11 @@ public partial class FrmMain : Form
         }
         else if (propertyType == typeof(char))
         {
-            using var stringEditor = new FrmStringEditor(property.Name, oldValue?.ToString(), 1);
-            if (stringEditor.ShowDialog() != DialogResult.OK || stringEditor.Value.Length == 0)
+            using var charEditor = new FrmCharEditor(property.Name, (char?)oldValue);
+            if (charEditor.ShowDialog() != DialogResult.OK)
                 return false;
 
-            newValue = stringEditor.Value[0];
+            newValue = charEditor.Value;
         }
         else if (NumericTextBox.GetNumericType(propertyType) != null)
         {

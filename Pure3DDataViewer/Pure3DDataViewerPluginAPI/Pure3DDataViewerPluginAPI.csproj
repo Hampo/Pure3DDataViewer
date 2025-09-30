@@ -37,6 +37,9 @@
     <Compile Update="Controls\ExplorerThemedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Controls\CharTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Controls\NumericTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -59,6 +62,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Editors\FrmNumericEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Editors\FrmCharEditor.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Editors\FrmStringEditor.cs">

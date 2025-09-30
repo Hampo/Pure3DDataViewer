@@ -257,11 +257,11 @@ public partial class FrmNewChunk : Form
         }
         else if (parameterType == typeof(char))
         {
-            using var stringEditor = new FrmStringEditor(parameterName, oldValue?.ToString(), 1);
-            if (stringEditor.ShowDialog() != DialogResult.OK || stringEditor.Value.Length == 0)
+            using var charEditor = new FrmCharEditor(parameterName, (char?)oldValue);
+            if (charEditor.ShowDialog() != DialogResult.OK)
                 return;
 
-            newValue = stringEditor.Value[0];
+            newValue = charEditor.Value;
         }
         else if (NumericTextBox.GetNumericType(parameterType) != null)
         {

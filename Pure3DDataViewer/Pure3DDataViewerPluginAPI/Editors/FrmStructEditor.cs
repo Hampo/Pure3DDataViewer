@@ -126,6 +126,16 @@ public partial class FrmStructEditor : Form
             };
             TLP1.Controls.Add(cb);
         }
+        else if (valueType == typeof(char))
+        {
+            CharTextBox txt = new()
+            {
+                Value = (char?)value,
+                Width = 250,
+                Tag = subMember == null ? member : (member, subMember),
+            };
+            TLP1.Controls.Add(txt);
+        }
         else
         {
             var maxLengthAttribute = member.GetCustomAttribute<MaxLengthAttribute>();
@@ -155,7 +165,7 @@ public partial class FrmStructEditor : Form
                     Text = value?.ToString() ?? string.Empty,
                     Width = 250,
                     Tag = subMember == null ? member : (member, subMember),
-                    MaxLength = valueType == typeof(char) ? 1 : (maxLengthAttribute?.MaxLength ?? 255)
+                    MaxLength = maxLengthAttribute?.MaxLength ?? 255
                 };
                 TLP1.Controls.Add(txt);
             }
