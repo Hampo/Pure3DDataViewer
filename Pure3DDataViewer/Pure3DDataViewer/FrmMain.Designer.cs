@@ -110,6 +110,8 @@ partial class FrmMain
         SC1.SplitterDistance = 464;
         SC1.SplitterWidth = 5;
         SC1.TabIndex = 0;
+        SC1.SplitterMoving += SC1_SplitterMoving;
+        SC1.Resize += SC1_Resize;
         // 
         // TVChunks
         // 
@@ -254,6 +256,8 @@ partial class FrmMain
         LVValues.TabIndex = 0;
         LVValues.UseCompatibleStateImageBehavior = false;
         LVValues.View = View.Details;
+        LVValues.VirtualMode = true;
+        LVValues.RetrieveVirtualItem += LVValues_RetrieveVirtualItem;
         LVValues.MouseDoubleClick += LVValues_MouseDoubleClick;
         LVValues.Resize += LVValues_Resize;
         // 

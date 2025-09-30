@@ -7,6 +7,7 @@ using Pure3DDataViewerPluginAPI.Events;
 using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -529,12 +530,14 @@ public partial class FrmMain : Form
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "Children", "HeaderSize", "Size", "Bytes"];
     private readonly Dictionary<Type, TabPage> LastEditorTab = [];
     private bool _afterSelectUpdating = false;
+    private readonly List<ListViewItem> _listViewItems = [];
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
     {
         _afterSelectUpdating = true;
         var prevFocus = SC1.ActiveControl;
         LVValues.BeginUpdate();
-        LVValues.Items.Clear();
+        //LVValues.Items.Clear();
+        _listViewItems.Clear();
 
         TCEditors.SuspendLayout();
 
@@ -566,14 +569,14 @@ public partial class FrmMain : Form
             {
                 var lvi = new ListViewItem("Size");
                 lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
-                LVValues.Items.Add(lvi);
+                _listViewItems.Add(lvi);
                 HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Bytes);
 
                 foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
                     if (child.Tag is IFileHandler)
                         child.Visible = true;
 
-                for (int i = TCEditors.TabCount -1; i >= 2; i--)
+                for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                     TCEditors.TabPages.RemoveAt(i);
 
                 if (LastEditorTab.TryGetValue(typeof(P3DFile), out var lastEditor))
@@ -648,7 +651,7 @@ public partial class FrmMain : Form
                             var lvi = new ListViewItem($"{property.Name}[{i}]");
                             lvi.SubItems.Add(values[i]?.ToString() ?? "<NULL>");
                             lvi.Tag = (property, i);
-                            LVValues.Items.Add(lvi);
+                            _listViewItems.Add(lvi);
                         }
                     }
                     else
@@ -659,7 +662,7 @@ public partial class FrmMain : Form
                             lvi.Tag = property;
                         else
                             lvi.BackColor = Color.Silver;
-                        LVValues.Items.Add(lvi);
+                        _listViewItems.Add(lvi);
                     }
                 }
                 HBHex.ByteProvider = new DynamicByteProvider(chunk.DataBytes);
@@ -669,10 +672,17 @@ public partial class FrmMain : Form
         }
         finally
         {
+            var newSize = _listViewItems.Count;
+            LVValues.VirtualListSize = newSize;
+            if (newSize > 0)
+            {
+                LVValues.Items[0].Selected = true;
+                LVValues.TopItem = LVValues.Items[0];
+            }
+
             foreach (ColumnHeader column in LVValues.Columns)
                 column.Width = -2;
-            if (LVValues.Items.Count > 0)
-                LVValues.Items[0].Selected = true;
+
             LVValues.EndUpdate();
 
             TCEditors.ResumeLayout();
@@ -697,7 +707,7 @@ public partial class FrmMain : Form
     private void LVValues_Resize(object sender, EventArgs e)
     {
         LVValues.BeginUpdate();
-        var selectedIndices = LVValues.SelectedIndices;
+        var selectedIndices = LVValues.SelectedIndices.Cast<int>().ToArray();
         foreach (ColumnHeader column in LVValues.Columns)
             column.Width = -2;
         foreach (int index in selectedIndices)
@@ -720,7 +730,6 @@ public partial class FrmMain : Form
         if (lvi == null)
             return;
 
-        var lviIndex = lvi.Index;
         var Updated = false;
         switch (lvi.Tag)
         {
@@ -1436,16 +1445,46 @@ public partial class FrmMain : Form
 
         if (node.IsSelected)
         {
-            var lviIndex = LVValues.SelectedIndices.Count == 0 ? 0 : LVValues.SelectedIndices[0];
+            var selectedIndices = LVValues.SelectedIndices.Cast<int>().ToArray();
             TVChunks_AfterSelect(TVChunks, new(node));
-            if (LVValues.Items.Count > lviIndex)
+            foreach (int index in selectedIndices)
             {
-                LVValues.Items[lviIndex].Selected = true;
-                LVValues.EnsureVisible(lviIndex);
+                if (LVValues.Items.Count <= index)
+                    continue;
+                LVValues.Items[index].Selected = true;
+                LVValues.EnsureVisible(index);
             }
-
         }
 
         TVChunks.EndUpdate();
+    }
+
+    private void LVValues_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
+    {
+        if (e.ItemIndex >= _listViewItems.Count)
+        {
+            var lvi = new ListViewItem("");
+            lvi.SubItems.Add("");
+            e.Item = lvi;
+            //Debugger.Break();
+            return;
+        }
+
+        e.Item = _listViewItems[e.ItemIndex];
+    }
+
+
+    private int? _SC1SplitterDistance = null;
+    private void SC1_Resize(object sender, EventArgs e)
+    {
+        if (!_SC1SplitterDistance.HasValue)
+            _SC1SplitterDistance = SC1.SplitterDistance;
+        
+        SC1.SplitterDistance = _SC1SplitterDistance.Value;
+    }
+
+    private void SC1_SplitterMoving(object sender, SplitterCancelEventArgs e)
+    {
+        _SC1SplitterDistance = e.SplitX;
     }
 }

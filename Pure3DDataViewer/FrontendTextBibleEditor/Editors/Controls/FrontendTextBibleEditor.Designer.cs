@@ -100,6 +100,7 @@ partial class FrontendTextBibleEditor
         LVValues.UseCompatibleStateImageBehavior = false;
         LVValues.View = View.Details;
         LVValues.MouseDoubleClick += LVValues_MouseDoubleClick;
+        LVValues.Resize += LVValues_Resize;
         // 
         // CHLanguage
         // 

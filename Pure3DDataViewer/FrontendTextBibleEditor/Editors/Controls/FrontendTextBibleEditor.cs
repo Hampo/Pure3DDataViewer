@@ -127,7 +127,7 @@ public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBible
             return;
         if (CBEntry.SelectedItem is not Entry entry)
             return;
-        
+
         if (sender is not ListView lv)
             return;
 
@@ -145,6 +145,17 @@ public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBible
         lvi.SubItems[1].Text = stringEditor.Value;
         _values[entry.Hash][lvi.Text] = stringEditor.Value;
         BtnUpdate.Enabled = true;
+    }
+
+    private void LVValues_Resize(object sender, EventArgs e)
+    {
+        LVValues.BeginUpdate();
+        var selectedIndices = LVValues.SelectedIndices.Cast<int>().ToArray();
+        foreach (ColumnHeader column in LVValues.Columns)
+            column.Width = -2;
+        foreach (int index in selectedIndices)
+            LVValues.Items[index].Selected = true;
+        LVValues.EndUpdate();
     }
 
     private readonly struct Entry
