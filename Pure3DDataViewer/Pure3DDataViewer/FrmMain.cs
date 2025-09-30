@@ -1475,7 +1475,6 @@ public partial class FrmMain : Form
             var lvi = new ListViewItem("");
             lvi.SubItems.Add("");
             e.Item = lvi;
-            //Debugger.Break();
             return;
         }
 
