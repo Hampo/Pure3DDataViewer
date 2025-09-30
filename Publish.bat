@@ -20,6 +20,9 @@ copy Pure3DDataViewer\Deduplicate\bin\publish\Deduplicate.dll Publish\Plugins\De
 dotnet publish Pure3DDataViewer\LocationFromGame\LocationFromGame.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\LocationFromGame\bin\publish
 copy Pure3DDataViewer\LocationFromGame\bin\publish\LocationFromGame.dll Publish\Plugins\LocationFromGame.dll
 
+dotnet publish Pure3DDataViewer\FrontendTextBibleEditor\FrontendTextBibleEditor.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\FrontendTextBibleEditor\bin\publish
+copy Pure3DDataViewer\FrontendTextBibleEditor\bin\publish\FrontendTextBibleEditor.dll Publish\Plugins\FrontendTextBibleEditor.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE
