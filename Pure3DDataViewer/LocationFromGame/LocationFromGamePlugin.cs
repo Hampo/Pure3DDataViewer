@@ -14,7 +14,9 @@ public class LocationFromGamePlugin : IPlugin
     static LocationFromGamePlugin()
     {
         ChunkHandlers = [
-            new Handlers.LocatorFromGame(),
+            new Handlers.LocatorFromGameExcludeTriggerVolumes(),
+            new Handlers.LocatorFromGameIncludeTriggerVolumes(),
+
             new Handlers.TriggerVolumeFromGame(),
         ];
 

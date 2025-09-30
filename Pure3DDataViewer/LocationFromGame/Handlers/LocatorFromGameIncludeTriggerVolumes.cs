@@ -4,9 +4,9 @@ using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
 
 namespace LocationFromGame.Handlers;
-internal class LocatorFromGame : IChunkHandler<LocatorChunk>
+internal class LocatorFromGameIncludeTriggerVolumes : IChunkHandler<LocatorChunk>
 {
-    public string Name => "Set Location From Game";
+    public string Name => "Set Location From Game (Include Trigger Volumes)";
 
     public Image? Image => LocationFromGamePlugin.FromGameImage;
 
@@ -25,7 +25,15 @@ internal class LocatorFromGame : IChunkHandler<LocatorChunk>
         }
 
         chunk.Position = pos.Value;
-        return ChunkCallbackResult.ModifiedData;
+        foreach (var triggerVolume in chunk.GetChunksOfType<TriggerVolumeChunk>())
+        {
+            var matrix = triggerVolume.Matrix;
+            matrix.M41 = pos.Value.X;
+            matrix.M42 = pos.Value.Y;
+            matrix.M43 = pos.Value.Z;
+            triggerVolume.Matrix = matrix;
+        }    
+        return ChunkCallbackResult.ModifiedChildren;
     }
 
 }
