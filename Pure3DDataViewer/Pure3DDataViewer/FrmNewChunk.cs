@@ -255,6 +255,14 @@ public partial class FrmNewChunk : Form
                 newValue = stringEditor.Value;
             }
         }
+        else if (parameterType == typeof(char))
+        {
+            using var stringEditor = new FrmStringEditor(parameterName, oldValue?.ToString(), 1);
+            if (stringEditor.ShowDialog() != DialogResult.OK || stringEditor.Value.Length == 0)
+                return;
+
+            newValue = stringEditor.Value[0];
+        }
         else if (NumericTextBox.GetNumericType(parameterType) != null)
         {
             using var numericEditor = new FrmNumericEditor(parameterName, oldValue);

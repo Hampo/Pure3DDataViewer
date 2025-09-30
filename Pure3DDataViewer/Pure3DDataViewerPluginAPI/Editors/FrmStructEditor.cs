@@ -155,7 +155,7 @@ public partial class FrmStructEditor : Form
                     Text = value?.ToString() ?? string.Empty,
                     Width = 250,
                     Tag = subMember == null ? member : (member, subMember),
-                    MaxLength = maxLengthAttribute?.MaxLength ?? 255
+                    MaxLength = valueType == typeof(char) ? 1 : (maxLengthAttribute?.MaxLength ?? 255)
                 };
                 TLP1.Controls.Add(txt);
             }
