@@ -313,33 +313,6 @@ public partial class FrmMain : Form
         }
     }
 
-    private void FrmMain_KeyDown(object sender, KeyEventArgs e)
-    {
-        if ((e.Modifiers & Keys.Control) == 0)
-            return;
-        switch (e.KeyCode)
-        {
-            case Keys.N:
-                e.SuppressKeyPress = true;
-                e.Handled = true;
-                TSMINew.PerformClick();
-                break;
-            case Keys.O:
-                e.SuppressKeyPress = true;
-                e.Handled = true;
-                TSMIOpen.PerformClick();
-                break;
-            case Keys.S:
-                e.SuppressKeyPress = true;
-                e.Handled = true;
-                if ((e.Modifiers & Keys.Shift) == 0)
-                    TSMISave.PerformClick();
-                else
-                    TSMISaveAs.PerformClick();
-                break;
-        }
-    }
-
     private void TSMINew_Click(object sender, EventArgs e)
     {
         if (UnsavedChanges)
@@ -1316,8 +1289,8 @@ public partial class FrmMain : Form
 
         try
         {
-            var newChunk = frmNewChunk.Chunk;
-            if (newChunk == null)
+            var newChunks = frmNewChunk.Chunks;
+            if (newChunks == null || newChunks.Count == 0)
                 return;
 
             UnsavedChanges = true;
@@ -1335,9 +1308,13 @@ public partial class FrmMain : Form
                     return;
             }
 
-            parentChunks.Add(newChunk);
-            var chunkNode = AddChunk(node, newChunk);
-            chunkNode.EnsureVisible();
+            TreeNode? chunkNode = null;
+            foreach (var newChunk in newChunks)
+            {
+                parentChunks.Add(newChunk);
+                chunkNode = AddChunk(node, newChunk);
+                chunkNode.EnsureVisible();
+            }
             TVChunks.SelectedNode = chunkNode;
         }
         catch (Exception ex)

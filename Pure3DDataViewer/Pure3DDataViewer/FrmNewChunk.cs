@@ -12,10 +12,12 @@ namespace Pure3DDataViewer;
 public partial class FrmNewChunk : Form
 {
     private static readonly Dictionary<string, ConstructorInfo> ChunkTypes;
+    private static readonly Dictionary<Type, ConstructorInfo> TypeMap;
 
     static FrmNewChunk()
     {
         ChunkTypes = [];
+        TypeMap = [];
         foreach (var chunkType in ChunkLoader.ChunkTypes)
         {
             var type = chunkType.Value.Item1;
@@ -33,12 +35,13 @@ public partial class FrmNewChunk : Form
                     ? identifier.ToString().Replace("_", " ")
                     : $"Unknown 0x{chunkType.Key:X}";
             ChunkTypes[typeName] = constructor;
+            TypeMap[type] = constructor;
         }
     }
 
     private readonly Dictionary<string, int> MaxStringLengths;
 
-    public Chunk? Chunk
+    public IList<Chunk>? Chunks
     {
         get
         {
@@ -54,9 +57,13 @@ public partial class FrmNewChunk : Form
                 else
                     parameters.Add(item.SubItems[1].Tag!);
             }
-            var chunk = selectedConstructor.Invoke([.. parameters]);
 
-            return (Chunk)chunk;
+            var createX = (int)NUDCreateX.Value;
+            var chunks = new List<Chunk>(createX);
+            for (var i = 0; i < createX; i++)
+                chunks.Add((Chunk)selectedConstructor.Invoke([.. parameters]));
+
+            return chunks;
         }
     }
 
@@ -72,6 +79,9 @@ public partial class FrmNewChunk : Form
         CBChunkType.DisplayMember = "Key";
         CBChunkType.ValueMember = "Value";
         CBChunkType.DataSource = new BindingSource(ChunkTypes, null);
+        var type = Settings.LastNewChunkType;
+        if (type != null && TypeMap.TryGetValue(type, out var constructorInfo))
+            CBChunkType.SelectedValue = constructorInfo;
     }
 
     private void CBChunkType_SelectedValueChanged(object sender, EventArgs e)
@@ -123,7 +133,7 @@ public partial class FrmNewChunk : Form
         {
             GBLocatorType.Enabled = true;
             GBLocatorType.Visible = true;
-            
+
             GBValues.Location = new(GBValues.Location.X, GBLocatorType.Location.Y + GBLocatorType.Height + 6);
             GBValues.Size = new(GBValues.Width, BtnOK.Location.Y - GBValues.Location.Y - 6);
         }
@@ -136,8 +146,8 @@ public partial class FrmNewChunk : Form
             GBValues.Size = new(GBValues.Width, BtnOK.Location.Y - GBValues.Location.Y - 6);
         }
 
-            foreach (ColumnHeader column in LVValues.Columns)
-                column.Width = -2;
+        foreach (ColumnHeader column in LVValues.Columns)
+            column.Width = -2;
 
         if (LVValues.Items.Count > 0)
             LVValues.Items[0].Selected = true;
@@ -170,14 +180,14 @@ public partial class FrmNewChunk : Form
             MessageBox.Show("Arrays must be edited after creation.", "Unable to update value", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
-        
+
         if (parameterType == typeof(LocatorChunk.LocatorData))
         {
             MessageBox.Show("Locator Data must be edited after creation.", "Unable to update value", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-            object? newValue = null;
+        object? newValue = null;
         if (parameterType.HasFlagsAttribute())
         {
             using var enumFlagsEditor = new FrmEnumFlagsEditor(parameterType, parameterName, oldValue);
@@ -320,5 +330,13 @@ public partial class FrmNewChunk : Form
         }
 
         return (LocatorChunk.LocatorData)constructor.Invoke([.. constructor.GetParameters().Select(x => x.ParameterType.GetDefault())]);
+    }
+
+    private void BtnOK_Click(object sender, EventArgs e)
+    {
+        var selectedConstructor = (ConstructorInfo?)CBChunkType.SelectedValue;
+        if (selectedConstructor == null)
+            return;
+        Settings.LastNewChunkType = selectedConstructor.DeclaringType;
     }
 }

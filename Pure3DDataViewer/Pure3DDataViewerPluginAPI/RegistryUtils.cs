@@ -31,6 +31,33 @@ public static class RegistryUtils
             RegistryKey.SetValue(key, value, Microsoft.Win32.RegistryValueKind.MultiString);
     }
 
+    public static string? GetString(string key, string? defaultValue = null)
+    {
+        if (RegistryKey == null)
+            return defaultValue;
+
+        string[] names = RegistryKey.GetValueNames();
+
+        if (Array.IndexOf(names, key) < 0)
+            return defaultValue;
+
+        if (RegistryKey.GetValueKind(key) != Microsoft.Win32.RegistryValueKind.String)
+            return defaultValue;
+
+        return (string)RegistryKey.GetValue(key)!;
+    }
+
+    public static void SetString(string key, string? value)
+    {
+        if (RegistryKey == null)
+            return;
+
+        if (value == null)
+            RegistryKey.DeleteValue(key);
+        else
+            RegistryKey.SetValue(key, value, Microsoft.Win32.RegistryValueKind.String);
+    }
+
     public static int? GetInt32(string key, int? defaultValue = null)
     {
         if (RegistryKey == null)

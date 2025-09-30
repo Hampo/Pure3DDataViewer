@@ -5,7 +5,7 @@ public static class Settings
 {
     public static IReadOnlyList<string> RecentFiles
     {
-        get => RegistryUtils.GetStringArray("RecentFiles", Array.Empty<string>())!.AsReadOnly();
+        get => RegistryUtils.GetStringArray("RecentFiles", [])!.AsReadOnly();
         set => RegistryUtils.SetStringArray("RecentFiles", [.. value]);
     }
     public static void AddRecentFile(string filePath)
@@ -64,5 +64,18 @@ public static class Settings
     {
         get => RegistryUtils.GetBoolean("FindDirection", true)!.Value;
         set => RegistryUtils.SetBoolean("FindDirection", value);
+    }
+
+    public static Type? LastNewChunkType
+    {
+        get
+        {
+            var typeName = RegistryUtils.GetString("LastNewChunkType");
+            if (string.IsNullOrWhiteSpace(typeName))
+                return null;
+
+            return Type.GetType(typeName, false);
+        }
+        set => RegistryUtils.SetString("LastNewChunkType", value != null ? $"{value.FullName}, {value.Assembly.GetName().Name}" : null);
     }
 }

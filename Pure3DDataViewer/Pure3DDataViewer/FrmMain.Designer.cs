@@ -539,7 +539,6 @@ partial class FrmMain
         Text = "Pure3D Data Viewer";
         FormClosing += FrmMain_FormClosing;
         Load += FrmMain_Load;
-        KeyDown += FrmMain_KeyDown;
         SC1.Panel1.ResumeLayout(false);
         SC1.Panel2.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)SC1).EndInit();

@@ -39,9 +39,12 @@ partial class FrmNewChunk
         CHValue = new ColumnHeader();
         GBLocatorType = new GroupBox();
         CBLocatorType = new ComboBox();
+        LblCreateX = new Label();
+        NUDCreateX = new NumericUpDown();
         GBChunkType.SuspendLayout();
         GBValues.SuspendLayout();
         GBLocatorType.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)NUDCreateX).BeginInit();
         SuspendLayout();
         // 
         // BtnCancel
@@ -65,6 +68,7 @@ partial class FrmNewChunk
         BtnOK.TabIndex = 4;
         BtnOK.Text = "OK";
         BtnOK.UseVisualStyleBackColor = true;
+        BtnOK.Click += BtnOK_Click;
         // 
         // GBChunkType
         // 
@@ -145,6 +149,27 @@ partial class FrmNewChunk
         CBLocatorType.Size = new Size(578, 23);
         CBLocatorType.TabIndex = 0;
         // 
+        // LblCreateX
+        // 
+        LblCreateX.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        LblCreateX.AutoSize = true;
+        LblCreateX.Location = new Point(328, 303);
+        LblCreateX.Name = "LblCreateX";
+        LblCreateX.Size = new Size(54, 15);
+        LblCreateX.TabIndex = 8;
+        LblCreateX.Text = "Create X:";
+        // 
+        // NUDCreateX
+        // 
+        NUDCreateX.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        NUDCreateX.Location = new Point(388, 299);
+        NUDCreateX.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+        NUDCreateX.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+        NUDCreateX.Name = "NUDCreateX";
+        NUDCreateX.Size = new Size(46, 23);
+        NUDCreateX.TabIndex = 9;
+        NUDCreateX.Value = new decimal(new int[] { 1, 0, 0, 0 });
+        // 
         // FrmNewChunk
         // 
         AcceptButton = BtnOK;
@@ -152,6 +177,8 @@ partial class FrmNewChunk
         AutoScaleMode = AutoScaleMode.Font;
         CancelButton = BtnCancel;
         ClientSize = new Size(608, 334);
+        Controls.Add(NUDCreateX);
+        Controls.Add(LblCreateX);
         Controls.Add(GBValues);
         Controls.Add(GBChunkType);
         Controls.Add(BtnCancel);
@@ -165,7 +192,9 @@ partial class FrmNewChunk
         GBChunkType.ResumeLayout(false);
         GBValues.ResumeLayout(false);
         GBLocatorType.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)NUDCreateX).EndInit();
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion
@@ -180,4 +209,6 @@ partial class FrmNewChunk
     private ColumnHeader CHValue;
     private GroupBox GBLocatorType;
     private ComboBox CBLocatorType;
+    private Label LblCreateX;
+    private NumericUpDown NUDCreateX;
 }
