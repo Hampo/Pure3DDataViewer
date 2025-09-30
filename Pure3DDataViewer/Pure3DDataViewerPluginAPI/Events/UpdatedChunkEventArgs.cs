@@ -7,3 +7,13 @@ public class UpdatedChunkEventArgs : EventArgs
 
     public UpdatedChunkEventArgs(Chunk chunk) => Chunk = chunk;
 }
+
+public class UpdatedChunkEventArgs<T> : UpdatedChunkEventArgs where T : Chunk
+{
+    public new T Chunk { get; }
+
+    public UpdatedChunkEventArgs(T chunk) : base(chunk)
+    {
+        Chunk = chunk;
+    }
+}

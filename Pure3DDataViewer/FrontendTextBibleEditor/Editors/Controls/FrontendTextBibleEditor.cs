@@ -1,27 +1,36 @@
-﻿using NetP3DLib.P3D.Chunks;
+﻿using NetP3DLib.P3D;
+using NetP3DLib.P3D.Chunks;
+using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 
 namespace FrontendTextBibleEditor.Editors.Controls;
-public partial class FrontendTextBibleEditor : UserControl
+public partial class FrontendTextBibleEditor : EditorControl<FrontendTextBibleChunk>
 {
-    public event EventHandler? Updated;
+    private FrontendTextBibleChunk? _frontendTextBibleChunk;
 
-    private readonly FrontendTextBibleChunk _frontendTextBibleChunk;
+    private IReadOnlyList<FrontendLanguageChunk>? _languageChunks;
 
-    private readonly IReadOnlyList<FrontendLanguageChunk> _languageChunks;
+    private Dictionary<uint, Dictionary<uint, string>>? _knownNameMap;
 
-    private readonly Dictionary<uint, Dictionary<uint, string>> _knownNameMap = [];
+    private HashSet<Entry>? _entries;
+    private Dictionary<uint, Dictionary<string, string>>? _values;
 
-    private readonly HashSet<Entry> _entries = [];
-    private readonly Dictionary<uint, Dictionary<string, string>> _values = [];
-
-    public FrontendTextBibleEditor(FrontendTextBibleChunk chunk)
+    public FrontendTextBibleEditor()
     {
         InitializeComponent();
+    }
 
+    public override void LoadChunk(FrontendTextBibleChunk chunk)
+    {
         _frontendTextBibleChunk = chunk;
+        _languageChunks = chunk.GetChunksOfType<FrontendLanguageChunk>();
+        _knownNameMap = [];
+        _entries = [];
+        _values = [];
+        BtnUpdate.Enabled = false;
 
-        _languageChunks = _frontendTextBibleChunk.GetChunksOfType<FrontendLanguageChunk>();
+        LVValues.BeginUpdate();
+        LVValues.Items.Clear();
 
         foreach (var languageChunk in _languageChunks)
         {
@@ -50,6 +59,8 @@ public partial class FrontendTextBibleEditor : UserControl
             LVValues.Items.Add(languageChunk.Name).SubItems.Add(string.Empty);
         }
 
+        LVValues.EndUpdate();
+
         CBEntry.DataSource = _entries.ToList();
         CBEntry.DisplayMember = nameof(Entry.DisplayName);
         CBEntry.ValueMember = nameof(Entry.Hash);
@@ -57,6 +68,13 @@ public partial class FrontendTextBibleEditor : UserControl
 
     private void BtnUpdate_Click(object sender, EventArgs e)
     {
+        if (_frontendTextBibleChunk == null)
+            return;
+        if (_languageChunks == null)
+            return;
+        if (_values == null)
+            return;
+
         foreach (var languageChunk in _languageChunks)
         {
             foreach (var value in _values)
@@ -67,11 +85,14 @@ public partial class FrontendTextBibleEditor : UserControl
             }
         }
 
-        Updated?.Invoke(this, EventArgs.Empty);
+        OnUpdatedChunk(_frontendTextBibleChunk);
+        BtnUpdate.Enabled = false;
     }
 
     private void CBEntry_SelectedIndexChanged(object sender, EventArgs e)
     {
+        if (_values == null)
+            return;
         LVValues.BeginUpdate();
         try
         {
@@ -100,6 +121,8 @@ public partial class FrontendTextBibleEditor : UserControl
 
     private void LVValues_MouseDoubleClick(object sender, MouseEventArgs e)
     {
+        if (_values == null)
+            return;
         if (CBEntry.SelectedItem is not Entry entry)
             return;
         
@@ -119,6 +142,7 @@ public partial class FrontendTextBibleEditor : UserControl
 
         lvi.SubItems[1].Text = stringEditor.Value;
         _values[entry.Hash][lvi.Text] = stringEditor.Value;
+        BtnUpdate.Enabled = true;
     }
 
     private readonly struct Entry

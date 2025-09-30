@@ -25,7 +25,7 @@ internal class LocatorFromGame : IChunkHandler<LocatorChunk>
         }
 
         chunk.Position = pos.Value;
-        return ChunkCallbackResult.Modified;
+        return ChunkCallbackResult.ModifiedData;
     }
 
 }

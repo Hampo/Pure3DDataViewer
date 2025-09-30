@@ -47,7 +47,7 @@ public partial class FrmMain : Form
         }
     }
 
-    private readonly Dictionary<Type, List<IChunkEditor>> _pluginChunkEditors = [];
+    private readonly Dictionary<Type, List<TabPage>> _pluginChunkEditors = [];
 
     private void UpdateText()
     {
@@ -171,14 +171,22 @@ public partial class FrmMain : Form
                 {
                     var type = chunkEditor.ChunkType;
 
-                    chunkEditor.UpdatedChunk += IChunkEditor_UpdatedChunk;
+                    var editor = chunkEditor.Editor;
+                    editor.UpdatedChunk += IChunkEditor_UpdatedChunk;
+                    editor.Dock = DockStyle.Fill;
+
+                    var tp = new TabPage(chunkEditor.Name)
+                    {
+                        Tag = type,
+                    };
+                    tp.Controls.Add(editor);
 
                     if (!_pluginChunkEditors.TryGetValue(type, out var editors))
                     {
-                        _pluginChunkEditors[type] = [chunkEditor];
+                        _pluginChunkEditors[type] = [tp];
                         continue;
                     }
-                    editors.Add(chunkEditor);
+                    editors.Add(tp);
                 }
             }
         }
@@ -202,20 +210,7 @@ public partial class FrmMain : Form
         if (node == null)
             return;
 
-        var parent = node.Parent!;
-        var index = node.Index;
-        var chunk = e.Chunk;
-
-        parent.Nodes.RemoveAt(index);
-        TVChunks.SelectedNode = AddChunk(parent, chunk, index);
-
-        UnsavedChanges = true;
-
-        node.Text = $"{node.Index}. {chunk}";
-
-        UnsavedChanges = true;
-
-        TVChunks_AfterSelect(TVChunks, new(node));
+        UpdateChunk(node, e.Chunk);
     }
 
     private void TSMIPlugin_Click(object? sender, EventArgs e)
@@ -261,14 +256,9 @@ public partial class FrmMain : Form
                 {
                     switch (chunkHandler.Handle(chunk))
                     {
-                        case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Modified:
-                            var parent = node.Parent!;
-                            var index = node.Index;
-
-                            parent.Nodes.RemoveAt(index);
-                            TVChunks.SelectedNode = AddChunk(parent, chunk, index);
-
-                            UnsavedChanges = true;
+                        case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedData:
+                        case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedChildren:
+                            UpdateChunk(node, chunk);
                             break;
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Deleted:
                             var parentNode = node.Parent;
@@ -537,22 +527,16 @@ public partial class FrmMain : Form
     }
 
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "Children", "HeaderSize", "Size", "Bytes"];
-    private readonly Dictionary<Type, (int Index, string Name)> LastEditorTab = [];
+    private readonly Dictionary<Type, TabPage> LastEditorTab = [];
     private bool _afterSelectUpdating = false;
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
     {
         _afterSelectUpdating = true;
+        var prevFocus = SC1.ActiveControl;
         LVValues.BeginUpdate();
         LVValues.Items.Clear();
 
         TCEditors.SuspendLayout();
-
-        for (int i = TCEditors.TabCount - 1; i >= 2; i--)
-        {
-            var tp = TCEditors.TabPages[i];
-            TCEditors.TabPages.RemoveAt(i);
-            tp.Dispose();
-        }
 
         var tag = e.Node?.Tag;
 
@@ -589,11 +573,19 @@ public partial class FrmMain : Form
                     if (child.Tag is IFileHandler)
                         child.Visible = true;
 
+                for (int i = TCEditors.TabCount -1; i >= 2; i--)
+                    TCEditors.TabPages.RemoveAt(i);
+
+                if (LastEditorTab.TryGetValue(typeof(P3DFile), out var lastEditor))
+                    TCEditors.SelectedTab = lastEditor;
+
                 return;
             }
 
             if (tag is Chunk chunk)
             {
+                var chunkType = chunk.GetType();
+
                 TSMICut1.Enabled = true;
                 TSMICopyThis1.Enabled = true;
                 TSMICopyType1.Enabled = true;
@@ -608,29 +600,32 @@ public partial class FrmMain : Form
 
                 foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
-                        child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunk.GetType();
+                        child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunkType;
                 foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
-                        child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunk.GetType();
+                        child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunkType;
 
+                for (int i = TCEditors.TabCount - 1; i >= 2; i--)
+                {
+                    var tp = TCEditors.TabPages[i];
+                    if (tp.Tag is Type tagType && tagType == chunkType)
+                        continue;
+                    TCEditors.TabPages.RemoveAt(i);
+                }
                 if (_pluginChunkEditors.TryGetValue(chunk.GetType(), out var editors))
                 {
-                    foreach (var editor in editors)
+                    foreach (var editorTP in editors)
                     {
-                        var editorControl = editor.GetEditor(chunk);
-                        editorControl.Dock = DockStyle.Fill;
-
-                        var tp = new TabPage(editor.Name)
-                        {
-                            Tag = editor
-                        };
-                        tp.Controls.Add(editorControl);
-                        TCEditors.TabPages.Add(tp);
+                        if (!TCEditors.TabPages.Contains(editorTP))
+                            TCEditors.TabPages.Add(editorTP);
+                        var editorControl = (EditorControl)editorTP.Controls[0];
+                        editorControl.LoadChunk(chunk);
                     }
                 }
+                if (LastEditorTab.TryGetValue(chunkType, out var lastEditor))
+                    TCEditors.SelectedTab = lastEditor;
 
-                var type = chunk.GetType();
-                var properties = type.GetProperties().OrderBy(x => x.DeclaringType == type);
+                var properties = chunkType.GetProperties().OrderBy(x => x.DeclaringType == chunkType);
 
                 foreach (var property in properties)
                 {
@@ -680,11 +675,10 @@ public partial class FrmMain : Form
                 LVValues.Items[0].Selected = true;
             LVValues.EndUpdate();
 
-            if (tag != null && LastEditorTab.TryGetValue(tag.GetType(), out var lastEditor) && TCEditors.TabCount > lastEditor.Index && TCEditors.TabPages[lastEditor.Index].Text == lastEditor.Name)
-                TCEditors.SelectedIndex = lastEditor.Index;
-
             TCEditors.ResumeLayout();
             _afterSelectUpdating = false;
+            if (prevFocus != null && prevFocus.CanFocus)
+                prevFocus.Focus();
         }
     }
 
@@ -697,7 +691,7 @@ public partial class FrmMain : Form
         if (tag == null)
             return;
 
-        LastEditorTab[tag.GetType()] = (TCEditors.SelectedIndex, TCEditors.SelectedTab!.Text);
+        LastEditorTab[tag.GetType()] = TCEditors.SelectedTab!;
     }
 
     private void LVValues_Resize(object sender, EventArgs e)
@@ -739,18 +733,7 @@ public partial class FrmMain : Form
         }
 
         if (Updated)
-        {
-            TVChunks.SelectedNode.Text = $"{TVChunks.SelectedNode.Index}. {chunk}";
-
-            UnsavedChanges = true;
-
-            TVChunks_AfterSelect(sender, new(TVChunks.SelectedNode));
-            if (lv.Items.Count > lviIndex)
-            {
-                lv.Items[lviIndex].Selected = true;
-                lv.EnsureVisible(lviIndex);
-            }
-        }
+            UpdateChunk(TVChunks.SelectedNode, chunk);
     }
 
     public static bool EditProperty(PropertyInfo property, object obj, int? index = null)
@@ -1423,5 +1406,46 @@ public partial class FrmMain : Form
     {
         using var frmAbout = new FrmAbout();
         frmAbout.ShowDialog();
+    }
+
+    private void UpdateChunk(TreeNode node, Chunk chunk)
+    {
+        UnsavedChanges = true;
+        TVChunks.BeginUpdate();
+
+        node.Tag = chunk;
+        node.Text = $"{node.Index}. {chunk}";
+
+        var childCount = chunk.Children.Count;
+        var nodeCount = node.Nodes.Count;
+
+        if (nodeCount > childCount)
+            for (int i = childCount; i < nodeCount; i++)
+                node.Nodes.RemoveAt(i);
+        else if (childCount > nodeCount)
+            for (int i = nodeCount; i < childCount; i++)
+                AddChunk(node, chunk.Children[i]);
+
+        for (int i = 0; i < childCount; i++)
+        {
+            var childNode = node.Nodes[i];
+            var childChunk = chunk.Children[i];
+
+            UpdateChunk(childNode, childChunk);
+        }
+
+        if (node.IsSelected)
+        {
+            var lviIndex = LVValues.SelectedIndices.Count == 0 ? 0 : LVValues.SelectedIndices[0];
+            TVChunks_AfterSelect(TVChunks, new(node));
+            if (LVValues.Items.Count > lviIndex)
+            {
+                LVValues.Items[lviIndex].Selected = true;
+                LVValues.EnsureVisible(lviIndex);
+            }
+
+        }
+
+        TVChunks.EndUpdate();
     }
 }

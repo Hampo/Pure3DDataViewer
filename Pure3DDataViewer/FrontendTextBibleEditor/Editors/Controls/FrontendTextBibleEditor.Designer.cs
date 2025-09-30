@@ -64,6 +64,7 @@ partial class FrontendTextBibleEditor
         // BtnUpdate
         // 
         BtnUpdate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        BtnUpdate.Enabled = false;
         BtnUpdate.Location = new Point(285, 330);
         BtnUpdate.Name = "BtnUpdate";
         BtnUpdate.Size = new Size(75, 23);

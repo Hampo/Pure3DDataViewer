@@ -30,7 +30,7 @@ internal class TriggerVolumeFromGame : IChunkHandler<TriggerVolumeChunk>
         matrix.M43 = pos.Value.Z;
         chunk.Matrix = matrix;
 
-        return ChunkCallbackResult.Modified;
+        return ChunkCallbackResult.ModifiedData;
     }
 
 }

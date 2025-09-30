@@ -2,6 +2,7 @@
 public enum ChunkCallbackResult
 {
     Unchanged,
-    Modified,
+    ModifiedData,
+    ModifiedChildren,
     Deleted,
 }

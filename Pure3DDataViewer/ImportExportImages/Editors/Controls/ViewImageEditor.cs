@@ -1,9 +1,10 @@
 ﻿using Pure3DDataViewerPluginAPI.Extensions;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI;
+using Pure3DDataViewerPluginAPI.Controls;
 
 namespace ImportExportImages.Editors.Controls;
-public partial class ViewImageEditor : UserControl
+public partial class ViewImageEditor : EditorControl<ImageChunk>
 {
     public static Color BackgroundColor
     {
@@ -11,13 +12,13 @@ public partial class ViewImageEditor : UserControl
         set => RegistryUtils.SetInt32("ViewImageBackgroundColour", value.ToArgb());
     }
 
-    public ViewImageEditor(ImageChunk imageChunk)
+    public ViewImageEditor()
     {
         InitializeComponent();
-
-        PBImage.Image = imageChunk?.GetImage();
         PBImage.BackColor = BackgroundColor;
     }
+
+    public override void LoadChunk(ImageChunk imageChunk) => PBImage.Image = imageChunk?.GetImage() ?? PBImage.ErrorImage;
 
     private void TSMISetBackgroundColour_Click(object sender, EventArgs e)
     {

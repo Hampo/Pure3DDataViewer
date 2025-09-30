@@ -61,7 +61,7 @@ public class ImportTexture : IChunkHandler<TextureChunk>
             var imageDataChunk = new ImageDataChunk(pngBytes);
             imageChunk.Children.Add(imageDataChunk);
 
-            return ChunkCallbackResult.Modified;
+            return ChunkCallbackResult.ModifiedChildren;
         }
         catch (Exception ex)
         {

@@ -31,6 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Editors\Controls\ViewTextureEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Editors\Controls\ViewImageEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>

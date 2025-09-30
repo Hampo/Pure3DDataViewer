@@ -58,7 +58,7 @@ public class ImportImage : IChunkHandler<ImageChunk>
             var imageDataChunk = new ImageDataChunk(pngBytes);
             imageChunk.Children.Add(imageDataChunk);
 
-            return ChunkCallbackResult.Modified;
+            return ChunkCallbackResult.ModifiedChildren;
         }
         catch (Exception ex)
         {
