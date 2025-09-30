@@ -1,0 +1,65 @@
+name: Continuous Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.414' # adjust to your SDK
+
+      - name: Prepare publish folders
+        run: |
+          Remove-Item -Recurse -Force Publish, Pure3DDataViewer.zip -ErrorAction Ignore
+          New-Item -ItemType Directory -Force Publish\Plugins | Out-Null
+
+      - name: Publish main app
+        run: |
+          dotnet publish Pure3DDataViewer/Pure3DDataViewer/Pure3DDataViewer.csproj -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false -o Pure3DDataViewer/Pure3DDataViewer/bin/publish
+          Copy-Item Pure3DDataViewer/Pure3DDataViewer/bin/publish/Pure3DDataViewer.exe Publish/
+          Copy-Item Pure3DDataViewer/Pure3DDataViewer/bin/publish/Pure3DDataViewerPluginAPI.dll Publish/
+
+      - name: Publish plugins
+        run: |
+          dotnet publish Pure3DDataViewer/ImportExportImages/ImportExportImages.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/ImportExportImages/bin/publish
+          Copy-Item Pure3DDataViewer/ImportExportImages/bin/publish/ImportExportImages.dll Publish/Plugins/
+
+          dotnet publish Pure3DDataViewer/Sort/Sort.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/Sort/bin/publish
+          Copy-Item Pure3DDataViewer/Sort/bin/publish/Sort.dll Publish/Plugins/
+
+          dotnet publish Pure3DDataViewer/Deduplicate/Deduplicate.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/Deduplicate/bin/publish
+          Copy-Item Pure3DDataViewer/Deduplicate/bin/publish/Deduplicate.dll Publish/Plugins/
+
+          dotnet publish Pure3DDataViewer/LocationFromGame/LocationFromGame.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/LocationFromGame/bin/publish
+          Copy-Item Pure3DDataViewer/LocationFromGame/bin/publish/LocationFromGame.dll Publish/Plugins/
+
+          dotnet publish Pure3DDataViewer/FrontendTextBibleEditor/FrontendTextBibleEditor.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/FrontendTextBibleEditor/bin/publish
+          Copy-Item Pure3DDataViewer/FrontendTextBibleEditor/bin/publish/FrontendTextBibleEditor.dll Publish/Plugins/
+
+      - name: Create zip
+        run: Compress-Archive -Path Publish\* -DestinationPath Pure3DDataViewer.zip -Force
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: continuous-build
+          name: Continuous Build
+          body: |
+            Latest automatic build from branch **main**.
+            Commit: ${{ github.sha }}
+          draft: false
+          prerelease: true
+          files: Pure3DDataViewer.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
