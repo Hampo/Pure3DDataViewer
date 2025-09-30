@@ -1,6 +1,7 @@
 ﻿using Be.Windows.Forms;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
+using NetP3DLib.P3D.Enums;
 using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 using Pure3DDataViewerPluginAPI.Events;
@@ -522,12 +523,18 @@ public partial class FrmMain : Form
             TSMICopyType1.Enabled = false;
             TSMIPasteBefore1.Enabled = false;
             TSMIPasteAfter1.Enabled = false;
+            TSMIDelete1.Enabled = false;
+            TSMIDeleteThis1.Enabled = false;
+            TSMIDeleteType1.Enabled = false;
 
             TSMICut2.Enabled = false;
             TSMICopyThis2.Enabled = false;
             TSMICopyType2.Enabled = false;
             TSMIPasteBefore2.Enabled = false;
             TSMIPasteAfter2.Enabled = false;
+            TSMIDelete2.Enabled = false;
+            TSMIDeleteThis2.Enabled = false;
+            TSMIDeleteType2.Enabled = false;
 
             foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                 if (child.Tag is IChunkHandler)
@@ -566,12 +573,18 @@ public partial class FrmMain : Form
                 TSMICopyType1.Enabled = true;
                 TSMIPasteBefore1.Enabled = true;
                 TSMIPasteAfter1.Enabled = true;
+                TSMIDelete1.Enabled = true;
+                TSMIDeleteThis1.Enabled = true;
+                TSMIDeleteType1.Enabled = true;
 
                 TSMICut2.Enabled = true;
                 TSMICopyThis2.Enabled = true;
                 TSMICopyType2.Enabled = true;
                 TSMIPasteBefore2.Enabled = true;
                 TSMIPasteAfter2.Enabled = true;
+                TSMIDelete2.Enabled = true;
+                TSMIDeleteThis2.Enabled = true;
+                TSMIDeleteType2.Enabled = true;
 
                 foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
@@ -889,49 +902,6 @@ public partial class FrmMain : Form
         }
 
         LoadP3DFile(files[0]);
-    }
-
-    private void TVChunks_KeyDown(object sender, KeyEventArgs e)
-    {
-        var node = TVChunks.SelectedNode;
-        if (node == null)
-            return;
-
-        switch (e.KeyCode)
-        {
-            case Keys.Delete:
-                if (node.Tag is not Chunk chunk)
-                    return;
-
-                if (!e.Shift && MessageBox.Show("Are you sure you want to delete the selected chunk?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
-                    return;
-
-                var parentNode = node.Parent;
-
-                if (parentNode.Tag is Chunk parentChunk)
-                    parentChunk.Children.RemoveAt(node.Index);
-                else if (parentNode.Tag is P3DFile p3dFile)
-                    p3dFile.Chunks.RemoveAt(node.Index);
-                UnsavedChanges = true;
-
-                TVChunks.BeginUpdate();
-                if (node.NextNode != null)
-                    TVChunks.SelectedNode = node.NextNode;
-                else if (node.PrevNode != null)
-                    TVChunks.SelectedNode = node.PrevNode;
-                else
-                    TVChunks.SelectedNode = parentNode;
-                parentNode.Nodes.Remove(node);
-                for (int i = 0; i < parentNode.Nodes.Count; i++)
-                {
-                    var childNode = parentNode.Nodes[i];
-                    if (childNode.Tag is Chunk nodeChunk)
-                        childNode.Text = $"{childNode.Index}. {nodeChunk}";
-                }
-                TVChunks.EndUpdate();
-
-                break;
-        }
     }
 
     private FrmFind? _frmFind = null;
@@ -1405,7 +1375,7 @@ public partial class FrmMain : Form
         var nodeCount = node.Nodes.Count;
 
         if (nodeCount > childCount)
-            for (int i = childCount; i < nodeCount; i++)
+            for (int i = nodeCount - 1; i >= childCount; i--)
                 node.Nodes.RemoveAt(i);
         else if (childCount > nodeCount)
             for (int i = nodeCount; i < childCount; i++)
@@ -1415,6 +1385,7 @@ public partial class FrmMain : Form
         {
             var childNode = node.Nodes[i];
             var childChunk = chunk.Children[i];
+            childNode.Tag = childChunk;
 
             UpdateChunk(childNode, childChunk);
         }
@@ -1430,7 +1401,7 @@ public partial class FrmMain : Form
                         if (value is byte[] byteArray)
                             lvi.SubItems[1].Text = $"{byteArray.Length:N0} bytes";
                         else
-                            lvi.SubItems[1].Text =value?.ToString() ?? "<NULL>";
+                            lvi.SubItems[1].Text = value?.ToString() ?? "<NULL>";
                         break;
                     case (PropertyInfo listProperty, int index):
                         var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
@@ -1464,7 +1435,7 @@ public partial class FrmMain : Form
     {
         if (!_SC1SplitterDistance.HasValue)
             _SC1SplitterDistance = SC1.SplitterDistance;
-        
+
         SC1.SplitterDistance = _SC1SplitterDistance.Value;
     }
 
@@ -1472,4 +1443,101 @@ public partial class FrmMain : Form
     {
         _SC1SplitterDistance = e.SplitX;
     }
+
+    private void TSMIDeleteThis_Click(object sender, EventArgs e)
+    {
+        var node = TVChunks.SelectedNode;
+        if (node == null)
+            return;
+
+        if (node.Tag is not Chunk)
+            return;
+
+        bool isShiftDown = (ModifierKeys & Keys.Shift) == Keys.Shift;
+        if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete the selected chunk:\n{node.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        var parentNode = node.Parent;
+
+        if (parentNode.Tag is Chunk parentChunk)
+            parentChunk.Children.RemoveAt(node.Index);
+        else if (parentNode.Tag is P3DFile p3dFile)
+            p3dFile.Chunks.RemoveAt(node.Index);
+        UnsavedChanges = true;
+
+        TVChunks.BeginUpdate();
+        if (node.NextNode != null)
+            TVChunks.SelectedNode = node.NextNode;
+        else if (node.PrevNode != null)
+            TVChunks.SelectedNode = node.PrevNode;
+        else
+            TVChunks.SelectedNode = parentNode;
+        parentNode.Nodes.Remove(node);
+        for (int i = 0; i < parentNode.Nodes.Count; i++)
+        {
+            var childNode = parentNode.Nodes[i];
+            if (childNode.Tag is Chunk nodeChunk)
+                childNode.Text = $"{childNode.Index}. {nodeChunk}";
+        }
+        TVChunks.EndUpdate();
+    }
+
+    private void TSMIDeleteType_Click(object sender, EventArgs e)
+    {
+        var node = TVChunks.SelectedNode;
+        if (node == null)
+            return;
+
+        if (node.Tag is not Chunk chunk)
+            return;
+
+        var chunkType = chunk.GetType();
+
+        var chunkTypeName = chunkType.Name;
+        if (Enum.IsDefined(typeof(ChunkIdentifier), (ChunkIdentifier)chunk.ID))
+            chunkTypeName = ((ChunkIdentifier)chunk.ID).ToString().Replace("_", " ");
+        else if (chunkTypeName.EndsWith("Chunk"))
+            chunkTypeName = chunkTypeName[..^5];
+
+        var parentNode = node.Parent;
+
+        bool isShiftDown = (ModifierKeys & Keys.Shift) == Keys.Shift;
+        if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete all chunks of type \"{chunkTypeName}\" in:\n{parentNode.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        if (parentNode.Tag is Chunk parentChunk)
+        {
+            TVChunks.SelectedNode = parentNode;
+            for (var i = parentChunk.Children.Count - 1; i >= 0; i--)
+                if (parentChunk.Children[i].GetType() == chunkType)
+                    parentChunk.Children.RemoveAt(i);
+            UpdateChunk(parentNode, parentChunk);
+        }
+        else if (parentNode.Tag is P3DFile p3dFile)
+        {
+            for (var i = p3dFile.Chunks.Count - 1; i >= 0; i--)
+                if (p3dFile.Chunks[i].GetType() == chunkType)
+                    p3dFile.Chunks.RemoveAt(i);
+            PopulateData();
+        }
+    }
+
+    private void TSMIDeleteChildren_Click(object sender, EventArgs e)
+    {
+        var node = TVChunks.SelectedNode;
+        if (node == null)
+            return;
+
+        bool isShiftDown = (ModifierKeys & Keys.Shift) == Keys.Shift;
+        if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete all children of:\n{node.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        if (node.Tag is Chunk parentChunk)
+            parentChunk.Children.Clear();
+        else if (node.Tag is P3DFile p3dFile)
+            p3dFile.Chunks.Clear();
+        
+        node.Nodes.Clear();
+    }
+
 }

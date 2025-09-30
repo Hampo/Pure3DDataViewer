@@ -46,6 +46,11 @@ partial class FrmMain
         TSMIPasteAfter2 = new ToolStripMenuItem();
         TSMIPasteInside2 = new ToolStripMenuItem();
         TSS6 = new ToolStripSeparator();
+        TSMIDelete2 = new ToolStripMenuItem();
+        TSMIDeleteThis2 = new ToolStripMenuItem();
+        TSMIDeleteType2 = new ToolStripMenuItem();
+        TSMIDeleteChildren2 = new ToolStripMenuItem();
+        TSS8 = new ToolStripSeparator();
         TCEditors = new TabControl();
         TPValues = new TabPage();
         LVValues = new ListView();
@@ -76,6 +81,12 @@ partial class FrmMain
         TSMIPasteAfter1 = new ToolStripMenuItem();
         TSMIPasteInside1 = new ToolStripMenuItem();
         TSS3 = new ToolStripSeparator();
+        TSMIDelete1 = new ToolStripMenuItem();
+        TSMIDeleteThisForced = new ToolStripMenuItem();
+        TSMIDeleteThis1 = new ToolStripMenuItem();
+        TSMIDeleteType1 = new ToolStripMenuItem();
+        TSMIDeleteChildren1 = new ToolStripMenuItem();
+        TSS7 = new ToolStripSeparator();
         TSMIFind = new ToolStripMenuItem();
         TSMIFindNext = new ToolStripMenuItem();
         TSMITools = new ToolStripMenuItem();
@@ -129,13 +140,12 @@ partial class FrmMain
         TVChunks.NodeMouseClick += TVChunks_NodeMouseClick;
         TVChunks.DragDrop += TVChunks_DragDrop;
         TVChunks.DragEnter += TVChunks_DragEnter;
-        TVChunks.KeyDown += TVChunks_KeyDown;
         // 
         // CMSTVChunks
         // 
-        CMSTVChunks.Items.AddRange(new ToolStripItem[] { TSMINewChunk2, TSS5, TSMICut2, TSMICopy2, TSMIPasteBefore2, TSMIPasteAfter2, TSMIPasteInside2, TSS6 });
+        CMSTVChunks.Items.AddRange(new ToolStripItem[] { TSMINewChunk2, TSS5, TSMICut2, TSMICopy2, TSMIPasteBefore2, TSMIPasteAfter2, TSMIPasteInside2, TSS6, TSMIDelete2, TSS8 });
         CMSTVChunks.Name = "CMSTVChunks";
-        CMSTVChunks.Size = new Size(140, 148);
+        CMSTVChunks.Size = new Size(140, 176);
         CMSTVChunks.Opening += CMSTVChunks_Opening;
         // 
         // TSMINewChunk2
@@ -217,6 +227,40 @@ partial class FrmMain
         // 
         TSS6.Name = "TSS6";
         TSS6.Size = new Size(136, 6);
+        // 
+        // TSMIDelete2
+        // 
+        TSMIDelete2.DropDownItems.AddRange(new ToolStripItem[] { TSMIDeleteThis2, TSMIDeleteType2, TSMIDeleteChildren2 });
+        TSMIDelete2.Image = Properties.Resources.Close_16x;
+        TSMIDelete2.Name = "TSMIDelete2";
+        TSMIDelete2.Size = new Size(139, 22);
+        TSMIDelete2.Text = "Delete";
+        // 
+        // TSMIDeleteThis2
+        // 
+        TSMIDeleteThis2.Name = "TSMIDeleteThis2";
+        TSMIDeleteThis2.Size = new Size(122, 22);
+        TSMIDeleteThis2.Text = "This";
+        TSMIDeleteThis2.Click += TSMIDeleteThis_Click;
+        // 
+        // TSMIDeleteType2
+        // 
+        TSMIDeleteType2.Name = "TSMIDeleteType2";
+        TSMIDeleteType2.Size = new Size(122, 22);
+        TSMIDeleteType2.Text = "This Type";
+        TSMIDeleteType2.Click += TSMIDeleteType_Click;
+        // 
+        // TSMIDeleteChildren2
+        // 
+        TSMIDeleteChildren2.Name = "TSMIDeleteChildren2";
+        TSMIDeleteChildren2.Size = new Size(122, 22);
+        TSMIDeleteChildren2.Text = "Children";
+        TSMIDeleteChildren2.Click += TSMIDeleteChildren_Click;
+        // 
+        // TSS8
+        // 
+        TSS8.Name = "TSS8";
+        TSS8.Size = new Size(136, 6);
         // 
         // TCEditors
         // 
@@ -391,7 +435,7 @@ partial class FrmMain
         // 
         // TSMIEdit
         // 
-        TSMIEdit.DropDownItems.AddRange(new ToolStripItem[] { TSMINewChunk1, TSS4, TSMICut1, TSMICopy1, TSMIPasteBefore1, TSMIPasteAfter1, TSMIPasteInside1, TSS3, TSMIFind, TSMIFindNext });
+        TSMIEdit.DropDownItems.AddRange(new ToolStripItem[] { TSMINewChunk1, TSS4, TSMICut1, TSMICopy1, TSMIPasteBefore1, TSMIPasteAfter1, TSMIPasteInside1, TSS3, TSMIDelete1, TSS7, TSMIFind, TSMIFindNext });
         TSMIEdit.Name = "TSMIEdit";
         TSMIEdit.Size = new Size(39, 20);
         TSMIEdit.Text = "Edit";
@@ -483,6 +527,51 @@ partial class FrmMain
         // 
         TSS3.Name = "TSS3";
         TSS3.Size = new Size(208, 6);
+        // 
+        // TSMIDelete1
+        // 
+        TSMIDelete1.DropDownItems.AddRange(new ToolStripItem[] { TSMIDeleteThisForced, TSMIDeleteThis1, TSMIDeleteType1, TSMIDeleteChildren1 });
+        TSMIDelete1.Image = Properties.Resources.Close_16x;
+        TSMIDelete1.Name = "TSMIDelete1";
+        TSMIDelete1.Size = new Size(211, 22);
+        TSMIDelete1.Text = "Delete";
+        TSMIDelete1.Click += TSMIDeleteThis_Click;
+        // 
+        // TSMIDeleteThisForced
+        // 
+        TSMIDeleteThisForced.Name = "TSMIDeleteThisForced";
+        TSMIDeleteThisForced.ShortcutKeys = Keys.Shift | Keys.Delete;
+        TSMIDeleteThisForced.Size = new Size(198, 22);
+        TSMIDeleteThisForced.Text = "This (Forced)";
+        TSMIDeleteThisForced.Visible = false;
+        TSMIDeleteThisForced.Click += TSMIDeleteThis_Click;
+        // 
+        // TSMIDeleteThis1
+        // 
+        TSMIDeleteThis1.Name = "TSMIDeleteThis1";
+        TSMIDeleteThis1.ShortcutKeys = Keys.Delete;
+        TSMIDeleteThis1.Size = new Size(198, 22);
+        TSMIDeleteThis1.Text = "This";
+        TSMIDeleteThis1.Click += TSMIDeleteThis_Click;
+        // 
+        // TSMIDeleteType1
+        // 
+        TSMIDeleteType1.Name = "TSMIDeleteType1";
+        TSMIDeleteType1.Size = new Size(198, 22);
+        TSMIDeleteType1.Text = "This Type";
+        TSMIDeleteType1.Click += TSMIDeleteType_Click;
+        // 
+        // TSMIDeleteChildren1
+        // 
+        TSMIDeleteChildren1.Name = "TSMIDeleteChildren1";
+        TSMIDeleteChildren1.Size = new Size(198, 22);
+        TSMIDeleteChildren1.Text = "Children";
+        TSMIDeleteChildren1.Click += TSMIDeleteChildren_Click;
+        // 
+        // TSS7
+        // 
+        TSS7.Name = "TSS7";
+        TSS7.Size = new Size(208, 6);
         // 
         // TSMIFind
         // 
@@ -604,4 +693,15 @@ partial class FrmMain
     private ToolStripMenuItem dummyToolStripMenuItem;
     private ToolStripMenuItem TSMIHelp;
     private ToolStripMenuItem TSMIAbout;
+    private ToolStripMenuItem TSMIDelete1;
+    private ToolStripMenuItem TSMIDeleteThis1;
+    private ToolStripMenuItem TSMIDeleteType1;
+    private ToolStripMenuItem TSMIDeleteChildren1;
+    private ToolStripSeparator TSS7;
+    private ToolStripMenuItem TSMIDeleteThisForced;
+    private ToolStripMenuItem TSMIDelete2;
+    private ToolStripSeparator TSS8;
+    private ToolStripMenuItem TSMIDeleteThis2;
+    private ToolStripMenuItem TSMIDeleteType2;
+    private ToolStripMenuItem TSMIDeleteChildren2;
 }
