@@ -55,6 +55,13 @@ jobs:
       - name: Create zip
         run: Compress-Archive -Path Publish\* -DestinationPath Pure3DDataViewer.zip -Force
 
+      - name: Move continuous-build tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f continuous-build ${{ github.sha }}
+          git push origin -f continuous-build
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
