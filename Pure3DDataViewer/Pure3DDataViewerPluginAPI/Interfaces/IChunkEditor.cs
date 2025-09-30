@@ -13,7 +13,4 @@ public interface IChunkEditor
 public interface IChunkEditor<T> : IChunkEditor where T : Chunk
 {
     Type IChunkEditor.ChunkType => typeof(T);
-
-    EditorControl IChunkEditor.Editor => Editor;
-    public new EditorControl<T> Editor { get; }
 }

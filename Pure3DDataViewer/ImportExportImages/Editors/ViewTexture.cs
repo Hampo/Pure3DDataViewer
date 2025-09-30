@@ -8,5 +8,5 @@ public class ViewTexture : IChunkEditor<TextureChunk>
 {
     public string Name => "View";
 
-    public EditorControl<TextureChunk> Editor => new ViewTextureEditor();
+    public EditorControl Editor => new ViewImageEditor();
 }

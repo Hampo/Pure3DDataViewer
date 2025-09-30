@@ -2,9 +2,10 @@
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Controls;
+using NetP3DLib.P3D;
 
 namespace ImportExportImages.Editors.Controls;
-public partial class ViewImageEditor : EditorControl<ImageChunk>
+public partial class ViewImageEditor : EditorControl
 {
     public static Color BackgroundColor
     {
@@ -18,7 +19,16 @@ public partial class ViewImageEditor : EditorControl<ImageChunk>
         PBImage.BackColor = BackgroundColor;
     }
 
-    public override void LoadChunk(ImageChunk imageChunk) => PBImage.Image = imageChunk?.GetImage() ?? PBImage.ErrorImage;
+    public override void LoadChunk(Chunk chunk)
+    {
+        var image = chunk switch
+        {
+            ImageChunk imageChunk => imageChunk.GetImage(),
+            TextureChunk textureChunk => textureChunk.GetFirstChunkOfType<ImageChunk>()?.GetImage(),
+            _ => throw new NotSupportedException($"{nameof(ViewImageEditor)} does not support chunks of type {chunk.GetType()}")
+        };
+        PBImage.Image = image ?? PBImage.ErrorImage;
+    }
 
     private void TSMISetBackgroundColour_Click(object sender, EventArgs e)
     {

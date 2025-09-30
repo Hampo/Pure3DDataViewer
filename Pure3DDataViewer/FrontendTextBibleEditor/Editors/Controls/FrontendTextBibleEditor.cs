@@ -4,7 +4,7 @@ using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 
 namespace FrontendTextBibleEditor.Editors.Controls;
-public partial class FrontendTextBibleEditor : EditorControl<FrontendTextBibleChunk>
+public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBibleChunk>
 {
     private FrontendTextBibleChunk? _frontendTextBibleChunk;
 
@@ -20,9 +20,11 @@ public partial class FrontendTextBibleEditor : EditorControl<FrontendTextBibleCh
         InitializeComponent();
     }
 
-    public override void LoadChunk(FrontendTextBibleChunk chunk)
+    public override void LoadChunk(Chunk chunk)
     {
-        _frontendTextBibleChunk = chunk;
+        if (chunk is not FrontendTextBibleChunk frontendTextBibleChunk)
+            throw new NotSupportedException($"{nameof(FrontendTextBibleEditor)} does not support chunks of type {chunk.GetType()}");
+        _frontendTextBibleChunk = frontendTextBibleChunk;
         _languageChunks = chunk.GetChunksOfType<FrontendLanguageChunk>();
         _knownNameMap = [];
         _entries = [];

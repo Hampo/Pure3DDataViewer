@@ -7,5 +7,5 @@ public class FrontendTextBible : IChunkEditor<FrontendTextBibleChunk>
 {
     public string Name => "Text Bible Editor";
 
-    public EditorControl<FrontendTextBibleChunk> Editor => new Controls.FrontendTextBibleEditor();
+    public EditorControl Editor => new Controls.FrontendTextBibleEditor();
 }
