@@ -7,7 +7,6 @@ using Pure3DDataViewerPluginAPI.Events;
 using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -641,7 +640,7 @@ public partial class FrmMain : Form
                         var lvi = new ListViewItem(property.Name);
                         lvi.SubItems.Add($"{byteArray.Length:N0} bytes");
                         lvi.Tag = property;
-                        LVValues.Items.Add(lvi);
+                        _listViewItems.Add(lvi);
                     }
                     else if (property.IsEnumerable() && value is IEnumerable enumerable)
                     {
@@ -1445,15 +1444,25 @@ public partial class FrmMain : Form
 
         if (node.IsSelected)
         {
-            var selectedIndices = LVValues.SelectedIndices.Cast<int>().ToArray();
-            TVChunks_AfterSelect(TVChunks, new(node));
-            foreach (int index in selectedIndices)
+            foreach (var lvi in _listViewItems)
             {
-                if (LVValues.Items.Count <= index)
-                    continue;
-                LVValues.Items[index].Selected = true;
-                LVValues.EnsureVisible(index);
+                switch (lvi.Tag)
+                {
+                    case PropertyInfo property:
+                        var value = property.GetValue(chunk);
+                        if (value is byte[] byteArray)
+                            lvi.SubItems[1].Text = $"{byteArray.Length:N0} bytes";
+                        else
+                            lvi.SubItems[1].Text =value?.ToString() ?? "<NULL>";
+                        break;
+                    case (PropertyInfo listProperty, int index):
+                        var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
+                        List<object> values = [.. enumerable.Cast<object>()];
+                        lvi.SubItems[1].Text = values[index]?.ToString() ?? "<NULL>";
+                        break;
+                }
             }
+            LVValues.Invalidate();
         }
 
         TVChunks.EndUpdate();
