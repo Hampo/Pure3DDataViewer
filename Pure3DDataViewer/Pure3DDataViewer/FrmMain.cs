@@ -484,13 +484,12 @@ public partial class FrmMain : Form
             chunkNode.BackColor = Color.LightGoldenrodYellow;
 
 #if DEBUG
-            parentNode.Expand();
-            var parent = parentNode.Parent;
-            while (parent != null)
+            do
             {
-                parent.Expand();
-                parent = parent.Parent;
+                parentNode.Expand();
+                parentNode = parentNode.Parent;
             }
+            while (parentNode != null);
 #endif
         }
 
@@ -509,7 +508,6 @@ public partial class FrmMain : Form
         _afterSelectUpdating = true;
         var prevFocus = SC1.ActiveControl;
         LVValues.BeginUpdate();
-        //LVValues.Items.Clear();
         _listViewItems.Clear();
 
         TCEditors.SuspendLayout();
