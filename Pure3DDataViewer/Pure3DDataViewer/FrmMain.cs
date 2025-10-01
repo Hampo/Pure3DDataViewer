@@ -525,6 +525,7 @@ public partial class FrmMain : Form
             TSMIDeleteThis1.Enabled = false;
             TSMIDeleteType1.Enabled = false;
             TSMIDuplicate1.Enabled = false;
+            TSMIRename1.Enabled = false;
 
             TSMICut2.Enabled = false;
             TSMICopyThis2.Enabled = false;
@@ -535,6 +536,7 @@ public partial class FrmMain : Form
             TSMIDeleteThis2.Enabled = false;
             TSMIDeleteType2.Enabled = false;
             TSMIDuplicate2.Enabled = false;
+            TSMIRename2.Enabled = false;
 
             foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                 if (child.Tag is IChunkHandler)
@@ -577,6 +579,7 @@ public partial class FrmMain : Form
                 TSMIDeleteThis1.Enabled = true;
                 TSMIDeleteType1.Enabled = true;
                 TSMIDuplicate1.Enabled = true;
+                TSMIRename1.Enabled = chunkType.IsSubclassOf(typeof(NamedChunk));
 
                 TSMICut2.Enabled = true;
                 TSMICopyThis2.Enabled = true;
@@ -587,6 +590,7 @@ public partial class FrmMain : Form
                 TSMIDeleteThis2.Enabled = true;
                 TSMIDeleteType2.Enabled = true;
                 TSMIDuplicate2.Enabled = true;
+                TSMIRename2.Enabled = chunkType.IsSubclassOf(typeof(NamedChunk));
 
                 foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
@@ -1569,5 +1573,22 @@ public partial class FrmMain : Form
 
         TVChunks.SelectedNode = AddChunk(parentNode, clone, index);
         UnsavedChanges = true;
+    }
+
+    private void TSMIRename_Click(object sender, EventArgs e)
+    {
+        var node = TVChunks.SelectedNode;
+        if (node == null)
+            return;
+
+        if (node.Tag is not NamedChunk chunk)
+            return;
+
+        using var stringEditor = new FrmStringEditor("Name", chunk.Name, 255);
+        if (stringEditor.ShowDialog() != DialogResult.OK)
+            return;
+
+        chunk.Name = stringEditor.Value;
+        UpdateChunk(node, chunk);
     }
 }

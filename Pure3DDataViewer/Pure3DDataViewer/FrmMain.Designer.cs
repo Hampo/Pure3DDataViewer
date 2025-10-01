@@ -45,11 +45,13 @@ partial class FrmMain
         TSMIPasteBefore2 = new ToolStripMenuItem();
         TSMIPasteAfter2 = new ToolStripMenuItem();
         TSMIPasteInside2 = new ToolStripMenuItem();
+        TSMIDuplicate2 = new ToolStripMenuItem();
         TSS6 = new ToolStripSeparator();
         TSMIDelete2 = new ToolStripMenuItem();
         TSMIDeleteThis2 = new ToolStripMenuItem();
         TSMIDeleteType2 = new ToolStripMenuItem();
         TSMIDeleteChildren2 = new ToolStripMenuItem();
+        TSMIRename2 = new ToolStripMenuItem();
         TSS8 = new ToolStripSeparator();
         TCEditors = new TabControl();
         TPValues = new TabPage();
@@ -80,20 +82,20 @@ partial class FrmMain
         TSMIPasteBefore1 = new ToolStripMenuItem();
         TSMIPasteAfter1 = new ToolStripMenuItem();
         TSMIPasteInside1 = new ToolStripMenuItem();
+        TSMIDuplicate1 = new ToolStripMenuItem();
         TSS3 = new ToolStripSeparator();
         TSMIDelete1 = new ToolStripMenuItem();
         TSMIDeleteThisForced = new ToolStripMenuItem();
         TSMIDeleteThis1 = new ToolStripMenuItem();
         TSMIDeleteType1 = new ToolStripMenuItem();
         TSMIDeleteChildren1 = new ToolStripMenuItem();
+        TSMIRename1 = new ToolStripMenuItem();
         TSS7 = new ToolStripSeparator();
         TSMIFind = new ToolStripMenuItem();
         TSMIFindNext = new ToolStripMenuItem();
         TSMITools = new ToolStripMenuItem();
         TSMIHelp = new ToolStripMenuItem();
         TSMIAbout = new ToolStripMenuItem();
-        TSMIDuplicate1 = new ToolStripMenuItem();
-        TSMIDuplicate2 = new ToolStripMenuItem();
         ((System.ComponentModel.ISupportInitialize)SC1).BeginInit();
         SC1.Panel1.SuspendLayout();
         SC1.Panel2.SuspendLayout();
@@ -145,29 +147,29 @@ partial class FrmMain
         // 
         // CMSTVChunks
         // 
-        CMSTVChunks.Items.AddRange(new ToolStripItem[] { TSMINewChunk2, TSS5, TSMICut2, TSMICopy2, TSMIPasteBefore2, TSMIPasteAfter2, TSMIPasteInside2, TSMIDuplicate2, TSS6, TSMIDelete2, TSS8 });
+        CMSTVChunks.Items.AddRange(new ToolStripItem[] { TSMINewChunk2, TSS5, TSMICut2, TSMICopy2, TSMIPasteBefore2, TSMIPasteAfter2, TSMIPasteInside2, TSMIDuplicate2, TSS6, TSMIDelete2, TSMIRename2, TSS8 });
         CMSTVChunks.Name = "CMSTVChunks";
-        CMSTVChunks.Size = new Size(181, 220);
+        CMSTVChunks.Size = new Size(140, 220);
         CMSTVChunks.Opening += CMSTVChunks_Opening;
         // 
         // TSMINewChunk2
         // 
         TSMINewChunk2.Image = Properties.Resources.NewItem_16x;
         TSMINewChunk2.Name = "TSMINewChunk2";
-        TSMINewChunk2.Size = new Size(180, 22);
+        TSMINewChunk2.Size = new Size(139, 22);
         TSMINewChunk2.Text = "New Chunk";
         TSMINewChunk2.Click += TSMINewChunk_Click;
         // 
         // TSS5
         // 
         TSS5.Name = "TSS5";
-        TSS5.Size = new Size(177, 6);
+        TSS5.Size = new Size(136, 6);
         // 
         // TSMICut2
         // 
         TSMICut2.Image = Properties.Resources.Cut_16x;
         TSMICut2.Name = "TSMICut2";
-        TSMICut2.Size = new Size(180, 22);
+        TSMICut2.Size = new Size(139, 22);
         TSMICut2.Text = "Cut";
         TSMICut2.Click += TSMICut_Click;
         // 
@@ -176,7 +178,7 @@ partial class FrmMain
         TSMICopy2.DropDownItems.AddRange(new ToolStripItem[] { TSMICopyThis2, TSMICopyChildren2, TSMICopyType2 });
         TSMICopy2.Image = Properties.Resources.Copy_16x;
         TSMICopy2.Name = "TSMICopy2";
-        TSMICopy2.Size = new Size(180, 22);
+        TSMICopy2.Size = new Size(139, 22);
         TSMICopy2.Text = "Copy";
         TSMICopy2.Click += TSMICopyThis_Click;
         // 
@@ -205,7 +207,7 @@ partial class FrmMain
         // 
         TSMIPasteBefore2.Image = Properties.Resources.Paste_16x;
         TSMIPasteBefore2.Name = "TSMIPasteBefore2";
-        TSMIPasteBefore2.Size = new Size(180, 22);
+        TSMIPasteBefore2.Size = new Size(139, 22);
         TSMIPasteBefore2.Text = "Paste Before";
         TSMIPasteBefore2.Click += TSMIPasteBefore_Click;
         // 
@@ -213,7 +215,7 @@ partial class FrmMain
         // 
         TSMIPasteAfter2.Image = Properties.Resources.Paste_16x;
         TSMIPasteAfter2.Name = "TSMIPasteAfter2";
-        TSMIPasteAfter2.Size = new Size(180, 22);
+        TSMIPasteAfter2.Size = new Size(139, 22);
         TSMIPasteAfter2.Text = "Paste After";
         TSMIPasteAfter2.Click += TSMIPasteAfter_Click;
         // 
@@ -221,21 +223,29 @@ partial class FrmMain
         // 
         TSMIPasteInside2.Image = Properties.Resources.PasteAppend_16x;
         TSMIPasteInside2.Name = "TSMIPasteInside2";
-        TSMIPasteInside2.Size = new Size(180, 22);
+        TSMIPasteInside2.Size = new Size(139, 22);
         TSMIPasteInside2.Text = "Paste Inside";
         TSMIPasteInside2.Click += TSMIPasteInside_Click;
+        // 
+        // TSMIDuplicate2
+        // 
+        TSMIDuplicate2.Image = Properties.Resources.Copy_16x;
+        TSMIDuplicate2.Name = "TSMIDuplicate2";
+        TSMIDuplicate2.Size = new Size(139, 22);
+        TSMIDuplicate2.Text = "Duplicate";
+        TSMIDuplicate2.Click += TSMIDuplicate_Click;
         // 
         // TSS6
         // 
         TSS6.Name = "TSS6";
-        TSS6.Size = new Size(177, 6);
+        TSS6.Size = new Size(136, 6);
         // 
         // TSMIDelete2
         // 
         TSMIDelete2.DropDownItems.AddRange(new ToolStripItem[] { TSMIDeleteThis2, TSMIDeleteType2, TSMIDeleteChildren2 });
         TSMIDelete2.Image = Properties.Resources.Close_16x;
         TSMIDelete2.Name = "TSMIDelete2";
-        TSMIDelete2.Size = new Size(180, 22);
+        TSMIDelete2.Size = new Size(139, 22);
         TSMIDelete2.Text = "Delete";
         // 
         // TSMIDeleteThis2
@@ -259,10 +269,18 @@ partial class FrmMain
         TSMIDeleteChildren2.Text = "Children";
         TSMIDeleteChildren2.Click += TSMIDeleteChildren_Click;
         // 
+        // TSMIRename2
+        // 
+        TSMIRename2.Image = Properties.Resources.Rename_16x;
+        TSMIRename2.Name = "TSMIRename2";
+        TSMIRename2.Size = new Size(139, 22);
+        TSMIRename2.Text = "Rename";
+        TSMIRename2.Click += TSMIRename_Click;
+        // 
         // TSS8
         // 
         TSS8.Name = "TSS8";
-        TSS8.Size = new Size(177, 6);
+        TSS8.Size = new Size(136, 6);
         // 
         // TCEditors
         // 
@@ -437,7 +455,7 @@ partial class FrmMain
         // 
         // TSMIEdit
         // 
-        TSMIEdit.DropDownItems.AddRange(new ToolStripItem[] { TSMINewChunk1, TSS4, TSMICut1, TSMICopy1, TSMIPasteBefore1, TSMIPasteAfter1, TSMIPasteInside1, TSMIDuplicate1, TSS3, TSMIDelete1, TSS7, TSMIFind, TSMIFindNext });
+        TSMIEdit.DropDownItems.AddRange(new ToolStripItem[] { TSMINewChunk1, TSS4, TSMICut1, TSMICopy1, TSMIPasteBefore1, TSMIPasteAfter1, TSMIPasteInside1, TSMIDuplicate1, TSS3, TSMIDelete1, TSMIRename1, TSS7, TSMIFind, TSMIFindNext });
         TSMIEdit.Name = "TSMIEdit";
         TSMIEdit.Size = new Size(39, 20);
         TSMIEdit.Text = "Edit";
@@ -525,6 +543,15 @@ partial class FrmMain
         TSMIPasteInside1.Text = "Paste Inside";
         TSMIPasteInside1.Click += TSMIPasteInside_Click;
         // 
+        // TSMIDuplicate1
+        // 
+        TSMIDuplicate1.Image = Properties.Resources.Copy_16x;
+        TSMIDuplicate1.Name = "TSMIDuplicate1";
+        TSMIDuplicate1.ShortcutKeys = Keys.Control | Keys.D;
+        TSMIDuplicate1.Size = new Size(211, 22);
+        TSMIDuplicate1.Text = "Duplicate";
+        TSMIDuplicate1.Click += TSMIDuplicate_Click;
+        // 
         // TSS3
         // 
         TSS3.Name = "TSS3";
@@ -570,6 +597,15 @@ partial class FrmMain
         TSMIDeleteChildren1.Text = "Children";
         TSMIDeleteChildren1.Click += TSMIDeleteChildren_Click;
         // 
+        // TSMIRename1
+        // 
+        TSMIRename1.Image = Properties.Resources.Rename_16x;
+        TSMIRename1.Name = "TSMIRename1";
+        TSMIRename1.ShortcutKeys = Keys.F2;
+        TSMIRename1.Size = new Size(211, 22);
+        TSMIRename1.Text = "Rename";
+        TSMIRename1.Click += TSMIRename_Click;
+        // 
         // TSS7
         // 
         TSS7.Name = "TSS7";
@@ -614,23 +650,6 @@ partial class FrmMain
         TSMIAbout.Size = new Size(107, 22);
         TSMIAbout.Text = "About";
         TSMIAbout.Click += TSMIAbout_Click;
-        // 
-        // TSMIDuplicate1
-        // 
-        TSMIDuplicate1.Image = Properties.Resources.Copy_16x;
-        TSMIDuplicate1.Name = "TSMIDuplicate1";
-        TSMIDuplicate1.ShortcutKeys = Keys.Control | Keys.D;
-        TSMIDuplicate1.Size = new Size(211, 22);
-        TSMIDuplicate1.Text = "Duplicate";
-        TSMIDuplicate1.Click += TSMIDuplicate_Click;
-        // 
-        // TSMIDuplicate2
-        // 
-        TSMIDuplicate2.Image = Properties.Resources.Copy_16x;
-        TSMIDuplicate2.Name = "TSMIDuplicate2";
-        TSMIDuplicate2.Size = new Size(180, 22);
-        TSMIDuplicate2.Text = "Duplicate";
-        TSMIDuplicate2.Click += TSMIDuplicate_Click;
         // 
         // FrmMain
         // 
@@ -725,4 +744,6 @@ partial class FrmMain
     private ToolStripMenuItem TSMIDeleteChildren2;
     private ToolStripMenuItem TSMIDuplicate2;
     private ToolStripMenuItem TSMIDuplicate1;
+    private ToolStripMenuItem TSMIRename2;
+    private ToolStripMenuItem TSMIRename1;
 }
