@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Title>Custom Chunk Test Pure3D Data Viewer Plugin</Title>
+		<Authors>Proddy</Authors>
+		<Company>Donut Team</Company>
+		<Product>Pure3D Data Viewer</Product>
+		<Description>A plugin for the Pure3D Data Viewer to test adding custom chunks.</Description>
+		<Copyright>Donut Team 2025</Copyright>
+		<PlatformTarget>x64</PlatformTarget>
+		<SelfContained>false</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pure3DDataViewerPluginAPI\Pure3DDataViewerPluginAPI.csproj" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="if &quot;$(SolutionDir)&quot;==&quot;*Undefined*&quot; exit /b 0&#xD;&#xA;&#xD;&#xA;mkdir &quot;$(SolutionDir)Pure3DDataViewer\bin\$(Configuration)\net8.0-windows\win-x64\Plugins&quot;&#xD;&#xA;copy /Y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Pure3DDataViewer\bin\$(Configuration)\net8.0-windows\win-x64\Plugins\$(TargetFileName)&quot;&#xD;&#xA;copy /Y &quot;$([System.IO.Path]::ChangeExtension($(TargetPath), '.pdb'))&quot; &quot;$(SolutionDir)Pure3DDataViewer\bin\$(Configuration)\net8.0-windows\win-x64\Plugins\$([System.IO.Path]::ChangeExtension($(TargetFileName), '.pdb'))&quot;&#xA;" />
+	</Target>
+
+</Project>
