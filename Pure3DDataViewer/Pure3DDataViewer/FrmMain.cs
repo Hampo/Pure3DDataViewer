@@ -524,6 +524,7 @@ public partial class FrmMain : Form
             TSMIDelete1.Enabled = false;
             TSMIDeleteThis1.Enabled = false;
             TSMIDeleteType1.Enabled = false;
+            TSMIDuplicate1.Enabled = false;
 
             TSMICut2.Enabled = false;
             TSMICopyThis2.Enabled = false;
@@ -533,6 +534,7 @@ public partial class FrmMain : Form
             TSMIDelete2.Enabled = false;
             TSMIDeleteThis2.Enabled = false;
             TSMIDeleteType2.Enabled = false;
+            TSMIDuplicate2.Enabled = false;
 
             foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                 if (child.Tag is IChunkHandler)
@@ -574,6 +576,7 @@ public partial class FrmMain : Form
                 TSMIDelete1.Enabled = true;
                 TSMIDeleteThis1.Enabled = true;
                 TSMIDeleteType1.Enabled = true;
+                TSMIDuplicate1.Enabled = true;
 
                 TSMICut2.Enabled = true;
                 TSMICopyThis2.Enabled = true;
@@ -583,6 +586,7 @@ public partial class FrmMain : Form
                 TSMIDelete2.Enabled = true;
                 TSMIDeleteThis2.Enabled = true;
                 TSMIDeleteType2.Enabled = true;
+                TSMIDuplicate2.Enabled = true;
 
                 foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
                     if (child.Tag is IChunkHandler chunkHandler)
@@ -1541,8 +1545,29 @@ public partial class FrmMain : Form
             parentChunk.Children.Clear();
         else if (node.Tag is P3DFile p3dFile)
             p3dFile.Chunks.Clear();
-        
+
         node.Nodes.Clear();
     }
 
+    private void TSMIDuplicate_Click(object sender, EventArgs e)
+    {
+        var node = TVChunks.SelectedNode;
+        if (node == null)
+            return;
+
+        if (node.Tag is not Chunk chunk)
+            return;
+
+        var clone = chunk.Clone();
+        var index = node.Index + 1;
+
+        var parentNode = node.Parent;
+        if (parentNode.Tag is Chunk parentChunk)
+            parentChunk.Children.Insert(index, clone);
+        else if (parentNode.Tag is P3DFile p3dFile)
+            p3dFile.Chunks.Insert(index, clone);
+
+        TVChunks.SelectedNode = AddChunk(parentNode, clone, index);
+        UnsavedChanges = true;
+    }
 }
