@@ -36,7 +36,6 @@ public class ImportExportImagesPlugin : IPlugin
         ];
 
         ChunkEditors = [
-            new Editors.ViewTexture(),
             new Editors.ViewImage(),
         ];
 

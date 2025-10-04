@@ -170,7 +170,7 @@ public partial class FrmMain : Form
 
                 foreach (var chunkEditor in chunkEditors)
                 {
-                    var type = chunkEditor.ChunkType;
+                    var types = chunkEditor.ChunkTypes;
 
                     var editor = chunkEditor.Editor;
                     editor.UpdatedChunk += IChunkEditor_UpdatedChunk;
@@ -178,16 +178,19 @@ public partial class FrmMain : Form
 
                     var tp = new TabPage(chunkEditor.Name)
                     {
-                        Tag = type,
+                        Tag = types,
                     };
                     tp.Controls.Add(editor);
 
-                    if (!_pluginChunkEditors.TryGetValue(type, out var editors))
+                    foreach (var type in types)
                     {
-                        _pluginChunkEditors[type] = [tp];
-                        continue;
+                        if (!_pluginChunkEditors.TryGetValue(type, out var editors))
+                        {
+                            _pluginChunkEditors[type] = [tp];
+                            continue;
+                        }
+                        editors.Add(tp);
                     }
-                    editors.Add(tp);
                 }
             }
         }
@@ -602,7 +605,7 @@ public partial class FrmMain : Form
                 for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                 {
                     var tp = TCEditors.TabPages[i];
-                    if (tp.Tag is Type tagType && tagType == chunkType)
+                    if (tp.Tag is Type[] tagTypes && tagTypes.Contains(chunkType))
                         continue;
                     TCEditors.TabPages.RemoveAt(i);
                 }

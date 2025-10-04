@@ -6,11 +6,11 @@ namespace Pure3DDataViewerPluginAPI.Interfaces;
 public interface IChunkEditor
 {
     public string Name { get; }
-    public Type ChunkType { get; }
+    public Type[] ChunkTypes { get; }
     public EditorControl Editor { get; }
 }
 
 public interface IChunkEditor<T> : IChunkEditor where T : Chunk
 {
-    Type IChunkEditor.ChunkType => typeof(T);
+    Type[] IChunkEditor.ChunkTypes => [typeof(T)];
 }
