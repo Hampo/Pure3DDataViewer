@@ -502,7 +502,7 @@ public partial class FrmMain : Form
         return chunkNode;
     }
 
-    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "Children", "HeaderSize", "Size", "Bytes"];
+    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentChunk", "Children", "HeaderSize", "Size", "Bytes"];
     private readonly Dictionary<Type, TabPage> LastEditorTab = [];
     private bool _afterSelectUpdating = false;
     private readonly List<ListViewItem> _listViewItems = [];
@@ -1166,7 +1166,7 @@ public partial class FrmMain : Form
         if (node?.Tag is not Chunk)
             return;
 
-        List<Chunk> parentChunks;
+        IList<Chunk> parentChunks;
         var parentNode = node.Parent;
         switch (parentNode.Tag)
         {
@@ -1200,7 +1200,7 @@ public partial class FrmMain : Form
         if (node?.Tag is not Chunk)
             return;
 
-        List<Chunk> parentChunks;
+        IList<Chunk> parentChunks;
         var parentNode = node.Parent;
         switch (parentNode.Tag)
         {
@@ -1234,7 +1234,7 @@ public partial class FrmMain : Form
         if (node == null)
             return;
 
-        List<Chunk> parentChunks;
+        IList<Chunk> parentChunks;
         switch (node.Tag)
         {
             case P3DFile p3dFile:
@@ -1281,7 +1281,7 @@ public partial class FrmMain : Form
 
             UnsavedChanges = true;
 
-            List<Chunk> parentChunks;
+            IList<Chunk> parentChunks;
             switch (node.Tag)
             {
                 case P3DFile p3dFile:
