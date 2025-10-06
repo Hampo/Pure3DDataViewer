@@ -17,7 +17,11 @@ public partial class FrmFind : Form
 
     private void TxtFind_TextChanged(object sender, EventArgs e) => BtnFindNext.Enabled = !string.IsNullOrEmpty(TxtFind.Text);
 
-    private void BtnFindNext_Click(object sender, EventArgs e) => _frmMain.Find(TxtFind.Text);
+    private void BtnFindNext_Click(object sender, EventArgs e)
+    {
+        _frmMain.Find(TxtFind.Text);
+        BeginInvoke(new Action(Activate));
+    }
 
     private void CBMatchCase_CheckedChanged(object sender, EventArgs e) => Settings.FindMatchCase = CBMatchCase.Checked;
 
