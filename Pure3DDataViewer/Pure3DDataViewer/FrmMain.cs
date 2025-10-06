@@ -502,7 +502,7 @@ public partial class FrmMain : Form
         return chunkNode;
     }
 
-    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentChunk", "Children", "HeaderSize", "Size", "Bytes"];
+    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentChunk", "IndexInParent", "Children", "HeaderSize", "Size", "Bytes"];
     private readonly Dictionary<Type, TabPage> LastEditorTab = [];
     private bool _afterSelectUpdating = false;
     private readonly List<ListViewItem> _listViewItems = [];
