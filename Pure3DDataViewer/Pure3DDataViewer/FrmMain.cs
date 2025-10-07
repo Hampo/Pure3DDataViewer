@@ -373,7 +373,7 @@ public partial class FrmMain : Form
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error writing P3D file: {ex}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error writing P3D file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return;
         }
@@ -391,7 +391,7 @@ public partial class FrmMain : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error writing P3D file: {ex}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Error writing P3D file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -418,7 +418,7 @@ public partial class FrmMain : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error writing save file: {ex}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Error writing save file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
