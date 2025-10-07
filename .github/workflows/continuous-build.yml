@@ -52,6 +52,9 @@ jobs:
           dotnet publish Pure3DDataViewer/FrontendTextBibleEditor/FrontendTextBibleEditor.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/FrontendTextBibleEditor/bin/publish
           Copy-Item Pure3DDataViewer/FrontendTextBibleEditor/bin/publish/FrontendTextBibleEditor.dll Publish/Plugins/
 
+          dotnet publish Pure3DDataViewer/Validate/Validate.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/Validate/bin/publish
+          Copy-Item Pure3DDataViewer/Validate/bin/publish/Validate.dll Publish/Plugins/
+
       - name: Create zip
         run: Compress-Archive -Path Publish\* -DestinationPath Pure3DDataViewer.zip -Force
 

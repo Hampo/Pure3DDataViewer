@@ -23,6 +23,9 @@ copy Pure3DDataViewer\LocationFromGame\bin\publish\LocationFromGame.dll Publish\
 dotnet publish Pure3DDataViewer\FrontendTextBibleEditor\FrontendTextBibleEditor.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\FrontendTextBibleEditor\bin\publish
 copy Pure3DDataViewer\FrontendTextBibleEditor\bin\publish\FrontendTextBibleEditor.dll Publish\Plugins\FrontendTextBibleEditor.dll
 
+dotnet publish Pure3DDataViewer\Validate\Validate.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\Validate\bin\publish
+copy Pure3DDataViewer\Validate\bin\publish\Validate.dll Publish\Plugins\Validate.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE
