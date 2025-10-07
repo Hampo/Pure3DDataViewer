@@ -37,23 +37,19 @@ jobs:
 
       - name: Publish plugins
         run: |
-          dotnet publish Pure3DDataViewer/ImportExportImages/ImportExportImages.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/ImportExportImages/bin/publish
-          Copy-Item Pure3DDataViewer/ImportExportImages/bin/publish/ImportExportImages.dll Publish/Plugins/
+          $plugins = @(
+            "ImportExportImages",
+            "Sort",
+            "Deduplicate",
+            "LocationFromGame",
+            "FrontendTextBibleEditor",
+            "Validate"
+          )
 
-          dotnet publish Pure3DDataViewer/Sort/Sort.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/Sort/bin/publish
-          Copy-Item Pure3DDataViewer/Sort/bin/publish/Sort.dll Publish/Plugins/
-
-          dotnet publish Pure3DDataViewer/Deduplicate/Deduplicate.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/Deduplicate/bin/publish
-          Copy-Item Pure3DDataViewer/Deduplicate/bin/publish/Deduplicate.dll Publish/Plugins/
-
-          dotnet publish Pure3DDataViewer/LocationFromGame/LocationFromGame.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/LocationFromGame/bin/publish
-          Copy-Item Pure3DDataViewer/LocationFromGame/bin/publish/LocationFromGame.dll Publish/Plugins/
-
-          dotnet publish Pure3DDataViewer/FrontendTextBibleEditor/FrontendTextBibleEditor.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/FrontendTextBibleEditor/bin/publish
-          Copy-Item Pure3DDataViewer/FrontendTextBibleEditor/bin/publish/FrontendTextBibleEditor.dll Publish/Plugins/
-
-          dotnet publish Pure3DDataViewer/Validate/Validate.csproj -c Release -r win-x64 --self-contained false -o Pure3DDataViewer/Validate/bin/publish
-          Copy-Item Pure3DDataViewer/Validate/bin/publish/Validate.dll Publish/Plugins/
+          foreach ($plugin in $plugins) {
+            dotnet publish "Pure3DDataViewer/$plugin/$plugin.csproj" -c Release -r win-x64 --self-contained false -o "Pure3DDataViewer/$plugin/bin/publish"
+            Copy-Item "Pure3DDataViewer/$plugin/bin/publish/$plugin.dll" "Publish/Plugins/"
+          }
 
       - name: Create zip
         run: Compress-Archive -Path Publish\* -DestinationPath Pure3DDataViewer.zip -Force
