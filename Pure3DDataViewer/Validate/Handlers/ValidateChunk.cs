@@ -5,7 +5,7 @@ using Pure3DDataViewerPluginAPI.Interfaces;
 namespace Validate.Handlers;
 public class ValidateChunk : IChunkHandler
 {
-    public string Name => "Validate";
+    public string Name => "Validate Chunk";
 
     public Type? ChunkType => null;
 

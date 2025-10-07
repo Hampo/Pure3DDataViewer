@@ -6,7 +6,7 @@ using System.Text;
 namespace Validate.Handlers;
 public class ValidateFile : IFileHandler
 {
-    public string Name => "Validate";
+    public string Name => "Validate File";
 
     public Image? Image => ValidatePlugin.ValidateImage;
 
