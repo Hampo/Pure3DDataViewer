@@ -627,7 +627,7 @@ public partial class FrmMain : Form
                 for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                 {
                     var tp = TCEditors.TabPages[i];
-                    if (tp.Tag is Type[] tagTypes && tagTypes.Contains(chunkType))
+                    if (tp.Tag is HashSet<Type> tagTypes && tagTypes.Contains(chunkType))
                         continue;
                     TCEditors.TabPages.RemoveAt(i);
                 }

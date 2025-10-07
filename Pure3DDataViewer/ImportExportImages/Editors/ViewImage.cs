@@ -7,7 +7,7 @@ namespace ImportExportImages.Editors;
 public class ViewImage : IChunkEditor
 {
     public string Name => "View";
-    public Type[] ChunkTypes =>
+    public HashSet<Type> ChunkTypes =>
     [
         typeof(ImageChunk),
         typeof(TextureChunk),
