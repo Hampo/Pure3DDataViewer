@@ -184,6 +184,7 @@ public partial class FrmMain : Form
 
                     var tp = new TabPage(chunkEditor.Name)
                     {
+                        Name = chunkEditor.GetType().FullName,
                         Tag = types,
                     };
                     tp.Controls.Add(editor);
@@ -509,7 +510,7 @@ public partial class FrmMain : Form
     }
 
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentChunk", "IndexInParent", "Children", "HeaderSize", "Size", "Bytes"];
-    private readonly Dictionary<Type, TabPage> LastEditorTab = [];
+    //private readonly Dictionary<Type, TabPage> LastEditorTab = [];
     private bool _afterSelectUpdating = false;
     private readonly List<ListViewItem> _listViewItems = [];
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
@@ -584,8 +585,7 @@ public partial class FrmMain : Form
                 for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                     TCEditors.TabPages.RemoveAt(i);
 
-                if (LastEditorTab.TryGetValue(typeof(P3DFile), out var lastEditor))
-                    TCEditors.SelectedTab = lastEditor;
+                TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, typeof(P3DFile)) ?? TPValues;
 
                 return;
             }
@@ -641,8 +641,8 @@ public partial class FrmMain : Form
                         editorControl.LoadChunk(chunk);
                     }
                 }
-                if (LastEditorTab.TryGetValue(chunkType, out var lastEditor))
-                    TCEditors.SelectedTab = lastEditor;
+                
+                TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, chunkType) ?? TPValues;
 
                 try
                 {
@@ -737,7 +737,8 @@ public partial class FrmMain : Form
         if (tag == null)
             return;
 
-        LastEditorTab[tag.GetType()] = TCEditors.SelectedTab!;
+        //LastEditorTab[tag.GetType()] = TCEditors.SelectedTab!;
+        Settings.SetLastTabPage(tag.GetType(), TCEditors.SelectedTab!);
     }
 
     private void LVValues_Resize(object sender, EventArgs e)

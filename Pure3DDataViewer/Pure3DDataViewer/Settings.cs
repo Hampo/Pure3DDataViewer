@@ -78,4 +78,21 @@ public static class Settings
         }
         set => RegistryUtils.SetString("LastNewChunkType", value != null ? $"{value.FullName}, {value.Assembly.GetName().Name}" : null);
     }
+
+    public static TabPage? GetLastTabPage(TabControl tc, Type type)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return null;
+
+        var tpName = RegistryUtils.GetString(type.FullName, null, "LastEditor");
+        return tc.TabPages.Cast<TabPage>().FirstOrDefault(tp => tp.Name == tpName);
+    }
+
+    public static void SetLastTabPage(Type type, TabPage tp)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return;
+
+        RegistryUtils.SetString(type.FullName, tp.Name, "LastEditor");
+    }
 }
