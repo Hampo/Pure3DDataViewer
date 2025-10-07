@@ -2,6 +2,7 @@
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Enums;
+using NetP3DLib.P3D.Exceptions;
 using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 using Pure3DDataViewerPluginAPI.Events;
@@ -366,32 +367,21 @@ public partial class FrmMain : Form
         LoadP3DFile(ofd.FileName);
     }
 
-    private void TSMISave_Click(object sender, EventArgs e)
+    private void Save(string filePath, bool validate)
     {
-        if (!string.IsNullOrEmpty(LastPath))
-        {
-            try
-            {
-                P3DFile.Write(LastPath);
-                UnsavedChanges = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error writing P3D file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            return;
-        }
-
-        using var sfd = new SaveFileDialog() { Title = "Save File", Filter = "P3D files|*.p3d|All files|*.*" };
-        if (sfd.ShowDialog() != DialogResult.OK)
-            return;
-
         try
         {
-            P3DFile.Write(sfd.FileName);
+            P3DFile.Write(filePath, validate);
             UnsavedChanges = false;
-            LastPath = sfd.FileName;
-            Settings.AddRecentFile(LastPath);
+            LastPath = filePath;
+            Settings.AddRecentFile(filePath);
+        }
+        catch (InvalidP3DException ex)
+        {
+            if (MessageBox.Show($"There were validation errors in the P3D file:\n{ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Error saving file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                return;
+
+            Save(filePath, false);
         }
         catch (Exception ex)
         {
@@ -399,31 +389,34 @@ public partial class FrmMain : Form
         }
     }
 
+    private void Save(string? filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
+        {
+            using var sfd = new SaveFileDialog() { Title = "Save File", Filter = "P3D files|*.p3d|All files|*.*" };
+            if (!string.IsNullOrEmpty(LastPath))
+            {
+                sfd.InitialDirectory = Path.GetDirectoryName(LastPath);
+                sfd.FileName = Path.GetFileName(LastPath);
+                if (!Path.GetExtension(LastPath).Equals(".p3d", StringComparison.OrdinalIgnoreCase))
+                    sfd.FilterIndex = 2;
+            }
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+            filePath = sfd.FileName;
+        }
+
+        Save(filePath, true);
+    }
+
+    private void TSMISave_Click(object sender, EventArgs e)
+    {
+        Save(LastPath);
+    }
+
     private void TSMISaveAs_Click(object sender, EventArgs e)
     {
-
-        using var sfd = new SaveFileDialog() { Title = "Save File", Filter = "P3D files|*.p3d|All files|*.*" };
-        if (!string.IsNullOrEmpty(LastPath))
-        {
-            sfd.InitialDirectory = Path.GetDirectoryName(LastPath);
-            sfd.FileName = Path.GetFileName(LastPath);
-            if (!Path.GetExtension(LastPath).Equals(".p3d", StringComparison.OrdinalIgnoreCase))
-                sfd.FilterIndex = 2;
-        }
-        if (sfd.ShowDialog() != DialogResult.OK)
-            return;
-
-        try
-        {
-            P3DFile.Write(sfd.FileName);
-            UnsavedChanges = false;
-            LastPath = sfd.FileName;
-            Settings.AddRecentFile(LastPath);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error writing save file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+        Save(null);
     }
 
     private void TSMIExit_Click(object sender, EventArgs e) => Application.Exit();
@@ -506,7 +499,7 @@ public partial class FrmMain : Form
         return chunkNode;
     }
 
-    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentChunk", "IndexInParent", "Children", "HeaderSize", "Size", "Bytes"];
+    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentFile", "ParentChunk", "IndexInParent", "Children", "HeaderSize", "Size", "Bytes"];
     private bool _afterSelectUpdating = false;
     private readonly List<ListViewItem> _listViewItems = [];
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
