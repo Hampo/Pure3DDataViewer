@@ -48,6 +48,8 @@ public partial class FrmMain : Form
         }
     }
 
+    private readonly List<ToolStripMenuItem> _pluginFileHandlers = [];
+    private readonly List<(Type ChunkType, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginChunkHandlers = [];
     private readonly Dictionary<Type, List<TabPage>> _pluginChunkEditors = [];
 
     private void UpdateText()
@@ -114,21 +116,22 @@ public partial class FrmMain : Form
                     if (fileHandler == null)
                         continue;
 
-                    var tsmi = new ToolStripMenuItem(fileHandler.Name)
+                    var tsmiToolsMenu = new ToolStripMenuItem(fileHandler.Name)
                     {
                         Image = fileHandler.Image,
                         Tag = fileHandler
                     };
-                    tsmi.Click += TSMIPlugin_Click;
-                    TSMITools.DropDownItems.Add(tsmi);
+                    tsmiToolsMenu.Click += TSMIPlugin_Click;
+                    TSMITools.DropDownItems.Add(tsmiToolsMenu);
 
-                    tsmi = new ToolStripMenuItem(fileHandler.Name)
+                    var tsmiContextMenu = new ToolStripMenuItem(fileHandler.Name)
                     {
                         Image = fileHandler.Image,
                         Tag = fileHandler
                     };
-                    tsmi.Click += TSMIPlugin_Click;
-                    CMSTVChunks.Items.Add(tsmi);
+                    tsmiContextMenu.Click += TSMIPlugin_Click;
+                    _pluginFileHandlers.Add(tsmiContextMenu);
+                    //CMSTVChunks.Items.Add(tsmiContextMenu);
                 }
             }
             TSMITools.DropDownItems.Add(new ToolStripSeparator());
@@ -144,21 +147,24 @@ public partial class FrmMain : Form
                     if (chunkHandler == null)
                         continue;
 
-                    var tsmi = new ToolStripMenuItem(chunkHandler.Name)
+                    var tsmiToolsMenu = new ToolStripMenuItem(chunkHandler.Name)
                     {
                         Image = chunkHandler.Image,
                         Tag = chunkHandler
                     };
-                    tsmi.Click += TSMIPlugin_Click;
-                    TSMITools.DropDownItems.Add(tsmi);
+                    tsmiToolsMenu.Click += TSMIPlugin_Click;
+                    //TSMITools.DropDownItems.Add(tsmiToolsMenu);
 
-                    tsmi = new ToolStripMenuItem(chunkHandler.Name)
+                    var tsmiContextMenu = new ToolStripMenuItem(chunkHandler.Name)
                     {
                         Image = chunkHandler.Image,
                         Tag = chunkHandler
                     };
-                    tsmi.Click += TSMIPlugin_Click;
-                    CMSTVChunks.Items.Add(tsmi);
+                    tsmiContextMenu.Click += TSMIPlugin_Click;
+                    //CMSTVChunks.Items.Add(tsmiContextMenu);
+
+                    var type = chunkHandler.ChunkType ?? typeof(Chunk);
+                    _pluginChunkHandlers.Add((type, tsmiToolsMenu, tsmiContextMenu));
                 }
             }
 
@@ -541,13 +547,13 @@ public partial class FrmMain : Form
             TSMIDuplicate2.Enabled = false;
             TSMIRename2.Enabled = false;
 
-            foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
-                if (child.Tag is IChunkHandler)
-                    child.Visible = false;
+            for (int i = TSMITools.DropDownItems.Count - 1; i >= 0; i--)
+                if (TSMITools.DropDownItems[i] is ToolStripMenuItem child && child.Tag is IChunkHandler)
+                    TSMITools.DropDownItems.RemoveAt(i);
 
-            foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
-                if (child.Tag is IChunkHandler || child.Tag is IFileHandler)
-                    child.Visible = false;
+            for (int i = CMSTVChunks.Items.Count - 1; i >= 0; i--)
+                if (CMSTVChunks.Items[i] is ToolStripMenuItem child && (child.Tag is IChunkHandler || child.Tag is IFileHandler))
+                    CMSTVChunks.Items.RemoveAt(i);
 
             if (tag is P3DFile p3dFile)
             {
@@ -556,9 +562,8 @@ public partial class FrmMain : Form
                 _listViewItems.Add(lvi);
                 HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Bytes);
 
-                foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
-                    if (child.Tag is IFileHandler)
-                        child.Visible = true;
+                foreach (var tsmi in _pluginFileHandlers)
+                    CMSTVChunks.Items.Add(tsmi);
 
                 for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                     TCEditors.TabPages.RemoveAt(i);
@@ -595,12 +600,13 @@ public partial class FrmMain : Form
                 TSMIDuplicate2.Enabled = true;
                 TSMIRename2.Enabled = chunkType.IsSubclassOf(typeof(NamedChunk));
 
-                foreach (var child in TSMITools.DropDownItems.OfType<ToolStripMenuItem>())
-                    if (child.Tag is IChunkHandler chunkHandler)
-                        child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunkType;
-                foreach (var child in CMSTVChunks.Items.OfType<ToolStripMenuItem>())
-                    if (child.Tag is IChunkHandler chunkHandler)
-                        child.Visible = chunkHandler.ChunkType == null || chunkHandler.ChunkType == chunkType;
+                foreach (var (ChunkType, ToolMenu, ContextMenu) in _pluginChunkHandlers)
+                {
+                    if (ChunkType != typeof(Chunk) && ChunkType != chunkType)
+                        continue;
+                    TSMITools.DropDownItems.Add(ToolMenu);
+                    CMSTVChunks.Items.Add(ContextMenu);
+                }
 
                 for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                 {
