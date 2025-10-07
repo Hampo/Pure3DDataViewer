@@ -131,7 +131,6 @@ public partial class FrmMain : Form
                     };
                     tsmiContextMenu.Click += TSMIPlugin_Click;
                     _pluginFileHandlers.Add(tsmiContextMenu);
-                    //CMSTVChunks.Items.Add(tsmiContextMenu);
                 }
             }
             TSMITools.DropDownItems.Add(new ToolStripSeparator());
@@ -153,7 +152,6 @@ public partial class FrmMain : Form
                         Tag = chunkHandler
                     };
                     tsmiToolsMenu.Click += TSMIPlugin_Click;
-                    //TSMITools.DropDownItems.Add(tsmiToolsMenu);
 
                     var tsmiContextMenu = new ToolStripMenuItem(chunkHandler.Name)
                     {
@@ -161,7 +159,6 @@ public partial class FrmMain : Form
                         Tag = chunkHandler
                     };
                     tsmiContextMenu.Click += TSMIPlugin_Click;
-                    //CMSTVChunks.Items.Add(tsmiContextMenu);
 
                     var type = chunkHandler.ChunkType ?? typeof(Chunk);
                     _pluginChunkHandlers.Add((type, tsmiToolsMenu, tsmiContextMenu));
@@ -510,7 +507,6 @@ public partial class FrmMain : Form
     }
 
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentChunk", "IndexInParent", "Children", "HeaderSize", "Size", "Bytes"];
-    //private readonly Dictionary<Type, TabPage> LastEditorTab = [];
     private bool _afterSelectUpdating = false;
     private readonly List<ListViewItem> _listViewItems = [];
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
@@ -737,7 +733,6 @@ public partial class FrmMain : Form
         if (tag == null)
             return;
 
-        //LastEditorTab[tag.GetType()] = TCEditors.SelectedTab!;
         Settings.SetLastTabPage(tag.GetType(), TCEditors.SelectedTab!);
     }
 
