@@ -557,6 +557,22 @@ public partial class FrmMain : Form
 
             if (tag is P3DFile p3dFile)
             {
+                foreach (var child in p3dFile.Chunks)
+                {
+                    try
+                    {
+                        child.Validate();
+                    }
+                    catch (Exception ex)
+                    {
+                        var lviError = new ListViewItem("Validation Error");
+                        lviError.SubItems.Add(ex.Message);
+                        lviError.BackColor = Color.FromArgb(255, 230, 230);
+                        lviError.ForeColor = Color.DarkRed;
+                        _listViewItems.Add(lviError);
+                    }
+                }
+
                 var lvi = new ListViewItem("Size");
                 lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
                 _listViewItems.Add(lvi);
@@ -628,6 +644,19 @@ public partial class FrmMain : Form
                 if (LastEditorTab.TryGetValue(chunkType, out var lastEditor))
                     TCEditors.SelectedTab = lastEditor;
 
+                try
+                {
+                    chunk.Validate();
+                }
+                catch (Exception ex)
+                {
+                    var lviError = new ListViewItem("Validation Error");
+                    lviError.SubItems.Add(ex.Message);
+                    lviError.BackColor = Color.FromArgb(255, 230, 230);
+                    lviError.ForeColor = Color.DarkRed;
+                    _listViewItems.Add(lviError);
+                }
+
                 var properties = chunkType.GetProperties().OrderBy(x => x.DeclaringType == chunkType);
 
                 foreach (var property in properties)
@@ -676,7 +705,14 @@ public partial class FrmMain : Form
             LVValues.VirtualListSize = newSize;
             if (newSize > 0)
             {
-                LVValues.Items[0].Selected = true;
+                for (int i = 0; i < newSize; i++)
+                {
+                    if (LVValues.Items[i].Text != "Validation Error")
+                    {
+                        LVValues.Items[i].Selected = true;
+                        break;
+                    }
+                }
                 LVValues.TopItem = LVValues.Items[0];
             }
 
