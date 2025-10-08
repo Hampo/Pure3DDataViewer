@@ -127,4 +127,27 @@ public class GeneratePhysicsObject : IFileHandler
             return FileCallbackResult.Unchanged;
         }
     }
+
+    public bool IsFileSupported(P3DFile p3dFile)
+    {
+        var compositeDrawables = p3dFile.GetChunksOfType<CompositeDrawableChunk>();
+        if (compositeDrawables.Count == 0)
+            return false;
+
+        if (compositeDrawables.Count > 1)
+            return true;
+
+        CompositeDrawableChunk compositeDrawable = compositeDrawables[0];
+        var skeletonName = compositeDrawable.SkeletonName;
+
+        var skeleton = p3dFile.GetFirstChunkOfType<SkeletonChunk>(skeletonName);
+        if (skeleton == null)
+            return false;
+
+        var collisionObject = p3dFile.GetFirstChunkOfType<CollisionObjectChunk>(skeletonName);
+        if (collisionObject == null)
+            return false;
+
+        return true;
+    }
 }

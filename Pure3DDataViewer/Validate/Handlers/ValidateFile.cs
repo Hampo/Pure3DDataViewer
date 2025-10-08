@@ -40,4 +40,6 @@ public class ValidateFile : IFileHandler
         MessageBox.Show($"The following errors were found in the file:\n\n{errors}", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         return FileCallbackResult.Unchanged;
     }
+
+    public bool IsFileSupported(P3DFile p3dFile) => true;
 }

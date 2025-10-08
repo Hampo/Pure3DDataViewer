@@ -10,4 +10,5 @@ public interface IFileHandler
     public IList<(string Name, bool Value)>? GetSettings();
     public void SetSetting(string name, bool value);
     public FileCallbackResult Handle(P3DFile p3dFile);
+    public bool IsFileSupported(P3DFile p3dFile);
 }

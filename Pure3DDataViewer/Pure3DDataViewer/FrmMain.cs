@@ -49,7 +49,7 @@ public partial class FrmMain : Form
         }
     }
 
-    private readonly List<ToolStripMenuItem> _pluginFileHandlers = [];
+    private readonly List<(IFileHandler FileHandler, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginFileHandlers = [];
     private readonly List<(Type ChunkType, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginChunkHandlers = [];
     private readonly Dictionary<Type, List<TabPage>> _pluginChunkEditors = [];
 
@@ -123,7 +123,6 @@ public partial class FrmMain : Form
                         Tag = fileHandler
                     };
                     tsmiToolsMenu.Click += TSMIPlugin_Click;
-                    TSMITools.DropDownItems.Add(tsmiToolsMenu);
 
                     var tsmiContextMenu = new ToolStripMenuItem(fileHandler.Name)
                     {
@@ -131,7 +130,8 @@ public partial class FrmMain : Form
                         Tag = fileHandler
                     };
                     tsmiContextMenu.Click += TSMIPlugin_Click;
-                    _pluginFileHandlers.Add(tsmiContextMenu);
+
+                    _pluginFileHandlers.Add((fileHandler, tsmiToolsMenu, tsmiContextMenu));
                 }
             }
             TSMITools.DropDownItems.Add(new ToolStripSeparator());
@@ -692,8 +692,9 @@ public partial class FrmMain : Form
                 _listViewItems.Add(lvi);
                 HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Bytes);
 
-                foreach (var tsmi in _pluginFileHandlers)
-                    CMSTVChunks.Items.Add(tsmi);
+                foreach (var (FileHandler, _, ContextMenu) in _pluginFileHandlers)
+                    if (FileHandler.IsFileSupported(p3dFile))
+                        CMSTVChunks.Items.Add(ContextMenu);
 
                 for (int i = TCEditors.TabCount - 1; i >= 2; i--)
                     TCEditors.TabPages.RemoveAt(i);
@@ -1486,7 +1487,21 @@ public partial class FrmMain : Form
         }
     }
 
-    private void TSMITools_DropDownOpening(object sender, EventArgs e) => HandlePluginSettings(TSMITools.DropDownItems);
+    private void TSMITools_DropDownOpening(object sender, EventArgs e)
+    {
+        for (int i = TSMITools.DropDownItems.Count - 1; i >= 0; i--)
+            if (TSMITools.DropDownItems[i] is ToolStripMenuItem tsmi && tsmi.Tag is IFileHandler)
+                TSMITools.DropDownItems.RemoveAt(i);
+
+        for (int i = _pluginFileHandlers.Count - 1; i >= 0; i--)
+        {
+            var (FileHandler, ToolMenu, _) = _pluginFileHandlers[i];
+            if (FileHandler.IsFileSupported(P3DFile))
+                TSMITools.DropDownItems.Insert(0, ToolMenu);
+        }
+
+        HandlePluginSettings(TSMITools.DropDownItems);
+    }
 
     private void CMSTVChunks_Opening(object sender, System.ComponentModel.CancelEventArgs e) => HandlePluginSettings(CMSTVChunks.Items);
 

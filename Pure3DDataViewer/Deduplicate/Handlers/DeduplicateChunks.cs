@@ -50,4 +50,6 @@ public class DeduplicateChunks : IFileHandler
         p3dFile.Chunks.AddRange(newChunks);
         return FileCallbackResult.Modified;
     }
+
+    public bool IsFileSupported(P3DFile p3dFile) => true;
 }

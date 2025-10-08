@@ -55,4 +55,17 @@ public class ExportAllTextures : IFileHandler
         MessageBox.Show($"Exported textures: {exportedTextures}\nSkipped textures: {skippedTextures}\nOutput path: {fbd.SelectedPath}", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
         return FileCallbackResult.Unchanged;
     }
+
+    public bool IsFileSupported(P3DFile p3dFile)
+    {
+        var textures = p3dFile.GetChunksOfType<TextureChunk>();
+        if (textures.Count != 0)
+            return true;
+
+        var sets = p3dFile.GetChunksOfType<SetChunk>();
+        if (sets.Count != 0)
+            return true;
+
+        return false;
+    }
 }

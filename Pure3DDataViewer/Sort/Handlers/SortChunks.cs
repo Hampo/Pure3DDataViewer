@@ -73,4 +73,6 @@ public class SortChunks : IFileHandler
 
         return FileCallbackResult.Modified;
     }
+
+    public bool IsFileSupported(P3DFile p3dFile) => true;
 }
