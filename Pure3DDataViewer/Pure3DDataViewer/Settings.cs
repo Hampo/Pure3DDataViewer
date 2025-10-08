@@ -95,4 +95,16 @@ public static class Settings
 
         RegistryUtils.SetString(type.FullName, tp.Name, "LastEditor");
     }
+
+    public static Color ErrorBackground
+    {
+        get => Color.FromArgb(RegistryUtils.GetInt32("ErrorBackground", Color.FromArgb(255, 230, 230).ToArgb())!.Value);
+        set => RegistryUtils.SetInt32("ErrorBackground", value.ToArgb());
+    }
+
+    public static Color ErrorForeground
+    {
+        get => Color.FromArgb(RegistryUtils.GetInt32("ErrorForeground", Color.DarkRed.ToArgb())!.Value);
+        set => RegistryUtils.SetInt32("ErrorForeground", value.ToArgb());
+    }
 }

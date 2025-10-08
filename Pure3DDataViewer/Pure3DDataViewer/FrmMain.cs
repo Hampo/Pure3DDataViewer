@@ -12,6 +12,7 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Pure3DDataViewer;
 
@@ -484,13 +485,33 @@ public partial class FrmMain : Form
             chunkNode.BackColor = Color.LightGoldenrodYellow;
 
 #if DEBUG
-            do
+            var parent = parentNode;
+            while (parent != null)
             {
-                parentNode.Expand();
-                parentNode = parentNode.Parent;
+                parent.Expand();
+                parent = parent.Parent;
             }
-            while (parentNode != null);
 #endif
+        }
+
+        try
+        {
+            chunk.Validate();
+
+            chunkNode.BackColor = Color.Empty;
+            chunkNode.ForeColor = Color.Empty;
+        }
+        catch
+        {
+            chunkNode.BackColor = Settings.ErrorBackground;
+            chunkNode.ForeColor = Settings.ErrorForeground;
+
+            var parent = parentNode;
+            while (parent != null)
+            {
+                parent.Expand();
+                parent = parent.Parent;
+            }
         }
 
         foreach (var child in chunk.Children)
@@ -557,8 +578,8 @@ public partial class FrmMain : Form
                     {
                         var lviError = new ListViewItem("Validation Error");
                         lviError.SubItems.Add(ex.Message);
-                        lviError.BackColor = Color.FromArgb(255, 230, 230);
-                        lviError.ForeColor = Color.DarkRed;
+                        lviError.BackColor = Settings.ErrorBackground;
+                        lviError.ForeColor = Settings.ErrorForeground;
                         _listViewItems.Add(lviError);
                     }
                 }
@@ -641,8 +662,8 @@ public partial class FrmMain : Form
                 {
                     var lviError = new ListViewItem("Validation Error");
                     lviError.SubItems.Add(ex.Message);
-                    lviError.BackColor = Color.FromArgb(255, 230, 230);
-                    lviError.ForeColor = Color.DarkRed;
+                    lviError.BackColor = Settings.ErrorBackground;
+                    lviError.ForeColor = Settings.ErrorForeground;
                     _listViewItems.Add(lviError);
                 }
 
@@ -1437,6 +1458,28 @@ public partial class FrmMain : Form
             UpdateChunk(childNode, childChunk);
         }
 
+        var allNodes = new List<TreeNode>();
+        foreach (TreeNode childNode in TVChunks.Nodes)
+            CollectNodes(childNode, allNodes);
+        foreach (var childNode in allNodes)
+        {
+            if (childNode.Tag is not Chunk childChunk)
+                continue;
+
+            try
+            {
+                childChunk.Validate();
+
+                childNode.BackColor = Color.Empty;
+                childNode.ForeColor = Color.Empty;
+            }
+            catch
+            {
+                childNode.BackColor = Settings.ErrorBackground;
+                childNode.ForeColor = Settings.ErrorForeground;
+            }
+        }
+
         if (node.IsSelected)
         {
             for (int i = _listViewItems.Count - 1; i >= 0; i--)
@@ -1477,8 +1520,8 @@ public partial class FrmMain : Form
             {
                 var lviError = new ListViewItem("Validation Error");
                 lviError.SubItems.Add(ex.Message);
-                lviError.BackColor = Color.FromArgb(255, 230, 230);
-                lviError.ForeColor = Color.DarkRed;
+                lviError.BackColor = Settings.ErrorBackground;
+                lviError.ForeColor = Settings.ErrorForeground;
                 _listViewItems.Insert(0, lviError);
             }
 
