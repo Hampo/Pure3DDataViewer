@@ -97,4 +97,15 @@ public static class Extensions
 
         return char.ToUpper(input[0]) + input[1..];
     }
+
+    private static readonly NullabilityInfoContext _nullabilityInfoContext = new();
+    public static NullabilityInfo? GetNullabilityInfo(this MemberInfo member) =>  member switch
+        {
+            PropertyInfo prop => _nullabilityInfoContext.Create(prop),
+            FieldInfo field => _nullabilityInfoContext.Create(field),
+            EventInfo ev => _nullabilityInfoContext.Create(ev),
+            _ => null
+        };
+
+    public static NullabilityInfo? GetNullabilityInfo(this ParameterInfo parameter) => _nullabilityInfoContext.Create(parameter);
 }

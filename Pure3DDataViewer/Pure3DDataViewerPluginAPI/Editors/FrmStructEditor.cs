@@ -200,8 +200,9 @@ public partial class FrmStructEditor : Form
             {
                 var memberType = member.GetUnderlyingType();
 
+                var nullability = member.GetNullabilityInfo();
                 var nullableType = Nullable.GetUnderlyingType(memberType);
-                if (nullableType != null && string.IsNullOrEmpty(textBox.Text))
+                if (string.IsNullOrEmpty(textBox.Text) && (nullability?.WriteState == NullabilityState.Nullable || nullableType != null))
                 {
                     SetMemberValue(member, null);
                 }
@@ -217,8 +218,9 @@ public partial class FrmStructEditor : Form
 
                 object? originalObject = GetMemberValue(parentMember)!;
 
+                var nullability = structMember.GetNullabilityInfo();
                 var nullableType = Nullable.GetUnderlyingType(structMemberType);
-                if (nullableType != null && string.IsNullOrEmpty(textBox.Text))
+                if (string.IsNullOrEmpty(textBox.Text) && (nullability?.WriteState == NullabilityState.Nullable || nullableType != null))
                 {
                     SetMemberValue(structMember, null, originalObject);
                 }
