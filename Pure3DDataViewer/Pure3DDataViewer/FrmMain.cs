@@ -12,7 +12,6 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Xml.Linq;
 
 namespace Pure3DDataViewer;
 
@@ -293,6 +292,7 @@ public partial class FrmMain : Form
                                 if (childNode.Tag is Chunk nodeChunk)
                                     childNode.Text = $"{childNode.Index}. {nodeChunk}";
                             }
+                            UpdateErrors();
                             TVChunks.EndUpdate();
                             break;
                     }
@@ -368,30 +368,19 @@ public partial class FrmMain : Form
         LoadP3DFile(ofd.FileName);
     }
 
-    private void Save(string filePath, bool validate)
+    private void Save(string? filePath)
     {
         try
         {
-            P3DFile.Write(filePath, validate);
-            UnsavedChanges = false;
-            LastPath = filePath;
-            Settings.AddRecentFile(filePath);
+            foreach (var chunk in P3DFile.Chunks)
+                chunk.Validate();
         }
         catch (InvalidP3DException ex)
         {
             if (MessageBox.Show($"There were validation errors in the P3D file:\n{ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Validation errors in file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
-
-            Save(filePath, false);
         }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error writing P3D file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
 
-    private void Save(string? filePath)
-    {
         if (string.IsNullOrEmpty(filePath))
         {
             using var sfd = new SaveFileDialog() { Title = "Save File", Filter = "P3D files|*.p3d|All files|*.*" };
@@ -407,7 +396,17 @@ public partial class FrmMain : Form
             filePath = sfd.FileName;
         }
 
-        Save(filePath, true);
+        try
+        {
+            P3DFile.Write(filePath, false);
+            UnsavedChanges = false;
+            LastPath = filePath;
+            Settings.AddRecentFile(filePath);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error writing P3D file: {ex.Message}", "Error saving file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void TSMISave_Click(object sender, EventArgs e)
@@ -452,7 +451,7 @@ public partial class FrmMain : Form
 
         var rootNode = TVChunks.Nodes.Add(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath);
         foreach (var chunk in P3DFile.Chunks)
-            AddChunk(rootNode, chunk);
+            AddChunk(rootNode, chunk, -1, false);
         rootNode.Tag = P3DFile;
         rootNode.Expand();
         TVChunks.SelectedNode = rootNode;
@@ -460,7 +459,7 @@ public partial class FrmMain : Form
         TVChunks.EndUpdate();
     }
 
-    private static TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1)
+    private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true)
     {
         TreeNode chunkNode;
         if (index < 0)
@@ -493,7 +492,6 @@ public partial class FrmMain : Form
             }
 #endif
         }
-
         try
         {
             chunk.Validate();
@@ -515,7 +513,10 @@ public partial class FrmMain : Form
         }
 
         foreach (var child in chunk.Children)
-            AddChunk(chunkNode, child);
+            AddChunk(chunkNode, child, -1, false);
+
+        if (updateErrors)
+            UpdateErrors();
 
         return chunkNode;
     }
@@ -1148,6 +1149,7 @@ public partial class FrmMain : Form
             if (childNode.Tag is Chunk nodeChunk)
                 childNode.Text = $"{childNode.Index}. {nodeChunk}";
         }
+        UpdateErrors();
         TVChunks.EndUpdate();
     }
 
@@ -1458,27 +1460,7 @@ public partial class FrmMain : Form
             UpdateChunk(childNode, childChunk);
         }
 
-        var allNodes = new List<TreeNode>();
-        foreach (TreeNode childNode in TVChunks.Nodes)
-            CollectNodes(childNode, allNodes);
-        foreach (var childNode in allNodes)
-        {
-            if (childNode.Tag is not Chunk childChunk)
-                continue;
-
-            try
-            {
-                childChunk.Validate();
-
-                childNode.BackColor = Color.Empty;
-                childNode.ForeColor = Color.Empty;
-            }
-            catch
-            {
-                childNode.BackColor = Settings.ErrorBackground;
-                childNode.ForeColor = Settings.ErrorForeground;
-            }
-        }
+        UpdateErrors();
 
         if (node.IsSelected)
         {
@@ -1529,6 +1511,32 @@ public partial class FrmMain : Form
         }
 
         TVChunks.EndUpdate();
+    }
+
+    private void UpdateErrors()
+    {
+        var allNodes = new List<TreeNode>();
+        foreach (TreeNode childNode in TVChunks.Nodes)
+            CollectNodes(childNode, allNodes);
+
+        foreach (var childNode in allNodes)
+        {
+            if (childNode.Tag is not Chunk childChunk)
+                continue;
+
+            try
+            {
+                childChunk.Validate();
+
+                childNode.BackColor = Color.Empty;
+                childNode.ForeColor = Color.Empty;
+            }
+            catch
+            {
+                childNode.BackColor = Settings.ErrorBackground;
+                childNode.ForeColor = Settings.ErrorForeground;
+            }
+        }
     }
 
     private void LVValues_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -1594,6 +1602,7 @@ public partial class FrmMain : Form
             if (childNode.Tag is Chunk nodeChunk)
                 childNode.Text = $"{childNode.Index}. {nodeChunk}";
         }
+        UpdateErrors();
         TVChunks.EndUpdate();
     }
 
@@ -1653,6 +1662,7 @@ public partial class FrmMain : Form
             p3dFile.Chunks.Clear();
 
         node.Nodes.Clear();
+        UpdateErrors();
     }
 
     private void TSMIDuplicate_Click(object sender, EventArgs e)
