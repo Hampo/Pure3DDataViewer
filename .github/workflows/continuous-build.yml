@@ -47,7 +47,8 @@ jobs:
             "Deduplicate",
             "LocationFromGame",
             "FrontendTextBibleEditor",
-            "Validate"
+            "Validate",
+            "CarPhysicsObjectGenerator"
           )
 
           foreach ($plugin in $plugins) {

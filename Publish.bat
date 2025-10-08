@@ -26,6 +26,9 @@ copy Pure3DDataViewer\FrontendTextBibleEditor\bin\publish\FrontendTextBibleEdito
 dotnet publish Pure3DDataViewer\Validate\Validate.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\Validate\bin\publish
 copy Pure3DDataViewer\Validate\bin\publish\Validate.dll Publish\Plugins\Validate.dll
 
+dotnet publish Pure3DDataViewer\CarPhysicsObjectGenerator\CarPhysicsObjectGenerator.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\CarPhysicsObjectGenerator\bin\publish
+copy Pure3DDataViewer\CarPhysicsObjectGenerator\bin\publish\CarPhysicsObjectGenerator.dll Publish\Plugins\CarPhysicsObjectGenerator.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE
