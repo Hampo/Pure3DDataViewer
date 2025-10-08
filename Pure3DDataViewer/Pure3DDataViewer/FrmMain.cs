@@ -489,8 +489,9 @@ public partial class FrmMain : Form
                             TSMILittleEndian.Checked = true;
                             break;
                     }
+                    UnsavedChanges = true;
                     MessageBox.Show($"Detected that the opened file is both compressed and has an endian that doesn't match the system's.\nIt is currently not possible to compress a file in a swapped endian.\nSaving will either remove compression or flip endian.", "Compression and endian mismatch detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
+                    return;
                 case P3DFile.SIGNATURE_SWAP:
                     TSMICompressed.Checked = false;
                     switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
