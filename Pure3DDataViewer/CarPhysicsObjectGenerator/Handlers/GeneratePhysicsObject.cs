@@ -10,7 +10,7 @@ using System.Reflection;
 namespace CarPhysicsObjectGenerator.Handlers;
 public class GeneratePhysicsObject : IFileHandler
 {
-    public string Name => "Create Physics Object";
+    public string Name => "Generate Physics Object";
 
     public Image? Image => CarPhysicsObjectGeneratorPlugin.CreateImage;
 
