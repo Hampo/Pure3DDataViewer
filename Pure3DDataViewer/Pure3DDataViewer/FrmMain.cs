@@ -422,7 +422,7 @@ public partial class FrmMain : Form
             if (!TSMICompressed.Checked)
                 P3DFile.Write(filePath, TSMILittleEndian.Checked ? NetP3DLib.IO.Endianness.Little : NetP3DLib.IO.Endianness.Big, false);
             else
-                P3DFile.Compress(filePath, false);
+                P3DFile.Compress(filePath, false, false, false);
             UnsavedChanges = false;
             LastPath = filePath;
             Settings.AddRecentFile(filePath);
@@ -479,7 +479,7 @@ public partial class FrmMain : Form
                     }
                     break;
                 case P3DFile.COMPRESSED_SIGNATURE_SWAP:
-                    TSMICompressed.Checked = false;
+                    TSMICompressed.Checked = false; // TODO: When compressed endian supported, change this
                     switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
                     {
                         case NetP3DLib.IO.Endianness.Little:
