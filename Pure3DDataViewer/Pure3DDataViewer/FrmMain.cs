@@ -378,7 +378,7 @@ public partial class FrmMain : Form
         }
         catch (InvalidP3DException ex)
         {
-            if (MessageBox.Show($"There were validation errors in the P3D file:\n{ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Error saving file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+            if (MessageBox.Show($"There were validation errors in the P3D file:\n{ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Validation errors in file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
 
             Save(filePath, false);
@@ -1439,8 +1439,16 @@ public partial class FrmMain : Form
 
         if (node.IsSelected)
         {
-            foreach (var lvi in _listViewItems)
+            for (int i = _listViewItems.Count - 1; i >= 0; i--)
             {
+                var lvi = _listViewItems[i];
+
+                if (lvi.Text == "Validation Error")
+                {
+                    _listViewItems.RemoveAt(i);
+                    continue;
+                }
+
                 switch (lvi.Tag)
                 {
                     case PropertyInfo property:
@@ -1453,10 +1461,27 @@ public partial class FrmMain : Form
                     case (PropertyInfo listProperty, int index):
                         var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
                         List<object> values = [.. enumerable.Cast<object>()];
-                        lvi.SubItems[1].Text = values[index]?.ToString() ?? "<NULL>";
+                        if (index >= values.Count)
+                            _listViewItems.RemoveAt(index);
+                        else
+                            lvi.SubItems[1].Text = values[index]?.ToString() ?? "<NULL>";
                         break;
                 }
             }
+
+            try
+            {
+                chunk.Validate();
+            }
+            catch (Exception ex)
+            {
+                var lviError = new ListViewItem("Validation Error");
+                lviError.SubItems.Add(ex.Message);
+                lviError.BackColor = Color.FromArgb(255, 230, 230);
+                lviError.ForeColor = Color.DarkRed;
+                _listViewItems.Insert(0, lviError);
+            }
+
             LVValues.Invalidate();
         }
 
