@@ -4,10 +4,10 @@ using System.Text;
 namespace Pure3DDataViewer;
 public static class Extensions
 {
-    public static string? GetPathText(this TreeNode node)
+    public static string GetPathText(this TreeNode node)
     {
         if (node.Tag is not Chunk chunk)
-            return null;
+            return node.Text;
 
         var sb = new StringBuilder($"{chunk}");
 
