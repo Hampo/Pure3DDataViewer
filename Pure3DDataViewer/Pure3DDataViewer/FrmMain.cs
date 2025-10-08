@@ -200,6 +200,16 @@ public partial class FrmMain : Form
             }
         }
 
+        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+        {
+            case NetP3DLib.IO.Endianness.Little:
+                TSMILittleEndian.Checked = true;
+                break;
+            case NetP3DLib.IO.Endianness.Big:
+                TSMIBigEndian.Checked = true;
+                break;
+        }
+
         string[] args = Environment.GetCommandLineArgs();
         if (args.Length > 1)
         {
@@ -342,6 +352,17 @@ public partial class FrmMain : Form
         P3DFile = new P3DFile();
         LastPath = string.Empty;
         PopulateData();
+
+        TSMICompressed.Checked = false;
+        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+        {
+            case NetP3DLib.IO.Endianness.Little:
+                TSMILittleEndian.Checked = true;
+                break;
+            case NetP3DLib.IO.Endianness.Big:
+                TSMIBigEndian.Checked = true;
+                break;
+        }
     }
 
     private void TSMIOpen_Click(object sender, EventArgs e)
@@ -398,7 +419,10 @@ public partial class FrmMain : Form
 
         try
         {
-            P3DFile.Write(filePath, false);
+            if (!TSMICompressed.Checked)
+                P3DFile.Write(filePath, TSMILittleEndian.Checked ? NetP3DLib.IO.Endianness.Little : NetP3DLib.IO.Endianness.Big, false);
+            else
+                P3DFile.Compress(filePath, false);
             UnsavedChanges = false;
             LastPath = filePath;
             Settings.AddRecentFile(filePath);
@@ -437,6 +461,84 @@ public partial class FrmMain : Form
             PopulateData();
             UnsavedChanges = false;
             Settings.AddRecentFile(LastPath);
+
+            var originalBytes = File.ReadAllBytes(filePath);
+            var newBytes = new byte[p3dFile.Size];
+            using var ms = new MemoryStream(newBytes);
+            p3dFile.Write(ms, false);
+
+            if (!originalBytes.SequenceEqual(newBytes))
+            {
+                var signature = BitConverter.ToUInt32(originalBytes);
+
+                switch (signature)
+                {
+                    case P3DFile.COMPRESSED_SIGNATURE:
+                        TSMICompressed.Checked = true;
+                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                        {
+                            case NetP3DLib.IO.Endianness.Little:
+                                TSMILittleEndian.Checked = true;
+                                break;
+                            case NetP3DLib.IO.Endianness.Big:
+                                TSMIBigEndian.Checked = true;
+                                break;
+                        }
+                        break;
+                    case P3DFile.COMPRESSED_SIGNATURE_SWAP:
+                        TSMICompressed.Checked = false;
+                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                        {
+                            case NetP3DLib.IO.Endianness.Little:
+                                TSMIBigEndian.Checked = true;
+                                break;
+                            case NetP3DLib.IO.Endianness.Big:
+                                TSMILittleEndian.Checked = true;
+                                break;
+                        }
+                        MessageBox.Show($"Detected that the opened file is both compressed and has an endian that doesn't match the system's.\nIt is currently not possible to compress a file in a swapped endian.\nSaving will either remove compression or flip endian.", "Compression and endian mismatch detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        break;
+                    case P3DFile.SIGNATURE_SWAP:
+                        TSMICompressed.Checked = false;
+                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                        {
+                            case NetP3DLib.IO.Endianness.Little:
+                                TSMIBigEndian.Checked = true;
+                                break;
+                            case NetP3DLib.IO.Endianness.Big:
+                                TSMILittleEndian.Checked = true;
+                                break;
+                        }
+                        break;
+                    case P3DFile.SIGNATURE:
+                        TSMICompressed.Checked = false;
+                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                        {
+                            case NetP3DLib.IO.Endianness.Little:
+                                TSMILittleEndian.Checked = true;
+                                break;
+                            case NetP3DLib.IO.Endianness.Big:
+                                TSMIBigEndian.Checked = true;
+                                break;
+                        }
+                        UnsavedChanges = true;
+                        MessageBox.Show($"Detected that the opened file has changed values.\nThis is likely because the file contains chunks with incorrect property values that were auto corrected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        break;
+                }
+            }
+            else
+            {
+                TSMICompressed.Checked = false;
+                switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                {
+                    case NetP3DLib.IO.Endianness.Little:
+                        TSMILittleEndian.Checked = true;
+                        break;
+                    case NetP3DLib.IO.Endianness.Big:
+                        TSMIBigEndian.Checked = true;
+                        break;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -652,7 +754,7 @@ public partial class FrmMain : Form
                         editorControl.LoadChunk(chunk);
                     }
                 }
-                
+
                 TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, chunkType) ?? TPValues;
 
                 try
@@ -1716,5 +1818,22 @@ public partial class FrmMain : Form
 
         chunk.Name = stringEditor.Value;
         UpdateChunk(node, chunk);
+    }
+
+    private void TSMILittleEndian_CheckedChanged(object sender, EventArgs e)
+    {
+        if (TSMILittleEndian.Checked)
+            TSMIBigEndian.Checked = false;
+    }
+
+    private void TSMIBigEndian_CheckedChanged(object sender, EventArgs e)
+    {
+        if (TSMIBigEndian.Checked)
+            TSMILittleEndian.Checked = false;
+    }
+
+    private void TSMICompressed_CheckedChanged(object sender, EventArgs e)
+    {
+        TSMIEndianness.Enabled = !TSMICompressed.Checked;
     }
 }

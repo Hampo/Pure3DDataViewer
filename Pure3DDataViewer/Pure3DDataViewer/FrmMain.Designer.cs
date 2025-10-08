@@ -66,6 +66,11 @@ partial class FrmMain
         TSMIOpen = new ToolStripMenuItem();
         TSMISave = new ToolStripMenuItem();
         TSMISaveAs = new ToolStripMenuItem();
+        TSS9 = new ToolStripSeparator();
+        TSMIEndianness = new ToolStripMenuItem();
+        TSMILittleEndian = new ToolStripMenuItem();
+        TSMIBigEndian = new ToolStripMenuItem();
+        TSMICompressed = new ToolStripMenuItem();
         TSS1 = new ToolStripSeparator();
         TSMIRecentFiles = new ToolStripMenuItem();
         dummyToolStripMenuItem = new ToolStripMenuItem();
@@ -378,7 +383,7 @@ partial class FrmMain
         // 
         // TSMIFile
         // 
-        TSMIFile.DropDownItems.AddRange(new ToolStripItem[] { TSMINew, TSMIOpen, TSMISave, TSMISaveAs, TSS1, TSMIRecentFiles, TSS2, TSMIExit });
+        TSMIFile.DropDownItems.AddRange(new ToolStripItem[] { TSMINew, TSMIOpen, TSMISave, TSMISaveAs, TSS9, TSMIEndianness, TSMICompressed, TSS1, TSMIRecentFiles, TSS2, TSMIExit });
         TSMIFile.Name = "TSMIFile";
         TSMIFile.Size = new Size(37, 20);
         TSMIFile.Text = "File";
@@ -419,6 +424,44 @@ partial class FrmMain
         TSMISaveAs.Size = new Size(195, 22);
         TSMISaveAs.Text = "Save As...";
         TSMISaveAs.Click += TSMISaveAs_Click;
+        // 
+        // TSS9
+        // 
+        TSS9.Name = "TSS9";
+        TSS9.Size = new Size(192, 6);
+        // 
+        // TSMIEndianness
+        // 
+        TSMIEndianness.DropDownItems.AddRange(new ToolStripItem[] { TSMILittleEndian, TSMIBigEndian });
+        TSMIEndianness.Image = Properties.Resources.Sort_16x;
+        TSMIEndianness.Name = "TSMIEndianness";
+        TSMIEndianness.Size = new Size(195, 22);
+        TSMIEndianness.Text = "Endianness";
+        // 
+        // TSMILittleEndian
+        // 
+        TSMILittleEndian.CheckOnClick = true;
+        TSMILittleEndian.Name = "TSMILittleEndian";
+        TSMILittleEndian.Size = new Size(180, 22);
+        TSMILittleEndian.Text = "Little Endian";
+        TSMILittleEndian.CheckedChanged += TSMILittleEndian_CheckedChanged;
+        // 
+        // TSMIBigEndian
+        // 
+        TSMIBigEndian.CheckOnClick = true;
+        TSMIBigEndian.Name = "TSMIBigEndian";
+        TSMIBigEndian.Size = new Size(180, 22);
+        TSMIBigEndian.Text = "Big Endian";
+        TSMIBigEndian.CheckedChanged += TSMIBigEndian_CheckedChanged;
+        // 
+        // TSMICompressed
+        // 
+        TSMICompressed.CheckOnClick = true;
+        TSMICompressed.Image = Properties.Resources.ZipFile_16x;
+        TSMICompressed.Name = "TSMICompressed";
+        TSMICompressed.Size = new Size(195, 22);
+        TSMICompressed.Text = "Compressed";
+        TSMICompressed.CheckedChanged += TSMICompressed_CheckedChanged;
         // 
         // TSS1
         // 
@@ -746,4 +789,9 @@ partial class FrmMain
     private ToolStripMenuItem TSMIDuplicate1;
     private ToolStripMenuItem TSMIRename2;
     private ToolStripMenuItem TSMIRename1;
+    private ToolStripSeparator TSS9;
+    private ToolStripMenuItem TSMIEndianness;
+    private ToolStripMenuItem TSMILittleEndian;
+    private ToolStripMenuItem TSMIBigEndian;
+    private ToolStripMenuItem TSMICompressed;
 }
