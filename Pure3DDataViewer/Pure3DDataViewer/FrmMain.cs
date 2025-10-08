@@ -522,7 +522,7 @@ public partial class FrmMain : Form
                                 break;
                         }
                         UnsavedChanges = true;
-                        MessageBox.Show($"Detected that the opened file has changed values.\nThis is likely because the file contains chunks with incorrect property values that were auto corrected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show($"Detected that the opened file has changed values.\n\nThis is likely caused by one of the following:\n- The file contains chunks with incorrect property values that were auto corrected.\n- Some Radical files released with SHAR contain incorrect chunk headers.\n- The file contains different string padding than expected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         break;
                 }
             }
