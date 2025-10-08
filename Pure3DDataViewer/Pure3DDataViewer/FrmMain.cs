@@ -402,9 +402,33 @@ public partial class FrmMain : Form
                 return;
         }
 
+        try
+        {
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                var fileInfo = new FileInfo(filePath);
+                if (fileInfo.Exists && fileInfo.IsReadOnly)
+                {
+                    MessageBox.Show($"\"{filePath}\" is read-only.\nPlease choose a different location.", "Read-only", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    filePath = null;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error checking \"{filePath}\": {ex.Message}.\nPlease choose a different location.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            filePath = null;
+        }
+
         if (string.IsNullOrEmpty(filePath))
         {
-            using var sfd = new SaveFileDialog() { Title = "Save File", Filter = "P3D files|*.p3d|All files|*.*" };
+            using var sfd = new SaveFileDialog()
+            {
+                Title = "Save File",
+                Filter = "P3D files|*.p3d|All files|*.*",
+                OverwritePrompt = true,
+                CheckWriteAccess = true,
+            };
             if (!string.IsNullOrEmpty(LastPath))
             {
                 sfd.InitialDirectory = Path.GetDirectoryName(LastPath);
