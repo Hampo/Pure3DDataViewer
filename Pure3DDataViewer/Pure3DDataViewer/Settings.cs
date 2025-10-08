@@ -107,4 +107,10 @@ public static class Settings
         get => Color.FromArgb(RegistryUtils.GetInt32("ErrorForeground", Color.DarkRed.ToArgb())!.Value);
         set => RegistryUtils.SetInt32("ErrorForeground", value.ToArgb());
     }
+
+    public static string FindQuery
+    {
+        get => RegistryUtils.GetString("FindQuery", string.Empty)!;
+        set => RegistryUtils.SetString("FindQuery", value);
+    }
 }
