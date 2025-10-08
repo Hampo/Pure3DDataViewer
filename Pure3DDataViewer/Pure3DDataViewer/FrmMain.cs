@@ -377,7 +377,7 @@ public partial class FrmMain : Form
         }
         catch (InvalidP3DException ex)
         {
-            if (MessageBox.Show($"There were validation errors in the P3D file:\n{ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Validation errors in file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+            if (MessageBox.Show($"There were validation errors in the P3D file:\n\n{ex.Chunk} - {ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Validation errors in file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
         }
 
@@ -575,10 +575,10 @@ public partial class FrmMain : Form
                     {
                         child.Validate();
                     }
-                    catch (Exception ex)
+                    catch (InvalidP3DException ex)
                     {
                         var lviError = new ListViewItem("Validation Error");
-                        lviError.SubItems.Add(ex.Message);
+                        lviError.SubItems.Add($"Error in chunk: {ex.Chunk}");
                         lviError.BackColor = Settings.ErrorBackground;
                         lviError.ForeColor = Settings.ErrorForeground;
                         _listViewItems.Add(lviError);
@@ -659,10 +659,10 @@ public partial class FrmMain : Form
                 {
                     chunk.Validate();
                 }
-                catch (Exception ex)
+                catch (InvalidP3DException ex)
                 {
                     var lviError = new ListViewItem("Validation Error");
-                    lviError.SubItems.Add(ex.Message);
+                    lviError.SubItems.Add(ex.Chunk == chunk ? ex.Message : $"Error in child: {ex.Chunk}");
                     lviError.BackColor = Settings.ErrorBackground;
                     lviError.ForeColor = Settings.ErrorForeground;
                     _listViewItems.Add(lviError);
@@ -1498,10 +1498,10 @@ public partial class FrmMain : Form
             {
                 chunk.Validate();
             }
-            catch (Exception ex)
+            catch (InvalidP3DException ex)
             {
                 var lviError = new ListViewItem("Validation Error");
-                lviError.SubItems.Add(ex.Message);
+                lviError.SubItems.Add(ex.Chunk == chunk ? ex.Message : $"Error in child: {ex.Chunk}");
                 lviError.BackColor = Settings.ErrorBackground;
                 lviError.ForeColor = Settings.ErrorForeground;
                 _listViewItems.Insert(0, lviError);
@@ -1519,6 +1519,7 @@ public partial class FrmMain : Form
         foreach (TreeNode childNode in TVChunks.Nodes)
             CollectNodes(childNode, allNodes);
 
+        bool errors = false;
         foreach (var childNode in allNodes)
         {
             if (childNode.Tag is not Chunk childChunk)
@@ -1535,7 +1536,20 @@ public partial class FrmMain : Form
             {
                 childNode.BackColor = Settings.ErrorBackground;
                 childNode.ForeColor = Settings.ErrorForeground;
+                errors = true;
             }
+        }
+
+        var rootNode = allNodes[0];
+        if (errors)
+        {
+            rootNode.BackColor = Settings.ErrorBackground;
+            rootNode.ForeColor = Settings.ErrorForeground;
+        }
+        else
+        {
+            rootNode.BackColor = Color.Empty;
+            rootNode.ForeColor = Color.Empty;
         }
     }
 

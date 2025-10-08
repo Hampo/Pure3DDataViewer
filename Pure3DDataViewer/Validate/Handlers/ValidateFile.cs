@@ -1,4 +1,5 @@
 ﻿using NetP3DLib.P3D;
+using NetP3DLib.P3D.Exceptions;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Text;
@@ -24,9 +25,9 @@ public class ValidateFile : IFileHandler
             {
                 chunk.Validate();
             }
-            catch (Exception ex)
+            catch (InvalidP3DException ex)
             {
-                errors.AppendLine($"Error in \"{chunk}\": {ex.Message}");
+                errors.AppendLine($"Error in \"{ex.Chunk}\": {ex.Message}");
             }
         }
 
