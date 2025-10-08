@@ -14,7 +14,6 @@ public class SortPlugin : IPlugin
     static SortPlugin()
     {
         FileHandlers = [
-
             new Handlers.SortChunks(),
         ];
 
