@@ -357,6 +357,8 @@ public partial class FrmMain : Form
         }
 
         UnsavedChanges = false;
+        UndoStack.Clear();
+        RedoStack.Clear();
         P3DFile = new P3DFile();
         LastPath = string.Empty;
         PopulateData();
@@ -488,6 +490,8 @@ public partial class FrmMain : Form
         try
         {
             var p3dFile = new P3DFile(filePath);
+            UndoStack.Clear();
+            RedoStack.Clear();
             P3DFile = p3dFile;
             LastPath = filePath;
             PopulateData();
