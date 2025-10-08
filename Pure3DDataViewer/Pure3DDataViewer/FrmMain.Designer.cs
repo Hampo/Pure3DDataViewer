@@ -77,6 +77,9 @@ partial class FrmMain
         TSS2 = new ToolStripSeparator();
         TSMIExit = new ToolStripMenuItem();
         TSMIEdit = new ToolStripMenuItem();
+        TSMIUndo = new ToolStripMenuItem();
+        TSMIRedo = new ToolStripMenuItem();
+        TSS10 = new ToolStripSeparator();
         TSMINewChunk1 = new ToolStripMenuItem();
         TSS4 = new ToolStripSeparator();
         TSMICut1 = new ToolStripMenuItem();
@@ -442,7 +445,7 @@ partial class FrmMain
         // 
         TSMILittleEndian.CheckOnClick = true;
         TSMILittleEndian.Name = "TSMILittleEndian";
-        TSMILittleEndian.Size = new Size(180, 22);
+        TSMILittleEndian.Size = new Size(139, 22);
         TSMILittleEndian.Text = "Little Endian";
         TSMILittleEndian.CheckedChanged += TSMILittleEndian_CheckedChanged;
         // 
@@ -450,7 +453,7 @@ partial class FrmMain
         // 
         TSMIBigEndian.CheckOnClick = true;
         TSMIBigEndian.Name = "TSMIBigEndian";
-        TSMIBigEndian.Size = new Size(180, 22);
+        TSMIBigEndian.Size = new Size(139, 22);
         TSMIBigEndian.Text = "Big Endian";
         TSMIBigEndian.CheckedChanged += TSMIBigEndian_CheckedChanged;
         // 
@@ -498,10 +501,34 @@ partial class FrmMain
         // 
         // TSMIEdit
         // 
-        TSMIEdit.DropDownItems.AddRange(new ToolStripItem[] { TSMINewChunk1, TSS4, TSMICut1, TSMICopy1, TSMIPasteBefore1, TSMIPasteAfter1, TSMIPasteInside1, TSMIDuplicate1, TSS3, TSMIDelete1, TSMIRename1, TSS7, TSMIFind, TSMIFindNext });
+        TSMIEdit.DropDownItems.AddRange(new ToolStripItem[] { TSMIUndo, TSMIRedo, TSS10, TSMINewChunk1, TSS4, TSMICut1, TSMICopy1, TSMIPasteBefore1, TSMIPasteAfter1, TSMIPasteInside1, TSMIDuplicate1, TSS3, TSMIDelete1, TSMIRename1, TSS7, TSMIFind, TSMIFindNext });
         TSMIEdit.Name = "TSMIEdit";
         TSMIEdit.Size = new Size(39, 20);
         TSMIEdit.Text = "Edit";
+        TSMIEdit.DropDownOpening += TSMIEdit_DropDownOpening;
+        // 
+        // TSMIUndo
+        // 
+        TSMIUndo.Image = Properties.Resources.Undo_16x;
+        TSMIUndo.Name = "TSMIUndo";
+        TSMIUndo.ShortcutKeys = Keys.Control | Keys.Z;
+        TSMIUndo.Size = new Size(211, 22);
+        TSMIUndo.Text = "Undo";
+        TSMIUndo.Click += TSMIUndo_Click;
+        // 
+        // TSMIRedo
+        // 
+        TSMIRedo.Image = Properties.Resources.Redo_16x;
+        TSMIRedo.Name = "TSMIRedo";
+        TSMIRedo.ShortcutKeys = Keys.Control | Keys.Y;
+        TSMIRedo.Size = new Size(211, 22);
+        TSMIRedo.Text = "Redo";
+        TSMIRedo.Click += TSMIRedo_Click;
+        // 
+        // TSS10
+        // 
+        TSS10.Name = "TSS10";
+        TSS10.Size = new Size(208, 6);
         // 
         // TSMINewChunk1
         // 
@@ -794,4 +821,7 @@ partial class FrmMain
     private ToolStripMenuItem TSMILittleEndian;
     private ToolStripMenuItem TSMIBigEndian;
     private ToolStripMenuItem TSMICompressed;
+    private ToolStripMenuItem TSMIUndo;
+    private ToolStripMenuItem TSMIRedo;
+    private ToolStripSeparator TSS10;
 }

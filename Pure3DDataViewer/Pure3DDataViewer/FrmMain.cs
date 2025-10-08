@@ -18,6 +18,10 @@ namespace Pure3DDataViewer;
 public partial class FrmMain : Form
 {
     private P3DFile P3DFile = new();
+    private record UndoEntry(string Change, P3DFile OldFile);
+    private readonly Stack<UndoEntry> UndoStack = [];
+    private readonly Stack<UndoEntry> RedoStack = [];
+
     private string _Text = string.Empty;
     private string _lastPath = string.Empty;
     private string LastPath
@@ -246,6 +250,7 @@ public partial class FrmMain : Form
             return;
 
         var handler = tsmi.Tag;
+        var clone = P3DFile.Clone();
         switch (handler)
         {
             case IFileHandler fileHandler:
@@ -254,6 +259,7 @@ public partial class FrmMain : Form
                     switch (fileHandler.Handle(P3DFile))
                     {
                         case Pure3DDataViewerPluginAPI.Enums.FileCallbackResult.Modified:
+                            PreChange($"{fileHandler.Name}", clone);
                             UnsavedChanges = true;
                             PopulateData();
                             break;
@@ -277,6 +283,7 @@ public partial class FrmMain : Form
                     {
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedData:
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedChildren:
+                            PreChange($"{chunkHandler.Name}", clone);
                             UpdateChunk(node, chunk);
                             break;
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Deleted:
@@ -286,6 +293,7 @@ public partial class FrmMain : Form
                                 parentChunk.Children.RemoveAt(node.Index);
                             else if (parentNode.Tag is P3DFile parentFile)
                                 parentFile.Chunks.RemoveAt(node.Index);
+                            PreChange($"{chunkHandler.Name}", clone);
                             UnsavedChanges = true;
 
                             TVChunks.BeginUpdate();
@@ -896,6 +904,7 @@ public partial class FrmMain : Form
             return;
 
         var Updated = false;
+        var clone = P3DFile.Clone();
         switch (lvi.Tag)
         {
             case PropertyInfo property:
@@ -907,7 +916,10 @@ public partial class FrmMain : Form
         }
 
         if (Updated)
+        {
+            PreChange("Update Value", clone);
             UpdateChunk(TVChunks.SelectedNode, chunk);
+        }
     }
 
     public static bool EditProperty(PropertyInfo property, object obj, int? index = null)
@@ -1247,6 +1259,7 @@ public partial class FrmMain : Form
 
         var parentNode = node.Parent;
 
+        PreChange($"Chunk Cut");
         if (parentNode.Tag is Chunk parentChunk)
             parentChunk.Children.RemoveAt(node.Index);
         else if (parentNode.Tag is P3DFile p3dFile)
@@ -1356,8 +1369,9 @@ public partial class FrmMain : Form
         if (chunks == null || chunks.Count == 0)
             return;
 
-        var index = node.Index;
+        PreChange("Paste Before");
         UnsavedChanges = true;
+        var index = node.Index;
         for (var i = chunks.Count - 1; i >= 0; i--)
         {
             parentChunks.Insert(index, chunks[i]);
@@ -1390,6 +1404,7 @@ public partial class FrmMain : Form
         if (chunks == null || chunks.Count == 0)
             return;
 
+        PreChange("Paste After");
         UnsavedChanges = true;
         var index = node.Index + 1;
         for (var i = chunks.Count - 1; i >= 0; i--)
@@ -1423,6 +1438,7 @@ public partial class FrmMain : Form
         if (chunks == null || chunks.Count == 0)
             return;
 
+        PreChange("Paste Inside");
         UnsavedChanges = true;
         foreach (var chunk in chunks)
         {
@@ -1451,6 +1467,7 @@ public partial class FrmMain : Form
             if (newChunks == null || newChunks.Count == 0)
                 return;
 
+            PreChange("New Chunk");
             UnsavedChanges = true;
 
             IList<Chunk> parentChunks;
@@ -1728,6 +1745,7 @@ public partial class FrmMain : Form
 
         var parentNode = node.Parent;
 
+        PreChange("Delete Chunk");
         if (parentNode.Tag is Chunk parentChunk)
             parentChunk.Children.RemoveAt(node.Index);
         else if (parentNode.Tag is P3DFile p3dFile)
@@ -1775,6 +1793,8 @@ public partial class FrmMain : Form
         if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete all chunks of type \"{chunkTypeName}\" in:\n{parentNode.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return;
 
+        PreChange("Delete Type");
+        UnsavedChanges = true;
         if (parentNode.Tag is Chunk parentChunk)
         {
             TVChunks.SelectedNode = parentNode;
@@ -1802,6 +1822,8 @@ public partial class FrmMain : Form
         if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete all children of:\n{node.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return;
 
+        PreChange("Delete Children");
+        UnsavedChanges = true;
         if (node.Tag is Chunk parentChunk)
             parentChunk.Children.Clear();
         else if (node.Tag is P3DFile p3dFile)
@@ -1823,6 +1845,7 @@ public partial class FrmMain : Form
         var clone = chunk.Clone();
         var index = node.Index + 1;
 
+        PreChange("Duplicate Chunk");
         var parentNode = node.Parent;
         if (parentNode.Tag is Chunk parentChunk)
             parentChunk.Children.Insert(index, clone);
@@ -1846,6 +1869,7 @@ public partial class FrmMain : Form
         if (stringEditor.ShowDialog() != DialogResult.OK)
             return;
 
+        PreChange("Rename Chunk");
         chunk.Name = stringEditor.Value;
         UpdateChunk(node, chunk);
     }
@@ -1865,5 +1889,95 @@ public partial class FrmMain : Form
     private void TSMICompressed_CheckedChanged(object sender, EventArgs e)
     {
         TSMIEndianness.Enabled = !TSMICompressed.Checked;
+    }
+
+    private void PreChange(string change, P3DFile? clone = null)
+    {
+        UndoStack.Push(new(change, clone ?? P3DFile.Clone()));
+        RedoStack.Clear();
+    }
+
+    private void TSMIUndo_Click(object sender, EventArgs e) => PerformUndoRedo(UndoStack, RedoStack, true);
+
+    private void TSMIRedo_Click(object sender, EventArgs e) => PerformUndoRedo(RedoStack, UndoStack, false);
+
+    private void PerformUndoRedo(Stack<UndoEntry> fromStack, Stack<UndoEntry> toStack, bool isUndo)
+    {
+        if (!fromStack.TryPop(out var entry))
+            return;
+
+        try
+        {
+            var currentFile = P3DFile.Clone();
+            P3DFile = entry.OldFile;
+            toStack.Push(new UndoEntry(entry.Change, currentFile));
+            UnsavedChanges = true;
+
+            var allNodes = new List<TreeNode>();
+            foreach (TreeNode node in TVChunks.Nodes)
+                CollectNodes(node, allNodes);
+
+            var expandedPaths = new HashSet<string>(allNodes.Where(n => n.IsExpanded).Select(n => n.GetPathText()).Where(text => !string.IsNullOrWhiteSpace(text)));
+
+            var selectedPath = TVChunks.SelectedNode?.GetPathText();
+
+            PopulateData();
+
+            RestoreTreeState(expandedPaths, selectedPath);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to {(isUndo ? "undo" : "redo")}: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void RestoreTreeState(HashSet<string> expandedPaths, string? selectedPath)
+    {
+        TVChunks.BeginUpdate();
+
+        var allNodes = new List<TreeNode>();
+        foreach (TreeNode node in TVChunks.Nodes)
+            CollectNodes(node, allNodes);
+
+        foreach (var node in allNodes)
+        {
+            var pathText = node.GetPathText();
+            if (string.IsNullOrWhiteSpace(pathText))
+                continue;
+
+            if (expandedPaths.Contains(pathText))
+                node.Expand();
+
+            if (pathText == selectedPath)
+                TVChunks.SelectedNode = node;
+        }
+
+        TVChunks.EndUpdate();
+    }
+
+
+    private void TSMIEdit_DropDownOpening(object sender, EventArgs e)
+    {
+        if (UndoStack.TryPeek(out var undo))
+        {
+            TSMIUndo.Text = $"Undo {undo.Change}";
+            TSMIUndo.Enabled = true;
+        }
+        else
+        {
+            TSMIUndo.Text = "Undo";
+            TSMIUndo.Enabled = false;
+        }
+
+        if (RedoStack.TryPeek(out var redo))
+        {
+            TSMIRedo.Text = $"Redo {redo.Change}";
+            TSMIRedo.Enabled = true;
+        }
+        else
+        {
+            TSMIRedo.Text = "Redo";
+            TSMIRedo.Enabled = false;
+        }
     }
 }
