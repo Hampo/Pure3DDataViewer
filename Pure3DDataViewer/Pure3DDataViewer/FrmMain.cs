@@ -463,81 +463,71 @@ public partial class FrmMain : Form
             Settings.AddRecentFile(LastPath);
 
             var originalBytes = File.ReadAllBytes(filePath);
+            var originalSignature = BitConverter.ToUInt32(originalBytes);
+            switch (originalSignature)
+            {
+                case P3DFile.COMPRESSED_SIGNATURE:
+                    TSMICompressed.Checked = true;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case NetP3DLib.IO.Endianness.Little:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                        case NetP3DLib.IO.Endianness.Big:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                    }
+                    break;
+                case P3DFile.COMPRESSED_SIGNATURE_SWAP:
+                    TSMICompressed.Checked = false;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case NetP3DLib.IO.Endianness.Little:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                        case NetP3DLib.IO.Endianness.Big:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                    }
+                    MessageBox.Show($"Detected that the opened file is both compressed and has an endian that doesn't match the system's.\nIt is currently not possible to compress a file in a swapped endian.\nSaving will either remove compression or flip endian.", "Compression and endian mismatch detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    break;
+                case P3DFile.SIGNATURE_SWAP:
+                    TSMICompressed.Checked = false;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case NetP3DLib.IO.Endianness.Little:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                        case NetP3DLib.IO.Endianness.Big:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                    }
+                    break;
+                case P3DFile.SIGNATURE:
+                    TSMICompressed.Checked = false;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case NetP3DLib.IO.Endianness.Little:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                        case NetP3DLib.IO.Endianness.Big:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                    }
+                    break;
+            }
+
             var newBytes = new byte[p3dFile.Size];
             using var ms = new MemoryStream(newBytes);
-            p3dFile.Write(ms, false);
+            if (!TSMICompressed.Checked)
+                p3dFile.Write(ms, TSMILittleEndian.Checked ? NetP3DLib.IO.Endianness.Little : NetP3DLib.IO.Endianness.Big, false);
+            else
+                newBytes = LZR_Compression.CompressFile(p3dFile, false, false);
 
             if (!originalBytes.SequenceEqual(newBytes))
             {
-                var signature = BitConverter.ToUInt32(originalBytes);
-
-                switch (signature)
-                {
-                    case P3DFile.COMPRESSED_SIGNATURE:
-                        TSMICompressed.Checked = true;
-                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                        {
-                            case NetP3DLib.IO.Endianness.Little:
-                                TSMILittleEndian.Checked = true;
-                                break;
-                            case NetP3DLib.IO.Endianness.Big:
-                                TSMIBigEndian.Checked = true;
-                                break;
-                        }
-                        break;
-                    case P3DFile.COMPRESSED_SIGNATURE_SWAP:
-                        TSMICompressed.Checked = false;
-                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                        {
-                            case NetP3DLib.IO.Endianness.Little:
-                                TSMIBigEndian.Checked = true;
-                                break;
-                            case NetP3DLib.IO.Endianness.Big:
-                                TSMILittleEndian.Checked = true;
-                                break;
-                        }
-                        MessageBox.Show($"Detected that the opened file is both compressed and has an endian that doesn't match the system's.\nIt is currently not possible to compress a file in a swapped endian.\nSaving will either remove compression or flip endian.", "Compression and endian mismatch detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        break;
-                    case P3DFile.SIGNATURE_SWAP:
-                        TSMICompressed.Checked = false;
-                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                        {
-                            case NetP3DLib.IO.Endianness.Little:
-                                TSMIBigEndian.Checked = true;
-                                break;
-                            case NetP3DLib.IO.Endianness.Big:
-                                TSMILittleEndian.Checked = true;
-                                break;
-                        }
-                        break;
-                    case P3DFile.SIGNATURE:
-                        TSMICompressed.Checked = false;
-                        switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                        {
-                            case NetP3DLib.IO.Endianness.Little:
-                                TSMILittleEndian.Checked = true;
-                                break;
-                            case NetP3DLib.IO.Endianness.Big:
-                                TSMIBigEndian.Checked = true;
-                                break;
-                        }
-                        UnsavedChanges = true;
-                        MessageBox.Show($"Detected that the opened file has changed values.\n\nThis is likely caused by one of the following:\n- The file contains chunks with incorrect property values that were auto corrected.\n- Some Radical files released with SHAR contain incorrect chunk headers.\n- The file contains different string padding than expected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        break;
-                }
-            }
-            else
-            {
-                TSMICompressed.Checked = false;
-                switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                {
-                    case NetP3DLib.IO.Endianness.Little:
-                        TSMILittleEndian.Checked = true;
-                        break;
-                    case NetP3DLib.IO.Endianness.Big:
-                        TSMIBigEndian.Checked = true;
-                        break;
-                }
+                UnsavedChanges = true;
+                MessageBox.Show($"Detected that the opened file has changed values.\n\nThis is likely caused by one of the following:\n- The file contains chunks with incorrect property values that were auto corrected.\n- Some Radical files released with SHAR contain incorrect chunk headers.\n- The file contains different string padding than expected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
         catch (Exception ex)
