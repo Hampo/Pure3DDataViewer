@@ -18,6 +18,9 @@ namespace Pure3DDataViewer;
 public partial class FrmMain : Form
 {
     private P3DFile P3DFile = new();
+
+    private FileSystemWatcher? _watcher = null;
+
     private record UndoEntry(string Change, P3DFile OldFile);
     private readonly Stack<UndoEntry> UndoStack = [];
     private readonly Stack<UndoEntry> RedoStack = [];
@@ -364,6 +367,8 @@ public partial class FrmMain : Form
         LastPath = string.Empty;
         PopulateData();
 
+        _watcher?.Dispose();
+
         TSMICompressed.Checked = false;
         switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
         {
@@ -454,6 +459,7 @@ public partial class FrmMain : Form
 
         try
         {
+            _watcher?.Dispose();
             if (!TSMICompressed.Checked)
                 P3DFile.Write(filePath, TSMILittleEndian.Checked ? NetP3DLib.IO.Endianness.Little : NetP3DLib.IO.Endianness.Big, false);
             else
@@ -461,6 +467,14 @@ public partial class FrmMain : Form
             UnsavedChanges = false;
             LastPath = filePath;
             Settings.AddRecentFile(filePath);
+
+            _watcher = new FileSystemWatcher(Path.GetDirectoryName(filePath)!)
+            {
+                Filter = Path.GetFileName(filePath)!,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+            _watcher.Changed += FileChanged;
         }
         catch (Exception ex)
         {
@@ -498,6 +512,15 @@ public partial class FrmMain : Form
             PopulateData();
             UnsavedChanges = false;
             Settings.AddRecentFile(LastPath);
+
+            _watcher?.Dispose();
+            _watcher = new FileSystemWatcher(Path.GetDirectoryName(filePath)!)
+            {
+                Filter = Path.GetFileName(filePath)!,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+            _watcher.Changed += FileChanged;
 
             var originalBytes = File.ReadAllBytes(filePath);
             var originalSignature = BitConverter.ToUInt32(originalBytes);
@@ -572,6 +595,23 @@ public partial class FrmMain : Form
         {
             MessageBox.Show($"Error loading P3D file: {ex}", "Error opening file", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private void FileChanged(object sender, FileSystemEventArgs e)
+    {
+        Invoke(() =>
+        {
+            if (MessageBox.Show(this, "Changes were detected in the original file. Do you want to reload?", "Changes detected", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                UnsavedChanges = true;
+                return;
+            }
+
+            if (UnsavedChanges && MessageBox.Show(this, "There are unsaved changes in the current file. Do you want to save them?", "Unsaved changes", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                Save(null);
+
+            LoadP3DFile(LastPath);
+        });
     }
 
     private void PopulateData()
