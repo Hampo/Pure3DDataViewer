@@ -1691,12 +1691,21 @@ public partial class FrmMain : Form
                             lvi.SubItems[1].Text = value?.ToString() ?? "<NULL>";
                         break;
                     case (PropertyInfo listProperty, int index):
-                        var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
-                        List<object> values = [.. enumerable.Cast<object>()];
-                        if (index >= values.Count)
-                            _listViewItems.RemoveAt(index);
-                        else
-                            lvi.SubItems[1].Text = values[index]?.ToString() ?? "<NULL>";
+                        _listViewItems.RemoveAt(i);
+
+                        if (index == 0)
+                        {
+                            var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
+                            List<object> values = [.. enumerable.Cast<object>()];
+                            for (var j = values.Count - 1; j >= 0; j--)
+                            {
+                                var lviItem = new ListViewItem($"{listProperty.Name}[{j}]");
+                                lviItem.SubItems.Add(values[j]?.ToString() ?? "<NULL>");
+                                lviItem.Tag = (listProperty, j);
+                                _listViewItems.Insert(i, lviItem);
+                            }
+                        }
+
                         break;
                 }
             }
@@ -1715,6 +1724,7 @@ public partial class FrmMain : Form
                 _listViewItems.Insert(0, lviError);
             }
 
+            LVValues.VirtualListSize = _listViewItems.Count;
             LVValues.Invalidate();
         }
 
