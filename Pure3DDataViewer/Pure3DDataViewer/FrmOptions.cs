@@ -12,20 +12,25 @@ public partial class FrmOptions : Form
     private void FrmOptions_Load(object sender, EventArgs e)
     {
         LVChunkColours.BeginUpdate();
+
+        AddType(typeof(UnknownChunk));
         foreach (var type in ChunkLoader.ChunkTypes.Values.Select(x => x.Item1))
-        {
-            var lvi = LVChunkColours.Items.Add($"{type}");
-            lvi.Tag = type;
-            var (backColour, foreColour) = Settings.GetChunkColour(type);
-            lvi.SubItems.Add(backColour.IsEmpty ? "<Default>" : $"#{backColour.R:X2}{backColour.G:X2}{backColour.B:X2}");
-            lvi.SubItems.Add(foreColour.IsEmpty ? "<Default>" : $"#{foreColour.R:X2}{foreColour.G:X2}{foreColour.B:X2}");
-            lvi.BackColor = backColour;
-            lvi.ForeColor = foreColour;
-        }
+            AddType(type);
 
         foreach (ColumnHeader column in LVChunkColours.Columns)
             column.Width = -2;
         LVChunkColours.EndUpdate();
+    }
+
+    private void AddType(Type type)
+    {
+        var lvi = LVChunkColours.Items.Add($"{type}");
+        lvi.Tag = type;
+        var (backColour, foreColour) = Settings.GetChunkColour(type);
+        lvi.SubItems.Add(backColour.IsEmpty ? "<Default>" : $"#{backColour.R:X2}{backColour.G:X2}{backColour.B:X2}");
+        lvi.SubItems.Add(foreColour.IsEmpty ? "<Default>" : $"#{foreColour.R:X2}{foreColour.G:X2}{foreColour.B:X2}");
+        lvi.BackColor = backColour;
+        lvi.ForeColor = foreColour;
     }
 
     private void LVChunkColours_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -117,10 +122,12 @@ public partial class FrmOptions : Form
         LVChunkColours.BeginUpdate();
 
         Settings.ResetChunkColour(selectedType);
-        selectedItem.BackColor = Color.Empty;
-        selectedItem.ForeColor = Color.Empty;
-        selectedItem.SubItems[1].Text = "<Default>";
-        selectedItem.SubItems[2].Text = "<Default>";
+
+        var (backColour, foreColour) = Settings.GetChunkColour(selectedType);
+        selectedItem.BackColor = backColour;
+        selectedItem.ForeColor = foreColour;
+        selectedItem.SubItems[1].Text = backColour.IsEmpty ? "<Default>" : $"#{backColour.R:X2}{backColour.G:X2}{backColour.B:X2}";
+        selectedItem.SubItems[2].Text = foreColour.IsEmpty ? "<Default>" : $"#{foreColour.R:X2}{foreColour.G:X2}{foreColour.B:X2}";
 
         LVChunkColours.EndUpdate();
     }

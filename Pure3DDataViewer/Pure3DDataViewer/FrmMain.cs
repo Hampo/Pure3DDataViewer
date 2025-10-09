@@ -610,19 +610,19 @@ public partial class FrmMain : Form
                 parentNode.TreeView.EndUpdate();
         }
         chunkNode.Tag = chunk;
-        if (chunk is UnknownChunk)
-        {
-            chunkNode.BackColor = Color.LightGoldenrodYellow;
 
 #if DEBUG
+        if (chunk is UnknownChunk)
+        {
             var parent = parentNode;
             while (parent != null)
             {
                 parent.Expand();
                 parent = parent.Parent;
             }
-#endif
         }
+#endif
+
         try
         {
             chunk.Validate();

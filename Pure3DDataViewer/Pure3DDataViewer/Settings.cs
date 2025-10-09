@@ -120,7 +120,7 @@ public static class Settings
         if (string.IsNullOrEmpty(type.FullName))
             return (Color.Empty, Color.Empty);
 
-        var backColorInt = RegistryUtils.GetInt32($"{type.FullName}_BackColour", null, "ChunkColours");
+        var backColorInt = RegistryUtils.GetInt32($"{type.FullName}_BackColour", type == typeof(UnknownChunk) ? Color.LightGoldenrodYellow.ToArgb() : null, "ChunkColours");
         var foreColorInt = RegistryUtils.GetInt32($"{type.FullName}_ForeColour", null, "ChunkColours");
 
         Color backColor = backColorInt.HasValue ? Color.FromArgb(backColorInt.Value) : Color.Empty;
