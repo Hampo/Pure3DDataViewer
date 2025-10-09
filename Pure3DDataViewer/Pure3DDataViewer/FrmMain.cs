@@ -56,6 +56,7 @@ public partial class FrmMain : Form
     private readonly List<(IFileHandler FileHandler, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginFileHandlers = [];
     private readonly List<(Type ChunkType, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginChunkHandlers = [];
     private readonly Dictionary<Type, List<TabPage>> _pluginChunkEditors = [];
+    private readonly ToolStripSeparator _toolsFileChunkSeparator = new();
 
     private void UpdateText()
     {
@@ -138,7 +139,7 @@ public partial class FrmMain : Form
                     _pluginFileHandlers.Add((fileHandler, tsmiToolsMenu, tsmiContextMenu));
                 }
             }
-            TSMITools.DropDownItems.Add(new ToolStripSeparator());
+            TSMITools.DropDownItems.Add(_toolsFileChunkSeparator);
 
             foreach (var plugin in PluginLoader.Plugins)
             {
@@ -1534,12 +1535,18 @@ public partial class FrmMain : Form
             if (TSMITools.DropDownItems[i] is ToolStripMenuItem tsmi && tsmi.Tag is IFileHandler)
                 TSMITools.DropDownItems.RemoveAt(i);
 
+        bool hasFileHandlers = false;
         for (int i = _pluginFileHandlers.Count - 1; i >= 0; i--)
         {
             var (FileHandler, ToolMenu, _) = _pluginFileHandlers[i];
             if (FileHandler.IsFileSupported(P3DFile))
+            {
+                hasFileHandlers = true;
                 TSMITools.DropDownItems.Insert(2, ToolMenu);
+            }
         }
+
+        _toolsFileChunkSeparator.Visible = hasFileHandlers && TSMITools.DropDownItems.OfType<ToolStripMenuItem>().Any(x => x.Tag is IChunkHandler);
 
         HandlePluginSettings(TSMITools.DropDownItems);
     }
