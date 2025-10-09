@@ -623,18 +623,16 @@ public partial class FrmMain : Form
         }
 #endif
 
+        (Color BackColour, Color ForeColour) colours;
         try
         {
             chunk.Validate();
 
-            var (backColour, foreColour) = Settings.GetChunkColour(chunk.GetType());
-            chunkNode.BackColor = backColour;
-            chunkNode.ForeColor = foreColour;
+            colours = Settings.GetChunkColour(chunk.GetType());
         }
         catch
         {
-            chunkNode.BackColor = Settings.ErrorBackground;
-            chunkNode.ForeColor = Settings.ErrorForeground;
+            colours = Settings.GetErrorChunkColour();
 
             var parent = parentNode;
             while (parent != null)
@@ -643,6 +641,8 @@ public partial class FrmMain : Form
                 parent = parent.Parent;
             }
         }
+        chunkNode.BackColor = colours.BackColour;
+        chunkNode.ForeColor = colours.ForeColour;
 
         foreach (var child in chunk.Children)
             AddChunk(chunkNode, child, -1, false);
@@ -711,8 +711,9 @@ public partial class FrmMain : Form
                     {
                         var lviError = new ListViewItem("Validation Error");
                         lviError.SubItems.Add($"Error in chunk: {ex.Chunk}");
-                        lviError.BackColor = Settings.ErrorBackground;
-                        lviError.ForeColor = Settings.ErrorForeground;
+                        var (backColour, foreColour) = Settings.GetErrorChunkColour();
+                        lviError.BackColor = backColour;
+                        lviError.ForeColor = foreColour;
                         _listViewItems.Add(lviError);
                     }
                 }
@@ -796,8 +797,9 @@ public partial class FrmMain : Form
                 {
                     var lviError = new ListViewItem("Validation Error");
                     lviError.SubItems.Add(ex.Chunk == chunk ? ex.Message : $"Error in child: {ex.Chunk}");
-                    lviError.BackColor = Settings.ErrorBackground;
-                    lviError.ForeColor = Settings.ErrorForeground;
+                    var (backColour, foreColour) = Settings.GetErrorChunkColour();
+                    lviError.BackColor = backColour;
+                    lviError.ForeColor = foreColour;
                     _listViewItems.Add(lviError);
                 }
 
@@ -1660,8 +1662,9 @@ public partial class FrmMain : Form
             {
                 var lviError = new ListViewItem("Validation Error");
                 lviError.SubItems.Add(ex.Chunk == chunk ? ex.Message : $"Error in child: {ex.Chunk}");
-                lviError.BackColor = Settings.ErrorBackground;
-                lviError.ForeColor = Settings.ErrorForeground;
+                var (backColour, foreColour) = Settings.GetErrorChunkColour();
+                lviError.BackColor = backColour;
+                lviError.ForeColor = foreColour;
                 _listViewItems.Insert(0, lviError);
             }
 
@@ -1684,33 +1687,26 @@ public partial class FrmMain : Form
             if (childNode.Tag is not Chunk childChunk)
                 continue;
 
+            (Color BackColour, Color ForeColour) childColours;
             try
             {
                 childChunk.Validate();
 
-                var (backColour, foreColour) = Settings.GetChunkColour(childChunk.GetType());
-                childNode.BackColor = backColour;
-                childNode.ForeColor = foreColour;
+                childColours = Settings.GetChunkColour(childChunk.GetType());
             }
             catch
             {
-                childNode.BackColor = Settings.ErrorBackground;
-                childNode.ForeColor = Settings.ErrorForeground;
+                childColours = Settings.GetErrorChunkColour();
                 errors = true;
             }
+            childNode.BackColor = childColours.BackColour;
+            childNode.ForeColor = childColours.ForeColour;
         }
 
         var rootNode = allNodes[0];
-        if (errors)
-        {
-            rootNode.BackColor = Settings.ErrorBackground;
-            rootNode.ForeColor = Settings.ErrorForeground;
-        }
-        else
-        {
-            rootNode.BackColor = Color.Empty;
-            rootNode.ForeColor = Color.Empty;
-        }
+        (Color BackColour, Color ForeColour) = errors ? Settings.GetErrorChunkColour() : (Color.Empty, Color.Empty);
+        rootNode.BackColor = BackColour;
+        rootNode.ForeColor = ForeColour;
     }
 
     private void LVValues_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -1996,5 +1992,6 @@ public partial class FrmMain : Form
     {
         using var options = new FrmOptions();
         options.ShowDialog();
+        UpdateErrors();
     }
 }

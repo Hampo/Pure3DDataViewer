@@ -97,25 +97,43 @@ public static class Settings
         RegistryUtils.SetString(type.FullName, tp.Name, "LastEditor");
     }
 
-    public static Color ErrorBackground
-    {
-        get => Color.FromArgb(RegistryUtils.GetInt32("ErrorBackground", Color.FromArgb(255, 230, 230).ToArgb())!.Value);
-        set => RegistryUtils.SetInt32("ErrorBackground", value.ToArgb());
-    }
-
-    public static Color ErrorForeground
-    {
-        get => Color.FromArgb(RegistryUtils.GetInt32("ErrorForeground", Color.DarkRed.ToArgb())!.Value);
-        set => RegistryUtils.SetInt32("ErrorForeground", value.ToArgb());
-    }
-
     public static string FindQuery
     {
         get => RegistryUtils.GetString("FindQuery", string.Empty)!;
         set => RegistryUtils.SetString("FindQuery", value);
     }
 
-    public static (Color Backcolour, Color Forecolour) GetChunkColour(Type type)
+    public static (Color BackColour, Color ForeColour) GetErrorChunkColour()
+    {
+        var backColor = Color.FromArgb(RegistryUtils.GetInt32("Error_BackColour", Color.FromArgb(255, 230, 230).ToArgb(), "ChunkColours")!.Value);
+        var foreColor = Color.FromArgb(RegistryUtils.GetInt32("Error_ForeColour", Color.DarkRed.ToArgb(), "ChunkColours")!.Value);
+
+        return (backColor, foreColor);
+    }
+
+    public static void SetErrorChunkColour(Color backColour, Color foreColour)
+    {
+        SetErrorChunkBackColour(backColour);
+        SetErrorChunkForeColour(foreColour);
+    }
+
+    public static void SetErrorChunkBackColour(Color backColour)
+    {
+        RegistryUtils.SetInt32("Error_BackColour", backColour.ToArgb(), "ChunkColours");
+    }
+
+    public static void SetErrorChunkForeColour(Color foreColour)
+    {
+        RegistryUtils.SetInt32("Error_ForeColour", foreColour.ToArgb(), "ChunkColours");
+    }
+
+    public static void ResetErrorChunkColour()
+    {
+        RegistryUtils.SetInt32("Error_BackColour", Color.FromArgb(255, 230, 230).ToArgb(), "ChunkColours");
+        RegistryUtils.SetInt32("Error_ForeColour", Color.DarkRed.ToArgb(), "ChunkColours");
+    }
+
+    public static (Color BackColour, Color ForeColour) GetChunkColour(Type type)
     {
         if (string.IsNullOrEmpty(type.FullName))
             return (Color.Empty, Color.Empty);

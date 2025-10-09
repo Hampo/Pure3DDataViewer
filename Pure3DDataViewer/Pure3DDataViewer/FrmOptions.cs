@@ -13,24 +13,33 @@ public partial class FrmOptions : Form
     {
         LVChunkColours.BeginUpdate();
 
-        AddType(typeof(UnknownChunk));
+        var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
+        var errorLVI = AddChunkColour("Errored Chunk", errorBackColour, errorForeColour);
+
+        AddChunkColourType(typeof(UnknownChunk));
         foreach (var type in ChunkLoader.ChunkTypes.Values.Select(x => x.Item1))
-            AddType(type);
+            AddChunkColourType(type);
 
         foreach (ColumnHeader column in LVChunkColours.Columns)
             column.Width = -2;
         LVChunkColours.EndUpdate();
     }
 
-    private void AddType(Type type)
+    private void AddChunkColourType(Type type)
     {
-        var lvi = LVChunkColours.Items.Add($"{type}");
-        lvi.Tag = type;
         var (backColour, foreColour) = Settings.GetChunkColour(type);
+        var lvi = AddChunkColour($"{type}", backColour, foreColour);
+        lvi.Tag = type;
+    }
+
+    private ListViewItem AddChunkColour(string name, Color backColour, Color foreColour)
+    {
+        var lvi = LVChunkColours.Items.Add(name);
         lvi.SubItems.Add(backColour.IsEmpty ? "<Default>" : $"#{backColour.R:X2}{backColour.G:X2}{backColour.B:X2}");
         lvi.SubItems.Add(foreColour.IsEmpty ? "<Default>" : $"#{foreColour.R:X2}{foreColour.G:X2}{foreColour.B:X2}");
         lvi.BackColor = backColour;
         lvi.ForeColor = foreColour;
+        return lvi;
     }
 
     private void LVChunkColours_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -39,7 +48,7 @@ public partial class FrmOptions : Form
         var item = info.Item;
         var subItem = info.SubItem;
 
-        if (item == null || subItem == null || item.Tag is not Type type)
+        if (item == null || subItem == null)
             return;
 
         var columnIndex = item.SubItems.IndexOf(subItem);
@@ -66,14 +75,12 @@ public partial class FrmOptions : Form
             return;
 
         var selectedItem = LVChunkColours.SelectedItems[0];
-        if (selectedItem.Tag is not Type selectedType)
-            return;
 
         using var colorPicker = new Cyotek.Windows.Forms.ColorPickerDialog()
         {
             Color = selectedItem.BackColor,
             ShowAlphaChannel = true,
-            Text = $"Edit {selectedType.Name} Back Colour",
+            Text = $"Edit {selectedItem.Text} Back Colour",
         };
         
         if (colorPicker.ShowDialog() != DialogResult.OK)
@@ -82,7 +89,11 @@ public partial class FrmOptions : Form
         var backColour = colorPicker.Color;
         selectedItem.SubItems[1].Text = backColour.IsEmpty ? "<Default>" : $"#{backColour.R:X2}{backColour.G:X2}{backColour.B:X2}";
         selectedItem.BackColor = backColour;
-        Settings.SetChunkBackColour(selectedType, backColour);
+
+        if (selectedItem.Tag is not Type selectedType)
+            Settings.SetErrorChunkBackColour(backColour);
+        else
+            Settings.SetChunkBackColour(selectedType, backColour);
     }
 
     private void TSMISetForeColour_Click(object sender, EventArgs e)
@@ -91,14 +102,12 @@ public partial class FrmOptions : Form
             return;
 
         var selectedItem = LVChunkColours.SelectedItems[0];
-        if (selectedItem.Tag is not Type selectedType)
-            return;
 
         using var colorPicker = new Cyotek.Windows.Forms.ColorPickerDialog()
         {
             Color = selectedItem.ForeColor,
             ShowAlphaChannel = true,
-            Text = $"Edit {selectedType.Name} Fore Colour",
+            Text = $"Edit {selectedItem.Text} Fore Colour",
         };
 
         if (colorPicker.ShowDialog() != DialogResult.OK)
@@ -107,7 +116,11 @@ public partial class FrmOptions : Form
         var foreColour = colorPicker.Color;
         selectedItem.SubItems[2].Text = foreColour.IsEmpty ? "<Default>" : $"#{foreColour.R:X2}{foreColour.G:X2}{foreColour.B:X2}";
         selectedItem.ForeColor = foreColour;
-        Settings.SetChunkForeColour(selectedType, foreColour);
+
+        if (selectedItem.Tag is not Type selectedType)
+            Settings.SetErrorChunkForeColour(foreColour);
+        else
+            Settings.SetChunkForeColour(selectedType, foreColour);
     }
 
     private void TSMIResetColours_Click(object sender, EventArgs e)
@@ -116,18 +129,25 @@ public partial class FrmOptions : Form
             return;
 
         var selectedItem = LVChunkColours.SelectedItems[0];
-        if (selectedItem.Tag is not Type selectedType)
-            return;
 
         LVChunkColours.BeginUpdate();
 
-        Settings.ResetChunkColour(selectedType);
+        (Color BackColour, Color ForeColour) colours;
+        if (selectedItem.Tag is not Type selectedType)
+        {
+            Settings.ResetErrorChunkColour();
+            colours = Settings.GetErrorChunkColour();
+        }
+        else
+        {
+            Settings.ResetChunkColour(selectedType);
+            colours = Settings.GetChunkColour(selectedType);
+        }
 
-        var (backColour, foreColour) = Settings.GetChunkColour(selectedType);
-        selectedItem.BackColor = backColour;
-        selectedItem.ForeColor = foreColour;
-        selectedItem.SubItems[1].Text = backColour.IsEmpty ? "<Default>" : $"#{backColour.R:X2}{backColour.G:X2}{backColour.B:X2}";
-        selectedItem.SubItems[2].Text = foreColour.IsEmpty ? "<Default>" : $"#{foreColour.R:X2}{foreColour.G:X2}{foreColour.B:X2}";
+        selectedItem.BackColor = colours.BackColour;
+        selectedItem.ForeColor = colours.ForeColour;
+        selectedItem.SubItems[1].Text = colours.BackColour.IsEmpty ? "<Default>" : $"#{colours.BackColour.R:X2}{colours.BackColour.G:X2}{colours.BackColour.B:X2}";
+        selectedItem.SubItems[2].Text = colours.ForeColour.IsEmpty ? "<Default>" : $"#{colours.ForeColour.R:X2}{colours.ForeColour.G:X2}{colours.ForeColour.B:X2}";
 
         LVChunkColours.EndUpdate();
     }
