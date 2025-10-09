@@ -580,7 +580,7 @@ public partial class FrmMain : Form
 
         var rootNode = TVChunks.Nodes.Add(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath);
         foreach (var chunk in P3DFile.Chunks)
-            AddChunk(rootNode, chunk, -1, false);
+            AddChunk(rootNode, chunk, -1, false, false);
         rootNode.Tag = P3DFile;
         rootNode.Expand();
         TVChunks.SelectedNode = rootNode;
@@ -588,7 +588,7 @@ public partial class FrmMain : Form
         TVChunks.EndUpdate();
     }
 
-    private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true)
+    private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true, bool beginUpdate = true)
     {
         TreeNode chunkNode;
         if (index < 0)
@@ -597,7 +597,8 @@ public partial class FrmMain : Form
         }
         else
         {
-            parentNode.TreeView.BeginUpdate();
+            if (beginUpdate)
+                parentNode.TreeView.BeginUpdate();
             chunkNode = parentNode.Nodes.Insert(index, $"{index}. {chunk}");
             for (int i = 0; i < parentNode.Nodes.Count; i++)
             {
@@ -605,7 +606,8 @@ public partial class FrmMain : Form
                 if (node.Tag is Chunk nodeChunk)
                     node.Text = $"{node.Index}. {nodeChunk}";
             }
-            parentNode.TreeView.EndUpdate();
+            if (beginUpdate)
+                parentNode.TreeView.EndUpdate();
         }
         chunkNode.Tag = chunk;
         if (chunk is UnknownChunk)
@@ -1586,10 +1588,11 @@ public partial class FrmMain : Form
         frmAbout.ShowDialog();
     }
 
-    private void UpdateChunk(TreeNode node, Chunk chunk)
+    private void UpdateChunk(TreeNode node, Chunk chunk, bool beginUpdate = true)
     {
         UnsavedChanges = true;
-        TVChunks.BeginUpdate();
+        if (beginUpdate)
+            TVChunks.BeginUpdate();
 
         node.Tag = chunk;
         node.Text = $"{node.Index}. {chunk}";
@@ -1602,7 +1605,7 @@ public partial class FrmMain : Form
                 node.Nodes.RemoveAt(i);
         else if (childCount > nodeCount)
             for (int i = nodeCount; i < childCount; i++)
-                AddChunk(node, chunk.Children[i]);
+                AddChunk(node, chunk.Children[i], beginUpdate: false);
 
         for (int i = 0; i < childCount; i++)
         {
@@ -1610,7 +1613,7 @@ public partial class FrmMain : Form
             var childChunk = chunk.Children[i];
             childNode.Tag = childChunk;
 
-            UpdateChunk(childNode, childChunk);
+            UpdateChunk(childNode, childChunk, false);
         }
 
         UpdateErrors();
@@ -1663,7 +1666,8 @@ public partial class FrmMain : Form
             LVValues.Invalidate();
         }
 
-        TVChunks.EndUpdate();
+        if (beginUpdate)
+            TVChunks.EndUpdate();
     }
 
     private void UpdateErrors()
