@@ -1,4 +1,5 @@
-﻿using Pure3DDataViewerPluginAPI;
+﻿using NetP3DLib.P3D;
+using Pure3DDataViewerPluginAPI;
 
 namespace Pure3DDataViewer;
 public static class Settings
@@ -112,5 +113,53 @@ public static class Settings
     {
         get => RegistryUtils.GetString("FindQuery", string.Empty)!;
         set => RegistryUtils.SetString("FindQuery", value);
+    }
+
+    public static (Color Backcolour, Color Forecolour) GetChunkColour(Type type)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return (Color.Empty, Color.Empty);
+
+        var backColorInt = RegistryUtils.GetInt32($"{type.FullName}_BackColour", null, "ChunkColours");
+        var foreColorInt = RegistryUtils.GetInt32($"{type.FullName}_ForeColour", null, "ChunkColours");
+
+        Color backColor = backColorInt.HasValue ? Color.FromArgb(backColorInt.Value) : Color.Empty;
+        Color foreColor = foreColorInt.HasValue ? Color.FromArgb(foreColorInt.Value) : Color.Empty;
+
+        return (backColor, foreColor);
+    }
+
+    public static void SetChunkColour(Type type, Color backColour, Color foreColour)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return;
+
+        SetChunkBackColour(type, backColour);
+        SetChunkForeColour(type, foreColour);
+    }
+
+    public static void SetChunkBackColour(Type type, Color backColour)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return;
+
+        RegistryUtils.SetInt32($"{type.FullName}_BackColour", backColour.ToArgb(), "ChunkColours");
+    }
+
+    public static void SetChunkForeColour(Type type, Color foreColour)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return;
+
+        RegistryUtils.SetInt32($"{type.FullName}_ForeColour", foreColour.ToArgb(), "ChunkColours");
+    }
+
+    public static void ResetChunkColour(Type type)
+    {
+        if (string.IsNullOrEmpty(type.FullName))
+            return;
+
+        RegistryUtils.SetInt32($"{type.FullName}_BackColour", null, "ChunkColours");
+        RegistryUtils.SetInt32($"{type.FullName}_ForeColour", null, "ChunkColours");
     }
 }

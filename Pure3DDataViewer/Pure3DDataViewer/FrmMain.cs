@@ -627,8 +627,9 @@ public partial class FrmMain : Form
         {
             chunk.Validate();
 
-            chunkNode.BackColor = Color.Empty;
-            chunkNode.ForeColor = Color.Empty;
+            var (backColour, foreColour) = Settings.GetChunkColour(chunk.GetType());
+            chunkNode.BackColor = backColour;
+            chunkNode.ForeColor = foreColour;
         }
         catch
         {
@@ -1535,7 +1536,7 @@ public partial class FrmMain : Form
         {
             var (FileHandler, ToolMenu, _) = _pluginFileHandlers[i];
             if (FileHandler.IsFileSupported(P3DFile))
-                TSMITools.DropDownItems.Insert(0, ToolMenu);
+                TSMITools.DropDownItems.Insert(2, ToolMenu);
         }
 
         HandlePluginSettings(TSMITools.DropDownItems);
@@ -1588,7 +1589,7 @@ public partial class FrmMain : Form
         frmAbout.ShowDialog();
     }
 
-    private void UpdateChunk(TreeNode node, Chunk chunk, bool beginUpdate = true)
+    private void UpdateChunk(TreeNode node, Chunk chunk, bool beginUpdate = true, bool updateErrors = true)
     {
         UnsavedChanges = true;
         if (beginUpdate)
@@ -1613,10 +1614,11 @@ public partial class FrmMain : Form
             var childChunk = chunk.Children[i];
             childNode.Tag = childChunk;
 
-            UpdateChunk(childNode, childChunk, false);
+            UpdateChunk(childNode, childChunk, false, false);
         }
 
-        UpdateErrors();
+        if (updateErrors)
+            UpdateErrors();
 
         if (node.IsSelected)
         {
@@ -1686,8 +1688,9 @@ public partial class FrmMain : Form
             {
                 childChunk.Validate();
 
-                childNode.BackColor = Color.Empty;
-                childNode.ForeColor = Color.Empty;
+                var (backColour, foreColour) = Settings.GetChunkColour(childChunk.GetType());
+                childNode.BackColor = backColour;
+                childNode.ForeColor = foreColour;
             }
             catch
             {
@@ -1987,5 +1990,11 @@ public partial class FrmMain : Form
             TSMIRedo.Text = "Redo";
             TSMIRedo.Enabled = false;
         }
+    }
+
+    private void TSMIOptions_Click(object sender, EventArgs e)
+    {
+        using var options = new FrmOptions();
+        options.ShowDialog();
     }
 }

@@ -51,7 +51,7 @@ public static class RegistryUtils
         }
 
         if (value == null)
-            registryKey.DeleteValue(name);
+            registryKey.DeleteValue(name, false);
         else
             registryKey.SetValue(name, value, Microsoft.Win32.RegistryValueKind.MultiString);
     }
@@ -103,7 +103,7 @@ public static class RegistryUtils
         }
 
         if (value == null)
-            registryKey.DeleteValue(name);
+            registryKey.DeleteValue(name, false);
         else
             registryKey.SetValue(name, value, Microsoft.Win32.RegistryValueKind.String);
     }
@@ -155,7 +155,7 @@ public static class RegistryUtils
         }
 
         if (value == null)
-            registryKey.DeleteValue(name);
+            registryKey.DeleteValue(name, false);
         else
             registryKey.SetValue(name, value, Microsoft.Win32.RegistryValueKind.DWord);
     }
@@ -207,7 +207,7 @@ public static class RegistryUtils
         }
 
         if (value == null)
-            registryKey.DeleteValue(name);
+            registryKey.DeleteValue(name, false);
         else
             registryKey.SetValue(name, value.Value ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
     }

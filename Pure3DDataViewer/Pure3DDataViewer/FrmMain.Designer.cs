@@ -104,6 +104,8 @@ partial class FrmMain
         TSMITools = new ToolStripMenuItem();
         TSMIHelp = new ToolStripMenuItem();
         TSMIAbout = new ToolStripMenuItem();
+        TSMIOptions = new ToolStripMenuItem();
+        TSS11 = new ToolStripSeparator();
         ((System.ComponentModel.ISupportInitialize)SC1).BeginInit();
         SC1.Panel1.SuspendLayout();
         SC1.Panel2.SuspendLayout();
@@ -701,6 +703,7 @@ partial class FrmMain
         // 
         // TSMITools
         // 
+        TSMITools.DropDownItems.AddRange(new ToolStripItem[] { TSMIOptions, TSS11 });
         TSMITools.Name = "TSMITools";
         TSMITools.Size = new Size(46, 20);
         TSMITools.Text = "Tools";
@@ -720,6 +723,19 @@ partial class FrmMain
         TSMIAbout.Size = new Size(107, 22);
         TSMIAbout.Text = "About";
         TSMIAbout.Click += TSMIAbout_Click;
+        // 
+        // TSMIOptions
+        // 
+        TSMIOptions.Image = Properties.Resources.Settings_16x;
+        TSMIOptions.Name = "TSMIOptions";
+        TSMIOptions.Size = new Size(180, 22);
+        TSMIOptions.Text = "Options";
+        TSMIOptions.Click += TSMIOptions_Click;
+        // 
+        // TSS11
+        // 
+        TSS11.Name = "TSS11";
+        TSS11.Size = new Size(177, 6);
         // 
         // FrmMain
         // 
@@ -824,4 +840,6 @@ partial class FrmMain
     private ToolStripMenuItem TSMIUndo;
     private ToolStripMenuItem TSMIRedo;
     private ToolStripSeparator TSS10;
+    private ToolStripMenuItem TSMIOptions;
+    private ToolStripSeparator TSS11;
 }
