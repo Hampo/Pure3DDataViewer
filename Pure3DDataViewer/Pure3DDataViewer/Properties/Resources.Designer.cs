@@ -93,16 +93,6 @@ namespace Pure3DDataViewer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ColorPicker_16x {
-            get {
-                object obj = ResourceManager.GetObject("ColorPicker_16x", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap Copy_16x {
             get {
                 object obj = ResourceManager.GetObject("Copy_16x", resourceCulture);
@@ -236,26 +226,6 @@ namespace Pure3DDataViewer.Properties {
         internal static System.Drawing.Bitmap Redo_16x {
             get {
                 object obj = ResourceManager.GetObject("Redo_16x", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Remove_color_16x {
-            get {
-                object obj = ResourceManager.GetObject("Remove_color_16x", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap RemoveFromCollection_16x {
-            get {
-                object obj = ResourceManager.GetObject("RemoveFromCollection_16x", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
