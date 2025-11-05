@@ -67,7 +67,7 @@ public partial class FrmMain : Form
         if (_unsavedChanges)
             text.Append('*');
         if (!string.IsNullOrEmpty(_lastPath))
-            text.Append($"{_lastPath} - ");
+            text.Append($"{Path.GetFileName(_lastPath)} - ");
         text.Append(_Text);
 
         Text = text.ToString();
