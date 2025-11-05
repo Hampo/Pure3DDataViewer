@@ -9,6 +9,7 @@ public class ViewImage : IChunkEditor
     public string Name => "View";
     public HashSet<Type> ChunkTypes =>
     [
+        typeof(ImageDataChunk),
         typeof(ImageChunk),
         typeof(TextureChunk),
         typeof(SpriteChunk),

@@ -48,6 +48,7 @@ public partial class ViewImageEditor : EditorControl
     {
         var image = chunk switch
         {
+            ImageDataChunk imageDataChunk => (imageDataChunk.ParentChunk as ImageChunk)?.GetImage(),
             ImageChunk imageChunk => imageChunk.GetImage(),
             TextureChunk textureChunk => textureChunk.GetFirstChunkOfType<ImageChunk>()?.GetImage(),
             SpriteChunk spriteChunk => spriteChunk.GetImage(),

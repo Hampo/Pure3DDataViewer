@@ -55,7 +55,7 @@ partial class ViewImageEditor
         // 
         CMSPBImage.Items.AddRange(new ToolStripItem[] { TSMISetBackgroundColour, TSMISizeMode });
         CMSPBImage.Name = "CMSPBImage";
-        CMSPBImage.Size = new Size(197, 70);
+        CMSPBImage.Size = new Size(197, 48);
         // 
         // TSMISetBackgroundColour
         // 
@@ -79,7 +79,7 @@ partial class ViewImageEditor
         TSMISizeModeNormal.CheckOnClick = true;
         TSMISizeModeNormal.CheckState = CheckState.Checked;
         TSMISizeModeNormal.Name = "TSMISizeModeNormal";
-        TSMISizeModeNormal.Size = new Size(180, 22);
+        TSMISizeModeNormal.Size = new Size(147, 22);
         TSMISizeModeNormal.Text = "Normal";
         TSMISizeModeNormal.CheckedChanged += TSMISizeModeNormal_CheckedChanged;
         // 
@@ -87,7 +87,7 @@ partial class ViewImageEditor
         // 
         TSMISizeModeZoom.CheckOnClick = true;
         TSMISizeModeZoom.Name = "TSMISizeModeZoom";
-        TSMISizeModeZoom.Size = new Size(180, 22);
+        TSMISizeModeZoom.Size = new Size(147, 22);
         TSMISizeModeZoom.Text = "Zoom";
         TSMISizeModeZoom.CheckedChanged += TSMISizeModeZoom_CheckedChanged;
         // 
@@ -95,7 +95,7 @@ partial class ViewImageEditor
         // 
         TSMISizeModeCenterImage.CheckOnClick = true;
         TSMISizeModeCenterImage.Name = "TSMISizeModeCenterImage";
-        TSMISizeModeCenterImage.Size = new Size(180, 22);
+        TSMISizeModeCenterImage.Size = new Size(147, 22);
         TSMISizeModeCenterImage.Text = "Center Image";
         TSMISizeModeCenterImage.CheckedChanged += TSMISizeModeCenterImage_CheckedChanged;
         // 
@@ -103,7 +103,7 @@ partial class ViewImageEditor
         // 
         TSMISizeModeStretchImage.CheckOnClick = true;
         TSMISizeModeStretchImage.Name = "TSMISizeModeStretchImage";
-        TSMISizeModeStretchImage.Size = new Size(180, 22);
+        TSMISizeModeStretchImage.Size = new Size(147, 22);
         TSMISizeModeStretchImage.Text = "Stretch Image";
         TSMISizeModeStretchImage.CheckedChanged += TSMISizeModeStretchImage_CheckedChanged;
         // 
@@ -111,6 +111,7 @@ partial class ViewImageEditor
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
+        BackgroundImage = Properties.Resources.Transparent_16x;
         Controls.Add(PBImage);
         Name = "ViewImageEditor";
         ((System.ComponentModel.ISupportInitialize)PBImage).EndInit();
