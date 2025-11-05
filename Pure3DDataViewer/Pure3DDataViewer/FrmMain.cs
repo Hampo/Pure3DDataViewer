@@ -1726,6 +1726,17 @@ public partial class FrmMain : Form
 
             LVValues.VirtualListSize = _listViewItems.Count;
             LVValues.Invalidate();
+
+            if (_pluginChunkEditors.TryGetValue(chunk.GetType(), out var editors))
+            {
+                foreach (var editorTP in editors)
+                {
+                    if (!TCEditors.TabPages.Contains(editorTP))
+                        TCEditors.TabPages.Add(editorTP);
+                    var editorControl = (EditorControl)editorTP.Controls[0];
+                    editorControl.LoadChunk(chunk);
+                }
+            }
         }
 
         if (beginUpdate)
