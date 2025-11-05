@@ -32,6 +32,11 @@ partial class ViewImageEditor
         PBImage = new PictureBox();
         CMSPBImage = new ContextMenuStrip(components);
         TSMISetBackgroundColour = new ToolStripMenuItem();
+        TSMISizeMode = new ToolStripMenuItem();
+        TSMISizeModeNormal = new ToolStripMenuItem();
+        TSMISizeModeZoom = new ToolStripMenuItem();
+        TSMISizeModeCenterImage = new ToolStripMenuItem();
+        TSMISizeModeStretchImage = new ToolStripMenuItem();
         ((System.ComponentModel.ISupportInitialize)PBImage).BeginInit();
         CMSPBImage.SuspendLayout();
         SuspendLayout();
@@ -48,9 +53,9 @@ partial class ViewImageEditor
         // 
         // CMSPBImage
         // 
-        CMSPBImage.Items.AddRange(new ToolStripItem[] { TSMISetBackgroundColour });
+        CMSPBImage.Items.AddRange(new ToolStripItem[] { TSMISetBackgroundColour, TSMISizeMode });
         CMSPBImage.Name = "CMSPBImage";
-        CMSPBImage.Size = new Size(197, 48);
+        CMSPBImage.Size = new Size(197, 70);
         // 
         // TSMISetBackgroundColour
         // 
@@ -59,6 +64,48 @@ partial class ViewImageEditor
         TSMISetBackgroundColour.Size = new Size(196, 22);
         TSMISetBackgroundColour.Text = "Set Background Colour";
         TSMISetBackgroundColour.Click += TSMISetBackgroundColour_Click;
+        // 
+        // TSMISizeMode
+        // 
+        TSMISizeMode.DropDownItems.AddRange(new ToolStripItem[] { TSMISizeModeNormal, TSMISizeModeZoom, TSMISizeModeCenterImage, TSMISizeModeStretchImage });
+        TSMISizeMode.Image = Properties.Resources.ImageScale_16x;
+        TSMISizeMode.Name = "TSMISizeMode";
+        TSMISizeMode.Size = new Size(196, 22);
+        TSMISizeMode.Text = "Size Mode";
+        // 
+        // TSMISizeModeNormal
+        // 
+        TSMISizeModeNormal.Checked = true;
+        TSMISizeModeNormal.CheckOnClick = true;
+        TSMISizeModeNormal.CheckState = CheckState.Checked;
+        TSMISizeModeNormal.Name = "TSMISizeModeNormal";
+        TSMISizeModeNormal.Size = new Size(180, 22);
+        TSMISizeModeNormal.Text = "Normal";
+        TSMISizeModeNormal.CheckedChanged += TSMISizeModeNormal_CheckedChanged;
+        // 
+        // TSMISizeModeZoom
+        // 
+        TSMISizeModeZoom.CheckOnClick = true;
+        TSMISizeModeZoom.Name = "TSMISizeModeZoom";
+        TSMISizeModeZoom.Size = new Size(180, 22);
+        TSMISizeModeZoom.Text = "Zoom";
+        TSMISizeModeZoom.CheckedChanged += TSMISizeModeZoom_CheckedChanged;
+        // 
+        // TSMISizeModeCenterImage
+        // 
+        TSMISizeModeCenterImage.CheckOnClick = true;
+        TSMISizeModeCenterImage.Name = "TSMISizeModeCenterImage";
+        TSMISizeModeCenterImage.Size = new Size(180, 22);
+        TSMISizeModeCenterImage.Text = "Center Image";
+        TSMISizeModeCenterImage.CheckedChanged += TSMISizeModeCenterImage_CheckedChanged;
+        // 
+        // TSMISizeModeStretchImage
+        // 
+        TSMISizeModeStretchImage.CheckOnClick = true;
+        TSMISizeModeStretchImage.Name = "TSMISizeModeStretchImage";
+        TSMISizeModeStretchImage.Size = new Size(180, 22);
+        TSMISizeModeStretchImage.Text = "Stretch Image";
+        TSMISizeModeStretchImage.CheckedChanged += TSMISizeModeStretchImage_CheckedChanged;
         // 
         // ViewImageEditor
         // 
@@ -76,4 +123,9 @@ partial class ViewImageEditor
     private PictureBox PBImage;
     private ContextMenuStrip CMSPBImage;
     private ToolStripMenuItem TSMISetBackgroundColour;
+    private ToolStripMenuItem TSMISizeMode;
+    private ToolStripMenuItem TSMISizeModeNormal;
+    private ToolStripMenuItem TSMISizeModeZoom;
+    private ToolStripMenuItem TSMISizeModeCenterImage;
+    private ToolStripMenuItem TSMISizeModeStretchImage;
 }

@@ -18,6 +18,23 @@ public class ImportImage : IChunkHandler<ImageChunk>
 
     public ChunkCallbackResult Handle(ImageChunk imageChunk)
     {
+        TextureChunk? parentTexture = null;
+        if (imageChunk.ParentChunk != null)
+        {
+            switch (imageChunk.ParentChunk)
+            {
+                case TextureChunk textureChunk:
+                    parentTexture = textureChunk;
+                    break;
+                case SpriteChunk spriteChunk:
+                    MessageBox.Show("To import an image for a sprite, please use the `Import Sprint` option on the parent chunk.", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return ChunkCallbackResult.Unchanged;
+                default:
+                    MessageBox.Show("You can only import an image within a texture.", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return ChunkCallbackResult.Unchanged;
+            }
+        }
+
         using var ofd = new OpenFileDialog()
         {
             CheckFileExists = true,
@@ -54,6 +71,15 @@ public class ImportImage : IChunkHandler<ImageChunk>
             imageChunk.Bpp = bpp;
             imageChunk.HasAlpha = hasAlpha;
             imageChunk.Palettized = isPalettized;
+
+            if (parentTexture != null)
+            {
+                parentTexture.Width = width;
+                parentTexture.Height = height;
+                parentTexture.Bpp = bpp;
+                parentTexture.AlphaDepth = alphaDepth;
+                parentTexture.TextureType = isPalettized ? TextureChunk.TextureTypes.Palettized : TextureChunk.TextureTypes.RGB;
+            }
 
             var imageDataChunk = new ImageDataChunk(pngBytes);
             imageChunk.Children.Add(imageDataChunk);

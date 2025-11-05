@@ -80,7 +80,7 @@ public static class ImageHelper
         return image;
     }
 
-    private static Image DXTToBitmap(DirectXTexNet.ScratchImage scratch)
+    private static Bitmap DXTToBitmap(DirectXTexNet.ScratchImage scratch)
     {
         var img = scratch.GetImage(0);
         int width = (int)img.Width;
@@ -102,6 +102,47 @@ public static class ImageHelper
         }
 
         bmp.UnlockBits(bmpData);
+        return bmp;
+    }
+
+    public static bool CanExport(this SpriteChunk spriteChunk) => spriteChunk.GetChildCount(NetP3DLib.P3D.Enums.ChunkIdentifier.Image) > 0 && spriteChunk.GetChunksOfType<ImageChunk>().All(imageChunk => imageChunk.CanExportFormat());
+
+    public static bool SaveImage(this SpriteChunk spriteChunk, string filePath)
+    {
+        using var image = spriteChunk.GetImage();
+
+        if (image == null)
+            return false;
+
+        image.Save(filePath, ImageFormat.Png);
+        return true;
+    }
+
+    public static Image? GetImage(this SpriteChunk spriteChunk)
+    {
+        if (spriteChunk.ImageWidth == 0 || spriteChunk.ImageHeight == 0)
+            return spriteChunk.GetFirstChunkOfType<ImageChunk>()?.GetImage();
+
+        var bmp = new Bitmap((int)spriteChunk.ImageWidth, (int)spriteChunk.ImageHeight);
+
+        var left = 0;
+        var top = 0;
+        using var g = Graphics.FromImage(bmp);
+        g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+        foreach (var imageChunk in spriteChunk.GetChunksOfType<ImageChunk>())
+        {
+            using var blit = imageChunk.GetImage();
+            if (blit != null)
+                g.DrawImage(blit, new Rectangle(left, top, blit.Width, blit.Height));
+
+            left += (int)(imageChunk.Width - spriteChunk.BlitBorder * 2);
+            if (left >= bmp.Width)
+            {
+                left = 0;
+                top += (int)(imageChunk.Height - spriteChunk.BlitBorder * 2);
+            }
+        }
+
         return bmp;
     }
 }

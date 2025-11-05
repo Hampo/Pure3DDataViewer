@@ -11,7 +11,7 @@ public class ViewImage : IChunkEditor
     [
         typeof(ImageChunk),
         typeof(TextureChunk),
-        //typeof(SpriteChunk),
+        typeof(SpriteChunk),
     ];
     public EditorControl Editor => new ViewImageEditor();
 }

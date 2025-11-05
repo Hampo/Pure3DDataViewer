@@ -22,6 +22,7 @@ public class ImportExportImagesPlugin : IPlugin
     {
         FileHandlers = [
             new Handlers.ExportAllTextures(),
+            new Handlers.ExportAllSprites(),
         ];
 
         ChunkHandlers = [
@@ -29,10 +30,13 @@ public class ImportExportImagesPlugin : IPlugin
             new Handlers.ImportTexture(),
 
             new Handlers.ExportImage(),
-            //new Handlers.ImportImage(),
+            new Handlers.ImportImage(),
 
             new Handlers.ExportSet(),
             //new Handlers.ImportSet(),
+
+            new Handlers.ExportSprite(),
+            new Handlers.ImportSprite(),
         ];
 
         ChunkEditors = [

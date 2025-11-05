@@ -1,5 +1,4 @@
 ﻿using ImportExportImages.Enums;
-using ImportExportImages.Forms;
 using ImportExportImages.Helpers;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
