@@ -29,6 +29,9 @@ copy Pure3DDataViewer\Validate\bin\publish\Validate.dll Publish\Plugins\Validate
 dotnet publish Pure3DDataViewer\CarPhysicsObjectGenerator\CarPhysicsObjectGenerator.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\CarPhysicsObjectGenerator\bin\publish
 copy Pure3DDataViewer\CarPhysicsObjectGenerator\bin\publish\CarPhysicsObjectGenerator.dll Publish\Plugins\CarPhysicsObjectGenerator.dll
 
+dotnet publish Pure3DDataViewer\TimeOfDayTint\TimeOfDayTint.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\TimeOfDayTint\bin\publish
+copy Pure3DDataViewer\TimeOfDayTint\bin\publish\TimeOfDayTint.dll Publish\Plugins\TimeOfDayTint.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE

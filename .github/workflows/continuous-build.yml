@@ -48,7 +48,8 @@ jobs:
             "LocationFromGame",
             "FrontendTextBibleEditor",
             "Validate",
-            "CarPhysicsObjectGenerator"
+            "CarPhysicsObjectGenerator",
+            "TimeOfDayTint"
           )
 
           foreach ($plugin in $plugins) {
