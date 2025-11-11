@@ -34,7 +34,7 @@ internal static class TintExtensions
     internal static Color Multiply(this Color a, Color b)
     {
         return Color.FromArgb(
-            255,
+            a.A,
             Clamp255(a.R * b.R / 255),
             Clamp255(a.G * b.G / 255),
             Clamp255(a.B * b.B / 255)
@@ -44,7 +44,7 @@ internal static class TintExtensions
     internal static Color ApplyBrightness(this Color c, float brightness)
     {
         return Color.FromArgb(
-            255,
+            c.A,
             Clamp255((int)(c.R * brightness)),
             Clamp255((int)(c.G * brightness)),
             Clamp255((int)(c.B * brightness))
