@@ -47,6 +47,15 @@ public class TimeOfDayTint : IFileHandler
             for (int i = 0; i < colourListChunk.NumColours; i++)
                 colourListChunk.Colours[i] = colourListChunk.Colours[i].Multiply(tint).ApplyBrightness(brightness);
         }
+        foreach (var primitiveGroupChunk in meshChunk.GetChunksOfType<PrimitiveGroupChunk>())
+        {
+            var colourListChunk = primitiveGroupChunk.GetFirstChunkOfType<ColourListChunk>();
+            if (colourListChunk == null)
+                continue;
+
+            for (int i = 0; i < colourListChunk.NumColours; i++)
+                colourListChunk.Colours[i] = colourListChunk.Colours[i].Multiply(tint).ApplyBrightness(brightness);
+        }
     }
 }
 
