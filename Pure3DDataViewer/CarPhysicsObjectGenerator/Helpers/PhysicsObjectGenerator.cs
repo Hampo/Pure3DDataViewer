@@ -30,7 +30,7 @@ public static class PhysicsObjectGenerator
             var joint = joints[jointIndex];
             if (jointIndex == 0 || jointNames.Contains(joint.Name))
             {
-                var physicsJoint = new PhysicsJointChunk(jointIndex, 0, 0, 0, 0, PhysicsJointChunk.DegreesOfFreedom.Fixed0D);
+                var physicsJoint = new PhysicsJointChunk(jointIndex, 0, 0, 0, 0, PhysicsJointChunk.DegreeOfFreedom.Fixed_0D);
 
                 // YAY HARDCODING
                 switch (joint.Name)
@@ -41,13 +41,13 @@ public static class PhysicsObjectGenerator
                         physicsJoint.Stiffness = 0.8f;
                         physicsJoint.MinAngle = 0.0f;
                         physicsJoint.MaxAngle = 1.0f;
-                        physicsJoint.DOF = PhysicsJointChunk.DegreesOfFreedom.Hinge1D;
+                        physicsJoint.DegreesOfFreedom = PhysicsJointChunk.DegreeOfFreedom.Hinge_1D;
                         break;
                     case "HoodRot":
                         physicsJoint.Stiffness = 0.5f;
                         physicsJoint.MinAngle = 0.0f;
                         physicsJoint.MaxAngle = 0.5f;
-                        physicsJoint.DOF = PhysicsJointChunk.DegreesOfFreedom.Hinge1D;
+                        physicsJoint.DegreesOfFreedom = PhysicsJointChunk.DegreeOfFreedom.Hinge_1D;
                         break;
                 }
 
