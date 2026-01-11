@@ -1,0 +1,33 @@
+<Solution>
+  <Folder Name="/API/">
+    <Project Path="Pure3DDataViewerPluginAPI/Pure3DDataViewerPluginAPI.csproj" />
+  </Folder>
+  <Folder Name="/Libraries/">
+    <Project Path="../external/NetP3DLib/NetP3DLib/NetP3DLib/NetP3DLib.csproj" />
+    <Project Path="../external/SHARMemory/SHARMemory/SHARMemory/SHARMemory.csproj" />
+  </Folder>
+  <Folder Name="/Plugins/">
+    <Project Path="CarPhysicsObjectGenerator/CarPhysicsObjectGenerator.csproj" />
+    <Project Path="CustomChunkTest/CustomChunkTest.csproj" />
+    <Project Path="Deduplicate/Deduplicate.csproj" />
+    <Project Path="FrontendTextBibleEditor/FrontendTextBibleEditor.csproj" />
+    <Project Path="ImportExportImages/ImportExportImages.csproj" />
+    <Project Path="LocationFromGame/LocationFromGame.csproj" />
+    <Project Path="Sort/Sort.csproj" />
+    <Project Path="Test/Test.csproj" />
+    <Project Path="TimeOfDayTint/TimeOfDayTint.csproj" />
+    <Project Path="Validate/Validate.csproj" />
+  </Folder>
+  <Project Path="Pure3DDataViewer/Pure3DDataViewer.csproj">
+    <BuildDependency Project="CarPhysicsObjectGenerator/CarPhysicsObjectGenerator.csproj" />
+    <BuildDependency Project="CustomChunkTest/CustomChunkTest.csproj" />
+    <BuildDependency Project="Deduplicate/Deduplicate.csproj" />
+    <BuildDependency Project="FrontendTextBibleEditor/FrontendTextBibleEditor.csproj" />
+    <BuildDependency Project="ImportExportImages/ImportExportImages.csproj" />
+    <BuildDependency Project="LocationFromGame/LocationFromGame.csproj" />
+    <BuildDependency Project="Sort/Sort.csproj" />
+    <BuildDependency Project="Test/Test.csproj" />
+    <BuildDependency Project="TimeOfDayTint/TimeOfDayTint.csproj" />
+    <BuildDependency Project="Validate/Validate.csproj" />
+  </Project>
+</Solution>
