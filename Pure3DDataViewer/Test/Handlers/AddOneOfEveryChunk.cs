@@ -1,16 +1,10 @@
 ﻿using NetP3DLib.P3D;
-using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test.Handlers;
 
@@ -44,19 +38,22 @@ internal class AddOneOfEveryChunk : IFileHandler
             }
 
             var parameters = new List<object?>(constructorParameters.Length);
-            bool hasLocatorData = false;
-            foreach (var parameter in constructorParameters)
+            int locatorDataIndex = -1;
+            for (int i = 0; i < constructorParameters.Length; i++)
             {
+                var parameter = constructorParameters[i];
+
                 bool locatorData = parameter.ParameterType == typeof(LocatorChunk.LocatorData);
                 if (locatorData)
                 {
-                    hasLocatorData = true;
-                    break;
+                    parameters.Add(new());
+                    locatorDataIndex = i;
+                    continue;
                 }
 
                 if (parameter.Name == "name")
                 {
-                    parameters.Add($"{chunkType.Name}");
+                    parameters.Add(chunkType.Name);
                     continue;
                 }    
 
@@ -73,14 +70,55 @@ internal class AddOneOfEveryChunk : IFileHandler
                 parameters.Add(defaultVal);
             }
 
-            if (hasLocatorData)
-                continue;
-
-            p3dFile.Chunks.Add((Chunk)constructor.Invoke([..parameters]));
+            if (locatorDataIndex != -1)
+            {
+                var nameIndex = parameters.IndexOf(chunkType.Name);
+                foreach (LocatorChunk.LocatorTypes locatorType in Enum.GetValues(typeof(LocatorChunk.LocatorTypes)))
+                {
+                    parameters[nameIndex] = $"{chunkType.Name} - {locatorType}";
+                    parameters[locatorDataIndex] = CreateLocatorData(locatorType);
+                    p3dFile.Chunks.Add((Chunk)constructor.Invoke([.. parameters]));
+                }
+            }
+            else
+            {
+                p3dFile.Chunks.Add((Chunk)constructor.Invoke([.. parameters]));
+            }
         }
 
         return FileCallbackResult.Modified;
     }
 
     public bool IsFileSupported(P3DFile p3dFile) => true;
+
+    private LocatorChunk.LocatorData CreateLocatorData(LocatorChunk.LocatorTypes locatorType)
+    {
+        var type = locatorType switch
+        {
+            LocatorChunk.LocatorTypes.Event => typeof(LocatorChunk.EventLocatorData),
+            LocatorChunk.LocatorTypes.Script => typeof(LocatorChunk.ScriptLocatorData),
+            LocatorChunk.LocatorTypes.Generic => typeof(LocatorChunk.GenericLocatorData),
+            LocatorChunk.LocatorTypes.CarStart => typeof(LocatorChunk.CarStartLocatorData),
+            LocatorChunk.LocatorTypes.Spline => typeof(LocatorChunk.SplineLocatorData),
+            LocatorChunk.LocatorTypes.DynamicZone => typeof(LocatorChunk.DynamicZoneLocatorData),
+            LocatorChunk.LocatorTypes.Occlusion => typeof(LocatorChunk.OcclusionLocatorData),
+            LocatorChunk.LocatorTypes.InteriorEntrance => typeof(LocatorChunk.InteriorEntranceLocatorData),
+            LocatorChunk.LocatorTypes.Directional => typeof(LocatorChunk.DirectionalLocatorData),
+            LocatorChunk.LocatorTypes.Action => typeof(LocatorChunk.ActionLocatorData),
+            LocatorChunk.LocatorTypes.FOV => typeof(LocatorChunk.FOVLocatorData),
+            LocatorChunk.LocatorTypes.BreakableCamera => typeof(LocatorChunk.BreakableCameraLocatorData),
+            LocatorChunk.LocatorTypes.StaticCamera => typeof(LocatorChunk.StaticCameraLocatorData),
+            LocatorChunk.LocatorTypes.PedGroup => typeof(LocatorChunk.PedGroupLocatorData),
+            LocatorChunk.LocatorTypes.Coin => typeof(LocatorChunk.CoinLocatorData),
+            _ => throw new Exception($"Unsupported Locator Type: {locatorType}.")
+        };
+
+        var constructor = type.GetConstructors().FirstOrDefault(constructor =>
+        {
+            var parameters = constructor.GetParameters();
+            return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(List<uint>));
+        }) ?? throw new Exception($"No valid constructor found for Locator Type: {locatorType}.");
+
+        return (LocatorChunk.LocatorData)constructor.Invoke([.. constructor.GetParameters().Select(x => x.ParameterType.GetDefault())]);
+    }
 }
