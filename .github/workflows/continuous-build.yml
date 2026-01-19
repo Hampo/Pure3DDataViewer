@@ -49,7 +49,8 @@ jobs:
             "FrontendTextBibleEditor",
             "Validate",
             "CarPhysicsObjectGenerator",
-            "TimeOfDayTint"
+            "TimeOfDayTint",
+            "ConvertToLua"
           )
 
           foreach ($plugin in $plugins) {

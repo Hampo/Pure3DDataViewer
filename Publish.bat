@@ -32,6 +32,9 @@ copy Pure3DDataViewer\CarPhysicsObjectGenerator\bin\publish\CarPhysicsObjectGene
 dotnet publish Pure3DDataViewer\TimeOfDayTint\TimeOfDayTint.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\TimeOfDayTint\bin\publish
 copy Pure3DDataViewer\TimeOfDayTint\bin\publish\TimeOfDayTint.dll Publish\Plugins\TimeOfDayTint.dll
 
+dotnet publish Pure3DDataViewer\ConvertToLua\ConvertToLua.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\ConvertToLua\bin\publish
+copy Pure3DDataViewer\ConvertToLua\bin\publish\ConvertToLua.dll Publish\Plugins\ConvertToLua.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE
