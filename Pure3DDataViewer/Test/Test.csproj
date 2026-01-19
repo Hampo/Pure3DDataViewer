@@ -20,10 +20,6 @@
 		<ProjectReference Include="..\Pure3DDataViewerPluginAPI\Pure3DDataViewerPluginAPI.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Handlers\" />
-	</ItemGroup>
-
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="if &quot;$(SolutionDir)&quot;==&quot;*Undefined*&quot; exit /b 0&#xD;&#xA;&#xD;&#xA;mkdir &quot;$(SolutionDir)Pure3DDataViewer\bin\$(Configuration)\net8.0-windows\win-x64\Plugins&quot;&#xD;&#xA;copy /Y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Pure3DDataViewer\bin\$(Configuration)\net8.0-windows\win-x64\Plugins\$(TargetFileName)&quot;&#xD;&#xA;copy /Y &quot;$([System.IO.Path]::ChangeExtension($(TargetPath), '.pdb'))&quot; &quot;$(SolutionDir)Pure3DDataViewer\bin\$(Configuration)\net8.0-windows\win-x64\Plugins\$([System.IO.Path]::ChangeExtension($(TargetFileName), '.pdb'))&quot;&#xA;" />
 	</Target>

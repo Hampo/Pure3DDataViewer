@@ -12,7 +12,7 @@ public class TestPlugin : IPlugin
     static TestPlugin()
     {
         FileHandlers = [
-            
+            new Handlers.AddOneOfEveryChunk(),
         ];
 
         var assembly = Assembly.GetExecutingAssembly();
