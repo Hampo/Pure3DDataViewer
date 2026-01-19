@@ -12,7 +12,7 @@
     <Company>Donut Team</Company>
     <Product>Pure3D Data Viewer</Product>
     <Description>A UI tool for viewing and editing Pure3D file data.</Description>
-    <Copyright>Donut Team 2025</Copyright>
+    <Copyright>Donut Team 2026</Copyright>
     <PackageIcon>128x128.png</PackageIcon>
     <PlatformTarget>x64</PlatformTarget>
     <PublishSingleFile>true</PublishSingleFile>

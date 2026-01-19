@@ -10,7 +10,7 @@
 	<Company>Donut Team</Company>
 	<Product>Pure3D Data Viewer</Product>
 	<Description>The plugin API for the Pure3D Data Viewer.</Description>
-	<Copyright>Donut Team 2025</Copyright>
+	<Copyright>Donut Team 2026</Copyright>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<PublishSingleFile>true</PublishSingleFile>
 	<SelfContained>false</SelfContained>

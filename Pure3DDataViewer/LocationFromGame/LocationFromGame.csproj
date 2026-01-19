@@ -10,7 +10,7 @@
 		<Company>Donut Team</Company>
 		<Product>Pure3D Data Viewer</Product>
 		<Description>A plugin for the Pure3D Data Viewer to allow pulling the player's current location from game.</Description>
-		<Copyright>Donut Team 2025</Copyright>
+		<Copyright>Donut Team 2026</Copyright>
 		<PlatformTarget>x64</PlatformTarget>
 		<SelfContained>false</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
