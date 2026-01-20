@@ -1,8 +1,10 @@
-﻿using NetP3DLib.Numerics;
+﻿using ConvertToLua.Extensions;
+using NetP3DLib.Numerics;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Numerics;
 using System.Reflection;
@@ -1881,14 +1883,10 @@ internal static class ChunkMap
         Register<ShaderChunk>(new()
         {
             LuaClassName = "Shader",
-            PropertyOrder =
+            CustomOverride = chunk =>
             {
-                "Name",
-                "Version",
-                "PddiShaderName",
-                "HasTranslucency",
-                "VertexNeeds",
-                "VertexMask",
+                var shaderChunk = (ShaderChunk)chunk;
+                return $"{FormatLuaValue(shaderChunk.Name)}, {FormatLuaValue(shaderChunk.Version)}, {FormatLuaValue(shaderChunk.PddiShaderName)}, {FormatLuaValue(shaderChunk.HasTranslucency)}, {FormatLuaValue(shaderChunk.VertexNeeds)}, {FormatLuaValue(~shaderChunk.VertexMask)}";
             }
         });
 
@@ -2494,6 +2492,45 @@ internal static class ChunkMap
             }
         }
         return sb.ToString();
+    }
+
+    public static async Task ProcessChunksAsync(IProgress<int>? progress, StringBuilder sb, string parent, Collection<Chunk> chunks, int indent = 0)
+    {
+        foreach (var chunk in chunks)
+        {
+            try
+            {
+                var constructor = GetLuaConstructor(chunk);
+                progress?.Report(1);
+                await Task.Yield();
+
+                if (chunk.Children.Count == 0)
+                {
+                    sb.AddIndent(indent);
+                    sb.AppendLine($"{parent}:AddChunk({constructor})");
+                    continue;
+                }
+
+                sb.AddIndent(indent++);
+                sb.AppendLine("do");
+
+                sb.AddIndent(indent);
+                sb.AppendLine($"local Chunk{indent} = {constructor}");
+                sb.AddIndent(indent);
+                sb.AppendLine($"{parent}:AddChunk(Chunk{indent})");
+                sb.AppendLine();
+
+                await ProcessChunksAsync(progress, sb, $"Chunk{indent}", chunk.Children, indent);
+
+                sb.AddIndent(--indent);
+                sb.AppendLine("end");
+            }
+            catch (Exception ex)
+            {
+                sb.AddIndent(indent);
+                sb.AppendLine($"-- Error in {chunk}: {ex.Message}");
+            }
+        }
     }
 }
 

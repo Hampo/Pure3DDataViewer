@@ -1,7 +1,7 @@
-﻿using Pure3DDataViewerPluginAPI.Enums;
-using Pure3DDataViewerPluginAPI.Interfaces;
+﻿using ConvertToLua.Forms;
 using NetP3DLib.P3D;
-using ConvertToLua.Helpers;
+using Pure3DDataViewerPluginAPI.Enums;
+using Pure3DDataViewerPluginAPI.Interfaces;
 
 namespace ConvertToLua.Handlers;
 public class ConvertChunk : IChunkHandler
@@ -19,15 +19,8 @@ public class ConvertChunk : IChunkHandler
 
     public ChunkCallbackResult Handle(Chunk chunk)
     {
-        try
-        {
-            var constructor = ChunkMap.GetLuaConstructor(chunk);
-            Clipboard.SetText(constructor);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Failed to convert chunk: {ex.Message}", "Error converting chunk", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+        using var frmViewLua = new FrmViewLua(chunk);
+        frmViewLua.ShowDialog();
 
         return ChunkCallbackResult.Unchanged;
     }
