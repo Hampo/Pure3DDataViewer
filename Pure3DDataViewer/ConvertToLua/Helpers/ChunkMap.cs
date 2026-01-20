@@ -1805,9 +1805,10 @@ internal static class ChunkMap
         Register<RenderStatusChunk>(new()
         {
             LuaClassName = "RenderStatus",
-            PropertyOrder =
+            CustomOverride = chunk =>
             {
-                "CastShadow",
+                var renderStatusChunk = (RenderStatusChunk)chunk;
+                return FormatLuaValue(!renderStatusChunk.CastShadow);
             }
         });
 
@@ -2472,7 +2473,7 @@ internal static class ChunkMap
 
     private static string EscapeLuaString(string s)
     {
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         foreach (var c in s)
         {
             switch (c)
@@ -2485,7 +2486,11 @@ internal static class ChunkMap
                 case '\0': sb.Append("\\0"); break;
                 default:
                     if (char.IsControl(c) || c > 127)
-                        sb.AppendFormat("\\x{0:X2}", (int)c);
+                    {
+                        var bytes = Encoding.UTF8.GetBytes([c]);
+                        foreach (var b in bytes)
+                            sb.AppendFormat("\\x{0:X2}", b);
+                    }
                     else
                         sb.Append(c);
                     break;
