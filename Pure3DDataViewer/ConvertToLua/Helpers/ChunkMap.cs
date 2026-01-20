@@ -769,7 +769,7 @@ internal static class ChunkMap
             CustomOverride = static chunk =>
             {
                 var frontendProjectChunk = (FrontendProjectChunk)chunk;
-                return $"{FormatLuaValue(frontendProjectChunk.Name)}, {FormatLuaValue(frontendProjectChunk.Version)}, {{X = {FormatLuaValue(frontendProjectChunk.ResolutionX)}, Y = {FormatLuaValue(frontendProjectChunk.ResolutionY)}}}, {FormatLuaValue(frontendProjectChunk.Platform)}, {FormatLuaValue(frontendProjectChunk.Platform)}, {FormatLuaValue(frontendProjectChunk.PagePath)}, {FormatLuaValue(frontendProjectChunk.ResourcePath)}, {FormatLuaValue(frontendProjectChunk.ScreenPath)}";
+                return $"{FormatLuaValue(frontendProjectChunk.Name)}, {FormatLuaValue(frontendProjectChunk.Version)}, {{X = {FormatLuaValue(frontendProjectChunk.ResolutionX)}, Y = {FormatLuaValue(frontendProjectChunk.ResolutionY)}}}, {FormatLuaValue(frontendProjectChunk.Platform)}, {FormatLuaValue(frontendProjectChunk.PagePath)}, {FormatLuaValue(frontendProjectChunk.ResourcePath)}, {FormatLuaValue(frontendProjectChunk.ScreenPath)}";
             }
         });
 
