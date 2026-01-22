@@ -862,12 +862,22 @@ public partial class FrmMain : Form
                     else if (property.IsEnumerable() && value is IEnumerable enumerable)
                     {
                         List<object> values = [.. enumerable.Cast<object>()];
-                        for (int i = 0; i < values.Count; i++)
+                        if (values.Count == 0)
                         {
-                            var lvi = new ListViewItem($"{property.Name}[{i}]");
-                            lvi.SubItems.Add(values[i]?.ToString() ?? "<NULL>");
-                            lvi.Tag = (property, i);
+                            var lvi = new ListViewItem($"{property.Name}[<EMPTY>]");
+                            lvi.SubItems.Add("<NULL>");
+                            lvi.Tag = (property, -1);
                             _listViewItems.Add(lvi);
+                        }
+                        else
+                        {
+                            for (int i = 0; i < values.Count; i++)
+                            {
+                                var lvi = new ListViewItem($"{property.Name}[{i}]");
+                                lvi.SubItems.Add(values[i]?.ToString() ?? "<NULL>");
+                                lvi.Tag = (property, i);
+                                _listViewItems.Add(lvi);
+                            }
                         }
                     }
                     else
@@ -1593,7 +1603,7 @@ public partial class FrmMain : Form
 
     private void CMSTVChunks_Opening(object sender, System.ComponentModel.CancelEventArgs e) => HandlePluginSettings(CMSTVChunks.Items);
 
-    private void HandlePluginSettings(ToolStripItemCollection items)
+    private static void HandlePluginSettings(ToolStripItemCollection items)
     {
         foreach (var item in items.OfType<ToolStripMenuItem>())
         {
@@ -1693,7 +1703,7 @@ public partial class FrmMain : Form
                     case (PropertyInfo listProperty, int index):
                         _listViewItems.RemoveAt(i);
 
-                        if (index == 0)
+                        if (index <= 0)
                         {
                             var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
                             List<object> values = [.. enumerable.Cast<object>()];
