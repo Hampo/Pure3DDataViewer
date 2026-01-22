@@ -21,104 +21,95 @@ internal static class ChunkMap
         Register<AnimatedObjectAnimationChunk>(new()
         {
             LuaClassName = "AnimatedObjectAnimation",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "FrameRate",
-                "NumOldFrameControllers",
+            PropertyOrder = {
+                nameof(AnimatedObjectAnimationChunk.Version),
+                nameof(AnimatedObjectAnimationChunk.Name),
+                nameof(AnimatedObjectAnimationChunk.FrameRate),
+                nameof(AnimatedObjectAnimationChunk.NumOldFrameControllers),
             }
         });
 
         Register<AnimatedObjectChunk>(new()
         {
             LuaClassName = "AnimatedObject",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "FactoryName",
-                "StartingAnimation",
+            PropertyOrder = {
+                nameof(AnimatedObjectChunk.Version),
+                nameof(AnimatedObjectChunk.Name),
+                nameof(AnimatedObjectChunk.FactoryName),
+                nameof(AnimatedObjectChunk.StartingAnimation),
             }
         });
 
         Register<AnimatedObjectFactoryChunk>(new()
         {
             LuaClassName = "AnimatedObjectFactory",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "BaseAnimation",
-                "NumAnimations",
+            PropertyOrder = {
+                nameof(AnimatedObjectFactoryChunk.Version),
+                nameof(AnimatedObjectFactoryChunk.Name),
+                nameof(AnimatedObjectFactoryChunk.BaseAnimation),
+                nameof(AnimatedObjectFactoryChunk.NumAnimations),
             }
         });
 
         Register<AnimationChannelCountChunk>(new()
         {
             LuaClassName = "AnimationChannelCount",
-            PropertyOrder =
-            {
-                "Version",
-                "ChannelChunkID",
-                "NumKeys",
+            PropertyOrder = {
+                nameof(AnimationChannelCountChunk.Version),
+                nameof(AnimationChannelCountChunk.ChannelChunkID),
+                nameof(AnimationChannelCountChunk.NumKeys),
             }
         });
 
         Register<AnimationChunk>(new()
         {
             LuaClassName = "Animation",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "AnimationType",
-                "NumFrames",
-                "FrameRate",
-                "Cyclic",
+            PropertyOrder = {
+                nameof(AnimationChunk.Version),
+                nameof(AnimationChunk.Name),
+                nameof(AnimationChunk.AnimationType),
+                nameof(AnimationChunk.NumFrames),
+                nameof(AnimationChunk.FrameRate),
+                nameof(AnimationChunk.Cyclic),
             }
         });
 
         Register<AnimationGroupChunk>(new()
         {
             LuaClassName = "AnimationGroup",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "GroupID",
+            PropertyOrder = {
+                nameof(AnimationGroupChunk.Version),
+                nameof(AnimationGroupChunk.Name),
+                nameof(AnimationGroupChunk.GroupID),
             }
         });
 
         Register<AnimationGroupListChunk>(new()
         {
             LuaClassName = "AnimationGroupList",
-            PropertyOrder =
-            {
-                "Version",
+            PropertyOrder = {
+                nameof(AnimationGroupListChunk.Version),
             }
         });
 
         Register<AnimationHeaderChunk>(new()
         {
             LuaClassName = "AnimationHeader",
-            PropertyOrder =
-            {
-                "Version",
-                "NumGroups",
+            PropertyOrder = {
+                nameof(AnimationHeaderChunk.Version),
+                nameof(AnimationHeaderChunk.NumGroups),
             }
         });
 
         Register<AnimationSizeChunk>(new()
         {
             LuaClassName = "AnimationSize",
-            PropertyOrder =
-            {
-                "Version",
-                "PC",
-                "PS2",
-                "XBOX",
-                "GC",
+            PropertyOrder = {
+                nameof(AnimationSizeChunk.Version),
+                nameof(AnimationSizeChunk.PC),
+                nameof(AnimationSizeChunk.PS2),
+                nameof(AnimationSizeChunk.XBOX),
+                nameof(AnimationSizeChunk.GC),
             }
         });
 
@@ -127,64 +118,58 @@ internal static class ChunkMap
         Register<AnimChunk>(new()
         {
             LuaClassName = "Anim",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(AnimChunk.Name),
+                nameof(AnimChunk.Version),
+                nameof(AnimChunk.HasAlpha),
             }
         });
 
         Register<AnimCollChunk>(new()
         {
             LuaClassName = "AnimColl",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(AnimCollChunk.Name),
+                nameof(AnimCollChunk.Version),
+                nameof(AnimCollChunk.HasAlpha),
             }
         });
 
         Register<AnimDynaPhysChunk>(new()
         {
             LuaClassName = "AnimDynaPhys",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(AnimDynaPhysChunk.Name),
+                nameof(AnimDynaPhysChunk.Version),
+                nameof(AnimDynaPhysChunk.HasAlpha),
             }
         });
 
         Register<AnimDynaPhysWrapperChunk>(new()
         {
             LuaClassName = "AnimDynaPhysWrapper",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(AnimDynaPhysWrapperChunk.Name),
+                nameof(AnimDynaPhysWrapperChunk.Version),
+                nameof(AnimDynaPhysWrapperChunk.HasAlpha),
             }
         });
 
         Register<AnimObjWrapperChunk>(new()
         {
             LuaClassName = "AnimObjWrapper",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(AnimObjWrapperChunk.Name),
+                nameof(AnimObjWrapperChunk.Version),
+                nameof(AnimObjWrapperChunk.HasAlpha),
             }
         });
 
         Register<ATCChunk>(new()
         {
             LuaClassName = "ATC",
-            PropertyOrder =
-            {
-                "Entries",
+            PropertyOrder = {
+                nameof(ATCChunk.Entries),
             }
         });
 
@@ -203,100 +188,91 @@ internal static class ChunkMap
         Register<BooleanChannelChunk>(new()
         {
             LuaClassName = "BooleanChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "StartState",
-                "Values",
+            PropertyOrder = {
+                nameof(BooleanChannelChunk.Version),
+                nameof(BooleanChannelChunk.Param),
+                nameof(BooleanChannelChunk.StartState),
+                nameof(BooleanChannelChunk.Values),
             }
         });
 
         Register<BoundingBoxChunk>(new()
         {
             LuaClassName = "BoundingBox",
-            PropertyOrder =
-            {
-                "Low",
-                "High",
+            PropertyOrder = {
+                nameof(BoundingBoxChunk.Low),
+                nameof(BoundingBoxChunk.High),
             }
         });
 
         Register<BoundingSphereChunk>(new()
         {
             LuaClassName = "BoundingSphere",
-            PropertyOrder =
-            {
-                "Centre",
-                "Radius",
+            PropertyOrder = {
+                nameof(BoundingSphereChunk.Centre),
+                nameof(BoundingSphereChunk.Radius),
             }
         });
 
         Register<BreakableObjectChunk>(new()
         {
             LuaClassName = "BreakableObject",
-            PropertyOrder =
-            {
-                "Index",
-                "MaxInstances",
+            PropertyOrder = {
+                nameof(BreakableObjectChunk.Index),
+                nameof(BreakableObjectChunk.MaxInstances),
             }
         });
 
         Register<CameraChunk>(new()
         {
             LuaClassName = "Camera",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "FOV",
-                "AspectRatio",
-                "NearClip",
-                "FarClip",
-                "Position",
-                "Look",
-                "Up",
+            PropertyOrder = {
+                nameof(CameraChunk.Name),
+                nameof(CameraChunk.Version),
+                nameof(CameraChunk.FOV),
+                nameof(CameraChunk.AspectRatio),
+                nameof(CameraChunk.NearClip),
+                nameof(CameraChunk.FarClip),
+                nameof(CameraChunk.Position),
+                nameof(CameraChunk.Look),
+                nameof(CameraChunk.Up),
             }
         });
 
         Register<ChannelInterpolationModeChunk>(new()
         {
             LuaClassName = "ChannelInterpolationMode",
-            PropertyOrder =
-            {
-                "Version",
-                "Interpolate",
+            PropertyOrder = {
+                nameof(ChannelInterpolationModeChunk.Version),
+                nameof(ChannelInterpolationModeChunk.Interpolate),
             }
         });
 
         Register<CollisionAxisAlignedBoundingBoxChunk>(new()
         {
             LuaClassName = "CollisionAxisAlignedBoundingBox",
-            PropertyOrder =
-            {
-                "Nothing",
+            PropertyOrder = {
+                nameof(CollisionAxisAlignedBoundingBoxChunk.Nothing),
             }
         });
 
         Register<CollisionCylinderChunk>(new()
         {
             LuaClassName = "CollisionCylinder",
-            PropertyOrder =
-            {
-                "Radius",
-                "HalfLength",
-                "FlatEnd",
+            PropertyOrder = {
+                nameof(CollisionCylinderChunk.Radius),
+                nameof(CollisionCylinderChunk.HalfLength),
+                nameof(CollisionCylinderChunk.FlatEnd),
             }
         });
 
         Register<CollisionEffectChunk>(new()
         {
             LuaClassName = "CollisionEffect",
-            PropertyOrder =
-            {
-                "ClassType",
-                "PhysPropID",
-                "SoundResourceDataName",
+            PropertyOrder = {
+                nameof(CollisionEffectChunk.ClassType),
+                nameof(CollisionEffectChunk.PhysPropID),
+                nameof(CollisionEffectChunk.SoundResourceDataName),
             }
         });
 
@@ -315,66 +291,60 @@ internal static class ChunkMap
         Register<CollisionObjectAttributeChunk>(new()
         {
             LuaClassName = "CollisionObjectAttribute",
-            PropertyOrder =
-            {
-                "IsStatic",
-                "DefaultArea",
-                "CanRoll",
-                "CanSlide",
-                "CanSpin",
-                "CanBounce",
-                "ExtraAttribute1",
-                "ExtraAttribute2",
-                "ExtraAttribute3",
+            PropertyOrder = {
+                nameof(CollisionObjectAttributeChunk.IsStatic),
+                nameof(CollisionObjectAttributeChunk.DefaultArea),
+                nameof(CollisionObjectAttributeChunk.CanRoll),
+                nameof(CollisionObjectAttributeChunk.CanSlide),
+                nameof(CollisionObjectAttributeChunk.CanSpin),
+                nameof(CollisionObjectAttributeChunk.CanBounce),
+                nameof(CollisionObjectAttributeChunk.ExtraAttribute1),
+                nameof(CollisionObjectAttributeChunk.ExtraAttribute2),
+                nameof(CollisionObjectAttributeChunk.ExtraAttribute3),
             }
         });
 
         Register<CollisionObjectChunk>(new()
         {
             LuaClassName = "CollisionObject",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "MaterialName",
-                "NumSubObjects",
+            PropertyOrder = {
+                nameof(CollisionObjectChunk.Name),
+                nameof(CollisionObjectChunk.Version),
+                nameof(CollisionObjectChunk.MaterialName),
+                nameof(CollisionObjectChunk.NumSubObjects),
             }
         });
 
         Register<CollisionOrientedBoundingBoxChunk>(new()
         {
             LuaClassName = "CollisionOrientedBoundingBox",
-            PropertyOrder =
-            {
-                "HalfExtents",
+            PropertyOrder = {
+                nameof(CollisionOrientedBoundingBoxChunk.HalfExtents),
             }
         });
 
         Register<CollisionSphereChunk>(new()
         {
             LuaClassName = "CollisionSphere",
-            PropertyOrder =
-            {
-                "Radius",
+            PropertyOrder = {
+                nameof(CollisionSphereChunk.Radius),
             }
         });
 
         Register<CollisionVectorChunk>(new()
         {
             LuaClassName = "CollisionVector",
-            PropertyOrder =
-            {
-                "Vector",
+            PropertyOrder = {
+                nameof(CollisionVectorChunk.Vector),
             }
         });
 
         Register<CollisionVolumeChunk>(new()
         {
             LuaClassName = "CollisionVolume",
-            PropertyOrder =
-            {
-                "ObjectReferenceIndex",
-                "OwnerIndex",
+            PropertyOrder = {
+                nameof(CollisionVolumeChunk.ObjectReferenceIndex),
+                nameof(CollisionVolumeChunk.OwnerIndex),
             }
         });
 
@@ -387,9 +357,8 @@ internal static class ChunkMap
         Register<CollisionVolumeOwnerNameChunk>(new()
         {
             LuaClassName = "CollisionVolumeOwnerName",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(CollisionVolumeOwnerNameChunk.Name),
             }
         });
 
@@ -402,21 +371,19 @@ internal static class ChunkMap
         Register<ColourChannelChunk>(new()
         {
             LuaClassName = "ColourChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(ColourChannelChunk.Version),
+                nameof(ColourChannelChunk.Param),
+                nameof(ColourChannelChunk.Frames),
+                nameof(ColourChannelChunk.Values),
             }
         });
 
         Register<ColourListChunk>(new()
         {
             LuaClassName = "ColourList",
-            PropertyOrder =
-            {
-                "Colours",
+            PropertyOrder = {
+                nameof(ColourListChunk.Colours),
             }
         });
 
@@ -425,21 +392,19 @@ internal static class ChunkMap
         Register<CompositeDrawableChunk>(new()
         {
             LuaClassName = "CompositeDrawable",
-            PropertyOrder =
-            {
-                "Name",
-                "SkeletonName",
+            PropertyOrder = {
+                nameof(CompositeDrawableChunk.Name),
+                nameof(CompositeDrawableChunk.SkeletonName),
             }
         });
 
         Register<CompositeDrawableEffectChunk>(new()
         {
             LuaClassName = "CompositeDrawableEffect",
-            PropertyOrder =
-            {
-                "Name",
-                "IsTranslucent",
-                "SkeletonJointId",
+            PropertyOrder = {
+                nameof(CompositeDrawableEffectChunk.Name),
+                nameof(CompositeDrawableEffectChunk.IsTranslucent),
+                nameof(CompositeDrawableEffectChunk.SkeletonJointId),
             }
         });
 
@@ -454,11 +419,10 @@ internal static class ChunkMap
         Register<CompositeDrawablePropChunk>(new()
         {
             LuaClassName = "CompositeDrawableProp",
-            PropertyOrder =
-            {
-                "Name",
-                "IsTranslucent",
-                "SkeletonJointId",
+            PropertyOrder = {
+                nameof(CompositeDrawablePropChunk.Name),
+                nameof(CompositeDrawablePropChunk.IsTranslucent),
+                nameof(CompositeDrawablePropChunk.SkeletonJointId),
             }
         });
 
@@ -471,10 +435,9 @@ internal static class ChunkMap
         Register<CompositeDrawableSkinChunk>(new()
         {
             LuaClassName = "CompositeDrawableSkin",
-            PropertyOrder =
-            {
-                "Name",
-                "IsTranslucent",
+            PropertyOrder = {
+                nameof(CompositeDrawableSkinChunk.Name),
+                nameof(CompositeDrawableSkinChunk.IsTranslucent),
             }
         });
 
@@ -487,122 +450,111 @@ internal static class ChunkMap
         Register<CompositeDrawableSortOrderChunk>(new()
         {
             LuaClassName = "CompositeDrawableSortOrder",
-            PropertyOrder =
-            {
-                "SortOrder",
+            PropertyOrder = {
+                nameof(CompositeDrawableSortOrderChunk.SortOrder),
             }
         });
 
         Register<CompressedQuaternionChannel2Chunk>(new()
         {
             LuaClassName = "CompressedQuaternionChannel2",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(CompressedQuaternionChannel2Chunk.Version),
+                nameof(CompressedQuaternionChannel2Chunk.Param),
+                nameof(CompressedQuaternionChannel2Chunk.Frames),
+                nameof(CompressedQuaternionChannel2Chunk.Values),
             }
         });
 
         Register<CompressedQuaternionChannelChunk>(new()
         {
             LuaClassName = "CompressedQuaternionChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(CompressedQuaternionChannelChunk.Version),
+                nameof(CompressedQuaternionChannelChunk.Param),
+                nameof(CompressedQuaternionChannelChunk.Frames),
+                nameof(CompressedQuaternionChannelChunk.Values),
             }
         });
 
         Register<DynaPhysChunk>(new()
         {
             LuaClassName = "DynaPhys",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(DynaPhysChunk.Name),
+                nameof(DynaPhysChunk.Version),
+                nameof(DynaPhysChunk.HasAlpha),
             }
         });
 
         Register<EntityChannelChunk>(new()
         {
             LuaClassName = "EntityChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(EntityChannelChunk.Version),
+                nameof(EntityChannelChunk.Param),
+                nameof(EntityChannelChunk.Frames),
+                nameof(EntityChannelChunk.Values),
             }
         });
 
         Register<ExportInfoChunk>(new()
         {
             LuaClassName = "ExportInfo",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(ExportInfoChunk.Name),
             }
         });
 
         Register<ExportInfoNamedIntegerChunk>(new()
         {
             LuaClassName = "ExportInfoNamedInteger",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(ExportInfoNamedIntegerChunk.Name),
+                nameof(ExportInfoNamedIntegerChunk.Value),
             }
         });
 
         Register<ExportInfoNamedStringChunk>(new()
         {
             LuaClassName = "ExportInfoNamedString",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(ExportInfoNamedStringChunk.Name),
+                nameof(ExportInfoNamedStringChunk.Value),
             }
         });
 
         Register<ExpressionChunk>(new()
         {
             LuaClassName = "Expression",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Keys",
-                "Indices",
+            PropertyOrder = {
+                nameof(ExpressionChunk.Version),
+                nameof(ExpressionChunk.Name),
+                nameof(ExpressionChunk.Keys),
+                nameof(ExpressionChunk.Indices),
             }
         });
 
         Register<ExpressionGroupChunk>(new()
         {
             LuaClassName = "ExpressionGroup",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "TargetName",
-                "Stages",
+            PropertyOrder = {
+                nameof(ExpressionGroupChunk.Version),
+                nameof(ExpressionGroupChunk.Name),
+                nameof(ExpressionGroupChunk.TargetName),
+                nameof(ExpressionGroupChunk.Stages),
             }
         });
 
         Register<ExpressionMixerChunk>(new()
         {
             LuaClassName = "ExpressionMixer",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Type",
-                "TargetName",
-                "ExpressionGroupName",
+            PropertyOrder = {
+                nameof(ExpressionMixerChunk.Version),
+                nameof(ExpressionMixerChunk.Name),
+                nameof(ExpressionMixerChunk.Type),
+                nameof(ExpressionMixerChunk.TargetName),
+                nameof(ExpressionMixerChunk.ExpressionGroupName),
             }
         });
 
@@ -617,53 +569,49 @@ internal static class ChunkMap
         Register<Float1ChannelChunk>(new()
         {
             LuaClassName = "Float1Channel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(Float1ChannelChunk.Version),
+                nameof(Float1ChannelChunk.Param),
+                nameof(Float1ChannelChunk.Frames),
+                nameof(Float1ChannelChunk.Values),
             }
         });
 
         Register<Float2ChannelChunk>(new()
         {
             LuaClassName = "Float2Channel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(Float2ChannelChunk.Version),
+                nameof(Float2ChannelChunk.Param),
+                nameof(Float2ChannelChunk.Frames),
+                nameof(Float2ChannelChunk.Values),
             }
         });
 
         Register<FollowCameraDataChunk>(new()
         {
             LuaClassName = "FollowCameraData",
-            PropertyOrder =
-            {
-                "Index",
-                "Rotation",
-                "Elevation",
-                "Magnitude",
-                "TargetOffset",
+            PropertyOrder = {
+                nameof(FollowCameraDataChunk.Index),
+                nameof(FollowCameraDataChunk.Rotation),
+                nameof(FollowCameraDataChunk.Elevation),
+                nameof(FollowCameraDataChunk.Magnitude),
+                nameof(FollowCameraDataChunk.TargetOffset),
             }
         });
 
         Register<FrameControllerChunk>(new()
         {
             LuaClassName = "FrameController",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Type",
-                "CycleMode",
-                "NumCycles",
-                "InfiniteCycle",
-                "HierarchyName",
-                "AnimationName",
+            PropertyOrder = {
+                nameof(FrameControllerChunk.Version),
+                nameof(FrameControllerChunk.Name),
+                nameof(FrameControllerChunk.Type),
+                nameof(FrameControllerChunk.CycleMode),
+                nameof(FrameControllerChunk.NumCycles),
+                nameof(FrameControllerChunk.InfiniteCycle),
+                nameof(FrameControllerChunk.HierarchyName),
+                nameof(FrameControllerChunk.AnimationName),
             }
         });
 
@@ -674,34 +622,31 @@ internal static class ChunkMap
         Register<FrontendGroupChunk>(new()
         {
             LuaClassName = "FrontendGroup",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Alpha",
+            PropertyOrder = {
+                nameof(FrontendGroupChunk.Name),
+                nameof(FrontendGroupChunk.Version),
+                nameof(FrontendGroupChunk.Alpha),
             }
         });
 
         Register<FrontendImageResourceChunk>(new()
         {
             LuaClassName = "FrontendImageResource",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Filename",
+            PropertyOrder = {
+                nameof(FrontendImageResourceChunk.Name),
+                nameof(FrontendImageResourceChunk.Version),
+                nameof(FrontendImageResourceChunk.Filename),
             }
         });
 
         Register<FrontendLanguageChunk>(new()
         {
             LuaClassName = "FrontendLanguage",
-            PropertyOrder =
-            {
-                "Name",
-                "Language",
-                "Modulo",
-                "Entries",
+            PropertyOrder = {
+                nameof(FrontendLanguageChunk.Name),
+                nameof(FrontendLanguageChunk.Language),
+                nameof(FrontendLanguageChunk.Modulo),
+                nameof(FrontendLanguageChunk.Entries),
             }
         });
 
@@ -710,13 +655,12 @@ internal static class ChunkMap
         Register<FrontendLayerChunk>(new()
         {
             LuaClassName = "FrontendLayer",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Visible",
-                "Editable",
-                "Alpha",
+            PropertyOrder = {
+                nameof(FrontendLayerChunk.Name),
+                nameof(FrontendLayerChunk.Version),
+                nameof(FrontendLayerChunk.Visible),
+                nameof(FrontendLayerChunk.Editable),
+                nameof(FrontendLayerChunk.Alpha),
             }
         });
 
@@ -753,13 +697,12 @@ internal static class ChunkMap
         Register<FrontendPolygonChunk>(new()
         {
             LuaClassName = "FrontendPolygon",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Translucency",
-                "Points",
-                "Colours",
+            PropertyOrder = {
+                nameof(FrontendPolygonChunk.Name),
+                nameof(FrontendPolygonChunk.Version),
+                nameof(FrontendPolygonChunk.Translucency),
+                nameof(FrontendPolygonChunk.Points),
+                nameof(FrontendPolygonChunk.Colours),
             }
         });
 
@@ -786,162 +729,147 @@ internal static class ChunkMap
         Register<FrontendPure3DResourceChunk>(new()
         {
             LuaClassName = "FrontendPure3DResource",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Filename",
-                "InventoryName",
-                "CameraName",
-                "AnimationName",
+            PropertyOrder = {
+                nameof(FrontendPure3DResourceChunk.Name),
+                nameof(FrontendPure3DResourceChunk.Version),
+                nameof(FrontendPure3DResourceChunk.Filename),
+                nameof(FrontendPure3DResourceChunk.InventoryName),
+                nameof(FrontendPure3DResourceChunk.CameraName),
+                nameof(FrontendPure3DResourceChunk.AnimationName),
             }
         });
 
         Register<FrontendScreenChunk>(new()
         {
             LuaClassName = "FrontendScreen",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "PageNames",
+            PropertyOrder = {
+                nameof(FrontendScreenChunk.Name),
+                nameof(FrontendScreenChunk.Version),
+                nameof(FrontendScreenChunk.PageNames),
             }
         });
 
         Register<FrontendStringHardCodedChunk>(new()
         {
             LuaClassName = "FrontendStringHardCoded",
-            PropertyOrder =
-            {
-                "String",
+            PropertyOrder = {
+                nameof(FrontendStringHardCodedChunk.String),
             }
         });
 
         Register<FrontendStringTextBibleChunk>(new()
         {
             LuaClassName = "FrontendStringTextBible",
-            PropertyOrder =
-            {
-                "BibleName",
-                "StringID",
+            PropertyOrder = {
+                nameof(FrontendStringTextBibleChunk.BibleName),
+                nameof(FrontendStringTextBibleChunk.StringID),
             }
         });
 
         Register<FrontendTextBibleChunk>(new()
         {
             LuaClassName = "FrontendTextBible",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(FrontendTextBibleChunk.Name),
             }
         });
 
         Register<FrontendTextBibleResourceChunk>(new()
         {
             LuaClassName = "FrontendTextBibleResource",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Filename",
-                "InventoryName",
+            PropertyOrder = {
+                nameof(FrontendTextBibleResourceChunk.Name),
+                nameof(FrontendTextBibleResourceChunk.Version),
+                nameof(FrontendTextBibleResourceChunk.Filename),
+                nameof(FrontendTextBibleResourceChunk.InventoryName),
             }
         });
 
         Register<FrontendTextStyleResourceChunk>(new()
         {
             LuaClassName = "FrontendTextStyleResource",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Filename",
-                "InventoryName",
+            PropertyOrder = {
+                nameof(FrontendTextStyleResourceChunk.Name),
+                nameof(FrontendTextStyleResourceChunk.Version),
+                nameof(FrontendTextStyleResourceChunk.Filename),
+                nameof(FrontendTextStyleResourceChunk.InventoryName),
             }
         });
 
         Register<GameAttrChunk>(new()
         {
             LuaClassName = "GameAttr",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(GameAttrChunk.Name),
+                nameof(GameAttrChunk.Version),
             }
         });
 
         Register<GameAttributeColourParameterChunk>(new()
         {
             LuaClassName = "GameAttributeColourParameter",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(GameAttributeColourParameterChunk.Name),
+                nameof(GameAttributeColourParameterChunk.Value),
             }
         });
 
         Register<GameAttributeFloatParameterChunk>(new()
         {
             LuaClassName = "GameAttributeFloatParameter",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(GameAttributeFloatParameterChunk.Name),
+                nameof(GameAttributeFloatParameterChunk.Value),
             }
         });
 
         Register<GameAttributeIntegerParameterChunk>(new()
         {
             LuaClassName = "GameAttributeIntegerParameter",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(GameAttributeIntegerParameterChunk.Name),
+                nameof(GameAttributeIntegerParameterChunk.Value),
             }
         });
 
         Register<GameAttributeMatrixParameterChunk>(new()
         {
             LuaClassName = "GameAttributeMatrixParameter",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(GameAttributeMatrixParameterChunk.Name),
+                nameof(GameAttributeMatrixParameterChunk.Value),
             }
         });
 
         Register<GameAttributeVectorParameterChunk>(new()
         {
             LuaClassName = "GameAttributeVectorParameter",
-            PropertyOrder =
-            {
-                "Name",
-                "Value",
+            PropertyOrder = {
+                nameof(GameAttributeVectorParameterChunk.Name),
+                nameof(GameAttributeVectorParameterChunk.Value),
             }
         });
 
         Register<HistoryChunk>(new()
         {
             LuaClassName = "History",
-            PropertyOrder =
-            {
-                "History",
+            PropertyOrder = {
+                nameof(HistoryChunk.History),
             }
         });
 
         Register<ImageChunk>(new()
         {
             LuaClassName = "Image",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Width",
-                "Height",
-                "Bpp",
-                "Palettized",
-                "HasAlpha",
-                "Format",
+            PropertyOrder = {
+                nameof(ImageChunk.Name),
+                nameof(ImageChunk.Version),
+                nameof(ImageChunk.Width),
+                nameof(ImageChunk.Height),
+                nameof(ImageChunk.Bpp),
+                nameof(ImageChunk.Palettized),
+                nameof(ImageChunk.HasAlpha),
+                nameof(ImageChunk.Format),
             }
         });
 
@@ -972,113 +900,102 @@ internal static class ChunkMap
         Register<IndexListChunk>(new()
         {
             LuaClassName = "IndexList",
-            PropertyOrder =
-            {
-                "Indices",
+            PropertyOrder = {
+                nameof(IndexListChunk.Indices),
             }
         });
 
         Register<InstanceListChunk>(new()
         {
             LuaClassName = "InstanceList",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(InstanceListChunk.Name),
             }
         });
 
         Register<InstParticleSystemChunk>(new()
         {
             LuaClassName = "InstParticleSystem",
-            PropertyOrder =
-            {
-                "ParticleType",
-                "MaxInstances",
+            PropertyOrder = {
+                nameof(InstParticleSystemChunk.ParticleType),
+                nameof(InstParticleSystemChunk.MaxInstances),
             }
         });
 
         Register<InstStatEntityChunk>(new()
         {
             LuaClassName = "InstStatEntity",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(InstStatEntityChunk.Name),
+                nameof(InstStatEntityChunk.Version),
+                nameof(InstStatEntityChunk.HasAlpha),
             }
         });
 
         Register<InstStatPhysChunk>(new()
         {
             LuaClassName = "InstStatPhys",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(InstStatPhysChunk.Name),
+                nameof(InstStatPhysChunk.Version),
+                nameof(InstStatPhysChunk.HasAlpha),
             }
         });
 
         Register<IntegerChannelChunk>(new()
         {
             LuaClassName = "IntegerChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(IntegerChannelChunk.Version),
+                nameof(IntegerChannelChunk.Param),
+                nameof(IntegerChannelChunk.Frames),
+                nameof(IntegerChannelChunk.Values),
             }
         });
 
         Register<IntersectChunk>(new()
         {
             LuaClassName = "Intersect",
-            PropertyOrder =
-            {
-                "Indices",
-                "Positions",
-                "Normals",
+            PropertyOrder = {
+                nameof(IntersectChunk.Indices),
+                nameof(IntersectChunk.Positions),
+                nameof(IntersectChunk.Normals),
             }
         });
 
         Register<IntersectionChunk>(new()
         {
             LuaClassName = "Intersection",
-            PropertyOrder =
-            {
-                "Name",
-                "Position",
-                "Radius",
-                "TrafficBehaviour",
+            PropertyOrder = {
+                nameof(IntersectionChunk.Name),
+                nameof(IntersectionChunk.Position),
+                nameof(IntersectionChunk.Radius),
+                nameof(IntersectionChunk.TrafficBehaviour),
             }
         });
 
         Register<IntersectMesh2Chunk>(new()
         {
             LuaClassName = "IntersectMesh2",
-            PropertyOrder =
-            {
-                "SurfaceType",
+            PropertyOrder = {
+                nameof(IntersectMesh2Chunk.SurfaceType),
             }
         });
 
         Register<IntersectMeshChunk>(new()
         {
             LuaClassName = "IntersectMesh",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(IntersectMeshChunk.Name),
             }
         });
 
         Register<LensFlareChunk>(new()
         {
             LuaClassName = "LensFlare",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(LensFlareChunk.Name),
+                nameof(LensFlareChunk.Version),
             }
         });
 
@@ -1087,16 +1004,15 @@ internal static class ChunkMap
         Register<LightChunk>(new()
         {
             LuaClassName = "Light",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Type",
-                "Colour",
-                "Constant",
-                "Linear",
-                "Squared",
-                "Enabled",
+            PropertyOrder = {
+                nameof(LightChunk.Name),
+                nameof(LightChunk.Version),
+                nameof(LightChunk.Type),
+                nameof(LightChunk.Colour),
+                nameof(LightChunk.Constant),
+                nameof(LightChunk.Linear),
+                nameof(LightChunk.Squared),
+                nameof(LightChunk.Enabled),
             }
         });
 
@@ -1105,46 +1021,41 @@ internal static class ChunkMap
         Register<LightDirectionChunk>(new()
         {
             LuaClassName = "LightDirection",
-            PropertyOrder =
-            {
-                "Direction",
+            PropertyOrder = {
+                nameof(LightDirectionChunk.Direction),
             }
         });
 
         Register<LightGroupChunk>(new()
         {
             LuaClassName = "LightGroup",
-            PropertyOrder =
-            {
-                "Name",
-                "Lights",
+            PropertyOrder = {
+                nameof(LightGroupChunk.Name),
+                nameof(LightGroupChunk.Lights),
             }
         });
 
         Register<LightIlluminationTypeChunk>(new()
         {
             LuaClassName = "LightIlluminationType",
-            PropertyOrder =
-            {
-                "IlluminationType",
+            PropertyOrder = {
+                nameof(LightIlluminationTypeChunk.IlluminationType),
             }
         });
 
         Register<LightPositionChunk>(new()
         {
             LuaClassName = "LightPosition",
-            PropertyOrder =
-            {
-                "Position",
+            PropertyOrder = {
+                nameof(LightPositionChunk.Position),
             }
         });
 
         Register<LightShadowChunk>(new()
         {
             LuaClassName = "LightShadow",
-            PropertyOrder =
-            {
-                "Shadow",
+            PropertyOrder = {
+                nameof(LightShadowChunk.Shadow),
             }
         });
 
@@ -1252,27 +1163,24 @@ internal static class ChunkMap
         Register<LocatorMatrixChunk>(new()
         {
             LuaClassName = "LocatorMatrix",
-            PropertyOrder =
-            {
-                "Matrix",
+            PropertyOrder = {
+                nameof(LocatorMatrixChunk.Matrix),
             }
         });
 
         Register<MatrixListChunk>(new()
         {
             LuaClassName = "MatrixList",
-            PropertyOrder =
-            {
-                "Matrices",
+            PropertyOrder = {
+                nameof(MatrixListChunk.Matrices),
             }
         });
 
         Register<MatrixPaletteChunk>(new()
         {
             LuaClassName = "MatrixPalette",
-            PropertyOrder =
-            {
-                "Matrices",
+            PropertyOrder = {
+                nameof(MatrixPaletteChunk.Matrices),
             }
         });
 
@@ -1285,10 +1193,9 @@ internal static class ChunkMap
         Register<MeshChunk>(new()
         {
             LuaClassName = "Mesh",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(MeshChunk.Name),
+                nameof(MeshChunk.Version),
             }
         });
 
@@ -1299,162 +1206,149 @@ internal static class ChunkMap
         Register<MultiController2Chunk>(new()
         {
             LuaClassName = "MultiController2",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "CycleMode",
-                "NumCycles",
-                "InfiniteCycle",
-                "NumFrames",
-                "FrameRate",
+            PropertyOrder = {
+                nameof(MultiController2Chunk.Version),
+                nameof(MultiController2Chunk.Name),
+                nameof(MultiController2Chunk.CycleMode),
+                nameof(MultiController2Chunk.NumCycles),
+                nameof(MultiController2Chunk.InfiniteCycle),
+                nameof(MultiController2Chunk.NumFrames),
+                nameof(MultiController2Chunk.FrameRate),
             }
         });
 
         Register<MultiControllerChunk>(new()
         {
             LuaClassName = "MultiController",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Length",
-                "Framerate",
+            PropertyOrder = {
+                nameof(MultiControllerChunk.Name),
+                nameof(MultiControllerChunk.Version),
+                nameof(MultiControllerChunk.Length),
+                nameof(MultiControllerChunk.Framerate),
             }
         });
 
         Register<MultiControllerTrackChunk>(new()
         {
             LuaClassName = "MultiControllerTrack",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Type",
+            PropertyOrder = {
+                nameof(MultiControllerTrackChunk.Version),
+                nameof(MultiControllerTrackChunk.Name),
+                nameof(MultiControllerTrackChunk.Type),
             }
         });
 
         Register<MultiControllerTracksChunk>(new()
         {
             LuaClassName = "MultiControllerTracks",
-            PropertyOrder =
-            {
-                "Tracks",
+            PropertyOrder = {
+                nameof(MultiControllerTracksChunk.Tracks),
             }
         });
 
         Register<NormalListChunk>(new()
         {
             LuaClassName = "NormalList",
-            PropertyOrder =
-            {
-                "Normals",
+            PropertyOrder = {
+                nameof(NormalListChunk.Normals),
             }
         });
 
         Register<OldBaseEmitterChunk>(new()
         {
             LuaClassName = "OldBaseEmitter",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "ParticleType",
-                "GeneratorType",
-                "ZTest",
-                "ZWrite",
-                "Fog",
-                "MaxParticles",
-                "InfiniteLife",
-                "RotationalCohesion",
-                "TranslationCohesion",
+            PropertyOrder = {
+                nameof(OldBaseEmitterChunk.Version),
+                nameof(OldBaseEmitterChunk.Name),
+                nameof(OldBaseEmitterChunk.ParticleType),
+                nameof(OldBaseEmitterChunk.GeneratorType),
+                nameof(OldBaseEmitterChunk.ZTest),
+                nameof(OldBaseEmitterChunk.ZWrite),
+                nameof(OldBaseEmitterChunk.Fog),
+                nameof(OldBaseEmitterChunk.MaxParticles),
+                nameof(OldBaseEmitterChunk.InfiniteLife),
+                nameof(OldBaseEmitterChunk.RotationalCohesion),
+                nameof(OldBaseEmitterChunk.TranslationCohesion),
             }
         });
 
         Register<OldBillboardDisplayInfoChunk>(new()
         {
             LuaClassName = "OldBillboardDisplayInfo",
-            PropertyOrder =
-            {
-                "Version",
-                "Rotation",
-                "CutOffMode",
-                "UVOffsetRange",
-                "SourceRange",
-                "EdgeRange",
+            PropertyOrder = {
+                nameof(OldBillboardDisplayInfoChunk.Version),
+                nameof(OldBillboardDisplayInfoChunk.Rotation),
+                nameof(OldBillboardDisplayInfoChunk.CutOffMode),
+                nameof(OldBillboardDisplayInfoChunk.UVOffsetRange),
+                nameof(OldBillboardDisplayInfoChunk.SourceRange),
+                nameof(OldBillboardDisplayInfoChunk.EdgeRange),
             }
         });
 
         Register<OldBillboardPerspectiveInfoChunk>(new()
         {
             LuaClassName = "OldBillboardPerspectiveInfo",
-            PropertyOrder =
-            {
-                "Version",
-                "PerspectiveScale",
+            PropertyOrder = {
+                nameof(OldBillboardPerspectiveInfoChunk.Version),
+                nameof(OldBillboardPerspectiveInfoChunk.PerspectiveScale),
             }
         });
 
         Register<OldBillboardQuadChunk>(new()
         {
             LuaClassName = "OldBillboardQuad",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "BillboardMode",
-                "Translation",
-                "Colour",
-                "UV0",
-                "UV1",
-                "UV2",
-                "UV3",
-                "Width",
-                "Height",
-                "Distance",
-                "UVOffset",
+            PropertyOrder = {
+                nameof(OldBillboardQuadChunk.Version),
+                nameof(OldBillboardQuadChunk.Name),
+                nameof(OldBillboardQuadChunk.BillboardMode),
+                nameof(OldBillboardQuadChunk.Translation),
+                nameof(OldBillboardQuadChunk.Colour),
+                nameof(OldBillboardQuadChunk.UV0),
+                nameof(OldBillboardQuadChunk.UV1),
+                nameof(OldBillboardQuadChunk.UV2),
+                nameof(OldBillboardQuadChunk.UV3),
+                nameof(OldBillboardQuadChunk.Width),
+                nameof(OldBillboardQuadChunk.Height),
+                nameof(OldBillboardQuadChunk.Distance),
+                nameof(OldBillboardQuadChunk.UVOffset),
             }
         });
 
         Register<OldBillboardQuadGroupChunk>(new()
         {
             LuaClassName = "OldBillboardQuadGroup",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Shader",
-                "ZTest",
-                "ZWrite",
-                "Occlusion",
+            PropertyOrder = {
+                nameof(OldBillboardQuadGroupChunk.Version),
+                nameof(OldBillboardQuadGroupChunk.Name),
+                nameof(OldBillboardQuadGroupChunk.Shader),
+                nameof(OldBillboardQuadGroupChunk.ZTest),
+                nameof(OldBillboardQuadGroupChunk.ZWrite),
+                nameof(OldBillboardQuadGroupChunk.Occlusion),
             }
         });
 
         Register<OldColourOffsetListChunk>(new()
         {
             LuaClassName = "OldColourOffsetList",
-            PropertyOrder =
-            {
-                "Version",
-                "Offsets",
+            PropertyOrder = {
+                nameof(OldColourOffsetListChunk.Version),
+                nameof(OldColourOffsetListChunk.Offsets),
             }
         });
 
         Register<OldEmitterAnimationChunk>(new()
         {
             LuaClassName = "OldEmitterAnimation",
-            PropertyOrder =
-            {
-                "Version",
+            PropertyOrder = {
+                nameof(OldEmitterAnimationChunk.Version),
             }
         });
 
         Register<OldExpressionOffsetsChunk>(new()
         {
             LuaClassName = "OldExpressionOffsets",
-            PropertyOrder =
-            {
-                "PrimitiveGroupIndices",
+            PropertyOrder = {
+                nameof(OldExpressionOffsetsChunk.PrimitiveGroupIndices),
             }
         });
 
@@ -1463,118 +1357,107 @@ internal static class ChunkMap
         Register<OldFrameControllerChunk>(new()
         {
             LuaClassName = "OldFrameController",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Type",
-                "FrameOffset",
-                "HierarchyName",
-                "AnimationName",
+            PropertyOrder = {
+                nameof(OldFrameControllerChunk.Version),
+                nameof(OldFrameControllerChunk.Name),
+                nameof(OldFrameControllerChunk.Type),
+                nameof(OldFrameControllerChunk.FrameOffset),
+                nameof(OldFrameControllerChunk.HierarchyName),
+                nameof(OldFrameControllerChunk.AnimationName),
             }
         });
 
         Register<OldGeneratorAnimationChunk>(new()
         {
             LuaClassName = "OldGeneratorAnimation",
-            PropertyOrder =
-            {
-                "Version",
+            PropertyOrder = {
+                nameof(OldGeneratorAnimationChunk.Version),
             }
         });
 
         Register<OldIndexOffsetListChunk>(new()
         {
             LuaClassName = "OldIndexOffsetList",
-            PropertyOrder =
-            {
-                "Version",
-                "Offsets",
+            PropertyOrder = {
+                nameof(OldIndexOffsetListChunk.Version),
+                nameof(OldIndexOffsetListChunk.Offsets),
             }
         });
 
         Register<OldLocatorChunk>(new()
         {
             LuaClassName = "Locator3",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Position",
+            PropertyOrder = {
+                nameof(OldLocatorChunk.Name),
+                nameof(OldLocatorChunk.Version),
+                nameof(OldLocatorChunk.Position),
             }
         });
 
         Register<OldOffsetListChunk>(new()
         {
             LuaClassName = "OldOffsetList",
-            PropertyOrder =
-            {
-                "KeyIndex",
-                "Offsets",
-                "PrimGroupIndex",
+            PropertyOrder = {
+                nameof(OldOffsetListChunk.KeyIndex),
+                nameof(OldOffsetListChunk.Offsets),
+                nameof(OldOffsetListChunk.PrimGroupIndex),
             }
         });
 
         Register<OldParticleAnimationChunk>(new()
         {
             LuaClassName = "OldParticleAnimation",
-            PropertyOrder =
-            {
-                "Version",
+            PropertyOrder = {
+                nameof(OldParticleAnimationChunk.Version),
             }
         });
 
         Register<OldParticleInstancingInfoChunk>(new()
         {
             LuaClassName = "OldParticleInstancingInfo",
-            PropertyOrder =
-            {
-                "Version",
-                "MaxInstances",
+            PropertyOrder = {
+                nameof(OldParticleInstancingInfoChunk.Version),
+                nameof(OldParticleInstancingInfoChunk.MaxInstances),
             }
         });
 
         Register<OldPrimitiveGroupChunk>(new()
         {
             LuaClassName = "OldPrimitiveGroup",
-            PropertyOrder =
-            {
-                "Version",
-                "ShaderName",
-                "PrimitiveType",
-                "NumVertices",
-                "NumIndices",
-                "NumMatrices",
+            PropertyOrder = {
+                nameof(OldPrimitiveGroupChunk.Version),
+                nameof(OldPrimitiveGroupChunk.ShaderName),
+                nameof(OldPrimitiveGroupChunk.PrimitiveType),
+                nameof(OldPrimitiveGroupChunk.NumVertices),
+                nameof(OldPrimitiveGroupChunk.NumIndices),
+                nameof(OldPrimitiveGroupChunk.NumMatrices),
             }
         });
 
         Register<OldScenegraphBranchChunk>(new()
         {
             LuaClassName = "OldScenegraphBranch",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(OldScenegraphBranchChunk.Name),
             }
         });
 
         Register<OldScenegraphDrawableChunk>(new()
         {
             LuaClassName = "OldScenegraphDrawable",
-            PropertyOrder =
-            {
-                "Name",
-                "DrawableName",
-                "IsTranslucent",
+            PropertyOrder = {
+                nameof(OldScenegraphDrawableChunk.Name),
+                nameof(OldScenegraphDrawableChunk.DrawableName),
+                nameof(OldScenegraphDrawableChunk.IsTranslucent),
             }
         });
 
         Register<OldScenegraphLightGroupChunk>(new()
         {
             LuaClassName = "OldScenegraphLightGroup",
-            PropertyOrder =
-            {
-                "Name",
-                "LightGroupName",
+            PropertyOrder = {
+                nameof(OldScenegraphLightGroupChunk.Name),
+                nameof(OldScenegraphLightGroupChunk.LightGroupName),
             }
         });
 
@@ -1587,86 +1470,78 @@ internal static class ChunkMap
         Register<OldScenegraphSortOrderChunk>(new()
         {
             LuaClassName = "OldScenegraphSortOrder",
-            PropertyOrder =
-            {
-                "SortOrder",
+            PropertyOrder = {
+                nameof(OldScenegraphSortOrderChunk.SortOrder),
             }
         });
 
         Register<OldScenegraphTransformChunk>(new()
         {
             LuaClassName = "OldScenegraphTransform",
-            PropertyOrder =
-            {
-                "Name",
-                "Transform",
+            PropertyOrder = {
+                nameof(OldScenegraphTransformChunk.Name),
+                nameof(OldScenegraphTransformChunk.Transform),
             }
         });
 
         Register<OldScenegraphVisibilityChunk>(new()
         {
             LuaClassName = "OldScenegraphVisibility",
-            PropertyOrder =
-            {
-                "Name",
-                "IsVisible",
+            PropertyOrder = {
+                nameof(OldScenegraphVisibilityChunk.Name),
+                nameof(OldScenegraphVisibilityChunk.IsVisible),
             }
         });
 
         Register<OldSpriteEmitterChunk>(new()
         {
             LuaClassName = "OldSpriteEmitter",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "ShaderName",
-                "AngleMode",
-                "Angle",
-                "TextureAnimMode",
-                "NumTextureFrames",
-                "TextureFrameRate",
+            PropertyOrder = {
+                nameof(OldSpriteEmitterChunk.Version),
+                nameof(OldSpriteEmitterChunk.Name),
+                nameof(OldSpriteEmitterChunk.ShaderName),
+                nameof(OldSpriteEmitterChunk.AngleMode),
+                nameof(OldSpriteEmitterChunk.Angle),
+                nameof(OldSpriteEmitterChunk.TextureAnimMode),
+                nameof(OldSpriteEmitterChunk.NumTextureFrames),
+                nameof(OldSpriteEmitterChunk.TextureFrameRate),
             }
         });
 
         Register<OldVector2OffsetListChunk>(new()
         {
             LuaClassName = "OldVector2OffsetList",
-            PropertyOrder =
-            {
-                "Version",
-                "Offsets",
-                "Param",
+            PropertyOrder = {
+                nameof(OldVector2OffsetListChunk.Version),
+                nameof(OldVector2OffsetListChunk.Offsets),
+                nameof(OldVector2OffsetListChunk.Param),
             }
         });
 
         Register<OldVectorOffsetListChunk>(new()
         {
             LuaClassName = "OldVectorOffsetList",
-            PropertyOrder =
-            {
-                "Version",
-                "Offsets",
-                "Param",
+            PropertyOrder = {
+                nameof(OldVectorOffsetListChunk.Version),
+                nameof(OldVectorOffsetListChunk.Offsets),
+                nameof(OldVectorOffsetListChunk.Param),
             }
         });
 
         Register<OldVertexAnimKeyFrameChunk>(new()
         {
             LuaClassName = "OldVertexAnimKeyFrame",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
+            PropertyOrder = {
+                nameof(OldVertexAnimKeyFrameChunk.Version),
+                nameof(OldVertexAnimKeyFrameChunk.Name),
             }
         });
 
         Register<PackedNormalListChunk>(new()
         {
             LuaClassName = "PackedNormalList",
-            PropertyOrder =
-            {
-                "Normals",
+            PropertyOrder = {
+                nameof(PackedNormalListChunk.Normals),
             }
         });
 
@@ -1677,11 +1552,10 @@ internal static class ChunkMap
         Register<ParticleSystem2Chunk>(new()
         {
             LuaClassName = "ParticleSystem2",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "FactoryName",
+            PropertyOrder = {
+                nameof(ParticleSystem2Chunk.Version),
+                nameof(ParticleSystem2Chunk.Name),
+                nameof(ParticleSystem2Chunk.FactoryName),
             }
         });
 
@@ -1690,24 +1564,22 @@ internal static class ChunkMap
         Register<ParticleSystemFactoryChunk>(new()
         {
             LuaClassName = "ParticleSystemFactory",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "FrameRate",
-                "NumAnimFrames",
-                "NumOLFrames",
-                "CycleAnim",
-                "EnableSorting",
+            PropertyOrder = {
+                nameof(ParticleSystemFactoryChunk.Version),
+                nameof(ParticleSystemFactoryChunk.Name),
+                nameof(ParticleSystemFactoryChunk.FrameRate),
+                nameof(ParticleSystemFactoryChunk.NumAnimFrames),
+                nameof(ParticleSystemFactoryChunk.NumOLFrames),
+                nameof(ParticleSystemFactoryChunk.CycleAnim),
+                nameof(ParticleSystemFactoryChunk.EnableSorting),
             }
         });
 
         Register<PathChunk>(new()
         {
             LuaClassName = "Path",
-            PropertyOrder =
-            {
-                "Positions",
+            PropertyOrder = {
+                nameof(PathChunk.Positions),
             }
         });
 
@@ -1716,55 +1588,50 @@ internal static class ChunkMap
         Register<PhysicsInertiaMatrixChunk>(new()
         {
             LuaClassName = "PhysicsInertiaMatrix",
-            PropertyOrder =
-            {
-                "Matrix",
+            PropertyOrder = {
+                nameof(PhysicsInertiaMatrixChunk.Matrix),
             }
         });
 
         Register<PhysicsJointChunk>(new()
         {
             LuaClassName = "PhysicsJoint",
-            PropertyOrder =
-            {
-                "Index",
-                "Volume",
-                "Stiffness",
-                "MaxAngle",
-                "MinAngle",
-                "DegreesOfFreedom",
+            PropertyOrder = {
+                nameof(PhysicsJointChunk.Index),
+                nameof(PhysicsJointChunk.Volume),
+                nameof(PhysicsJointChunk.Stiffness),
+                nameof(PhysicsJointChunk.MaxAngle),
+                nameof(PhysicsJointChunk.MinAngle),
+                nameof(PhysicsJointChunk.DegreesOfFreedom),
             }
         });
 
         Register<PhysicsObjectChunk>(new()
         {
             LuaClassName = "PhysicsObject",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "MaterialName",
-                "NumJoints",
-                "Volume",
-                "RestingSensitivity",
+            PropertyOrder = {
+                nameof(PhysicsObjectChunk.Name),
+                nameof(PhysicsObjectChunk.Version),
+                nameof(PhysicsObjectChunk.MaterialName),
+                nameof(PhysicsObjectChunk.NumJoints),
+                nameof(PhysicsObjectChunk.Volume),
+                nameof(PhysicsObjectChunk.RestingSensitivity),
             }
         });
 
         Register<PhysicsVectorChunk>(new()
         {
             LuaClassName = "PhysicsVector",
-            PropertyOrder =
-            {
-                "Vector",
+            PropertyOrder = {
+                nameof(PhysicsVectorChunk.Vector),
             }
         });
 
         Register<PositionListChunk>(new()
         {
             LuaClassName = "PositionList",
-            PropertyOrder =
-            {
-                "Positions",
+            PropertyOrder = {
+                nameof(PositionListChunk.Positions),
             }
         });
 
@@ -1773,32 +1640,30 @@ internal static class ChunkMap
         Register<QuaternionChannelChunk>(new()
         {
             LuaClassName = "QuaternionChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(QuaternionChannelChunk.Version),
+                nameof(QuaternionChannelChunk.Param),
+                nameof(QuaternionChannelChunk.Frames),
+                nameof(QuaternionChannelChunk.Values),
             }
         });
 
         Register<RailCamChunk>(new()
         {
             LuaClassName = "RailCam",
-            PropertyOrder =
-            {
-                "Name",
-                "Behaviour",
-                "MinRadius",
-                "MaxRadius",
-                "TrackRail",
-                "TrackDist",
-                "ReverseSense",
-                "FOV",
-                "TargetOffset",
-                "AxisPlay",
-                "PositionLag",
-                "TargetLag",
+            PropertyOrder = {
+                nameof(RailCamChunk.Name),
+                nameof(RailCamChunk.Behaviour),
+                nameof(RailCamChunk.MinRadius),
+                nameof(RailCamChunk.MaxRadius),
+                nameof(RailCamChunk.TrackRail),
+                nameof(RailCamChunk.TrackDist),
+                nameof(RailCamChunk.ReverseSense),
+                nameof(RailCamChunk.FOV),
+                nameof(RailCamChunk.TargetOffset),
+                nameof(RailCamChunk.AxisPlay),
+                nameof(RailCamChunk.PositionLag),
+                nameof(RailCamChunk.TargetLag),
             }
         });
 
@@ -1815,43 +1680,40 @@ internal static class ChunkMap
         Register<RoadChunk>(new()
         {
             LuaClassName = "Road",
-            PropertyOrder =
-            {
-                "Name",
-                "Type",
-                "StartIntersection",
-                "EndIntersection",
-                "MaximumCars",
-                "Speed",
-                "Intelligence",
-                "Shortcut",
+            PropertyOrder = {
+                nameof(RoadChunk.Name),
+                nameof(RoadChunk.Type),
+                nameof(RoadChunk.StartIntersection),
+                nameof(RoadChunk.EndIntersection),
+                nameof(RoadChunk.MaximumCars),
+                nameof(RoadChunk.Speed),
+                nameof(RoadChunk.Intelligence),
+                nameof(RoadChunk.Shortcut),
             }
         });
 
         Register<RoadDataSegmentChunk>(new()
         {
             LuaClassName = "RoadDataSegment",
-            PropertyOrder =
-            {
-                "Name",
-                "Type",
-                "Lanes",
-                "HasShoulder",
-                "Direction",
-                "Top",
-                "Bottom",
+            PropertyOrder = {
+                nameof(RoadDataSegmentChunk.Name),
+                nameof(RoadDataSegmentChunk.Type),
+                nameof(RoadDataSegmentChunk.Lanes),
+                nameof(RoadDataSegmentChunk.HasShoulder),
+                nameof(RoadDataSegmentChunk.Direction),
+                nameof(RoadDataSegmentChunk.Top),
+                nameof(RoadDataSegmentChunk.Bottom),
             }
         });
 
         Register<RoadSegmentChunk>(new()
         {
             LuaClassName = "RoadSegment",
-            PropertyOrder =
-            {
-                "Name",
-                "RoadDataSegment",
-                "Transform",
-                "Scale",
+            PropertyOrder = {
+                nameof(RoadSegmentChunk.Name),
+                nameof(RoadSegmentChunk.RoadDataSegment),
+                nameof(RoadSegmentChunk.Transform),
+                nameof(RoadSegmentChunk.Scale),
             }
         });
 
@@ -1860,10 +1722,9 @@ internal static class ChunkMap
         Register<ScenegraphChunk>(new()
         {
             LuaClassName = "Scenegraph",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(ScenegraphChunk.Name),
+                nameof(ScenegraphChunk.Version),
             }
         });
 
@@ -1874,10 +1735,9 @@ internal static class ChunkMap
         Register<SetChunk>(new()
         {
             LuaClassName = "Set",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(SetChunk.Name),
+                nameof(SetChunk.Version),
             }
         });
 
@@ -1894,10 +1754,9 @@ internal static class ChunkMap
         Register<ShaderColourParameterChunk>(new()
         {
             LuaClassName = "ShaderColourParameter",
-            PropertyOrder =
-            {
-                "Param",
-                "Value",
+            PropertyOrder = {
+                nameof(ShaderColourParameterChunk.Param),
+                nameof(ShaderColourParameterChunk.Value),
             }
         });
 
@@ -1906,30 +1765,27 @@ internal static class ChunkMap
         Register<ShaderFloatParameterChunk>(new()
         {
             LuaClassName = "ShaderFloatParameter",
-            PropertyOrder =
-            {
-                "Param",
-                "Value",
+            PropertyOrder = {
+                nameof(ShaderFloatParameterChunk.Param),
+                nameof(ShaderFloatParameterChunk.Value),
             }
         });
 
         Register<ShaderIntegerParameterChunk>(new()
         {
             LuaClassName = "ShaderIntegerParameter",
-            PropertyOrder =
-            {
-                "Param",
-                "Value",
+            PropertyOrder = {
+                nameof(ShaderIntegerParameterChunk.Param),
+                nameof(ShaderIntegerParameterChunk.Value),
             }
         });
 
         Register<ShaderTextureParameterChunk>(new()
         {
             LuaClassName = "ShaderTextureParameter",
-            PropertyOrder =
-            {
-                "Param",
-                "Value",
+            PropertyOrder = {
+                nameof(ShaderTextureParameterChunk.Param),
+                nameof(ShaderTextureParameterChunk.Value),
             }
         });
 
@@ -1942,10 +1798,9 @@ internal static class ChunkMap
         Register<SkeletonChunk>(new()
         {
             LuaClassName = "Skeleton",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(SkeletonChunk.Name),
+                nameof(SkeletonChunk.Version),
             }
         });
 
@@ -1954,37 +1809,34 @@ internal static class ChunkMap
         Register<SkeletonJointBonePreserveChunk>(new()
         {
             LuaClassName = "SkeletonJointBonePreserve",
-            PropertyOrder =
-            {
-                "PreserveBoneLengths",
+            PropertyOrder = {
+                nameof(SkeletonJointBonePreserveChunk.PreserveBoneLengths),
             }
         });
 
         Register<SkeletonJointChunk>(new()
         {
             LuaClassName = "SkeletonJoint",
-            PropertyOrder =
-            {
-                "Name",
-                "Parent",
-                "DOF",
-                "FreeAxis",
-                "PrimaryAxis",
-                "SecondaryAxis",
-                "TwistAxis",
-                "RestPose",
+            PropertyOrder = {
+                nameof(SkeletonJointChunk.Name),
+                nameof(SkeletonJointChunk.Parent),
+                nameof(SkeletonJointChunk.DOF),
+                nameof(SkeletonJointChunk.FreeAxis),
+                nameof(SkeletonJointChunk.PrimaryAxis),
+                nameof(SkeletonJointChunk.SecondaryAxis),
+                nameof(SkeletonJointChunk.TwistAxis),
+                nameof(SkeletonJointChunk.RestPose),
             }
         });
 
         Register<SkeletonJointMirrorMapChunk>(new()
         {
             LuaClassName = "SkeletonJointMirrorMap",
-            PropertyOrder =
-            {
-                "MappedJointIndex",
-                "XAxisMap",
-                "YAxisMap",
-                "ZAxisMap",
+            PropertyOrder = {
+                nameof(SkeletonJointMirrorMapChunk.MappedJointIndex),
+                nameof(SkeletonJointMirrorMapChunk.XAxisMap),
+                nameof(SkeletonJointMirrorMapChunk.YAxisMap),
+                nameof(SkeletonJointMirrorMapChunk.ZAxisMap),
             }
         });
 
@@ -1993,11 +1845,10 @@ internal static class ChunkMap
         Register<SkinChunk>(new()
         {
             LuaClassName = "Skin",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "SkeletonName",
+            PropertyOrder = {
+                nameof(SkinChunk.Name),
+                nameof(SkinChunk.Version),
+                nameof(SkinChunk.SkeletonName),
             }
         });
 
@@ -2005,28 +1856,43 @@ internal static class ChunkMap
 
         // TODO: SortOrder - Missing matching Lua file
 
+        Register<SpatialNodeChunk>(new()
+        {
+            LuaClassName = "TreeNode2",
+            PropertyOrder = {
+                nameof(SpatialNodeChunk.SplitAxis),
+                nameof(SpatialNodeChunk.SplitPosition),
+                nameof(SpatialNodeChunk.StaticEntityLimit),
+                nameof(SpatialNodeChunk.StaticPhysEntityLimit),
+                nameof(SpatialNodeChunk.IntersectEntityLimit),
+                nameof(SpatialNodeChunk.DynaPhysEntityLimit),
+                nameof(SpatialNodeChunk.FenceEntityLimit),
+                nameof(SpatialNodeChunk.RoadSegmentEntityLimit),
+                nameof(SpatialNodeChunk.PathSegmentEntityLimit),
+                nameof(SpatialNodeChunk.AnimEntityLimit),
+            }
+        });
+
         Register<SplineChunk>(new()
         {
             LuaClassName = "Spline",
-            PropertyOrder =
-            {
-                "Name",
-                "Positions",
+            PropertyOrder = {
+                nameof(SplineChunk.Name),
+                nameof(SplineChunk.Positions),
             }
         });
 
         Register<SpriteChunk>(new()
         {
             LuaClassName = "Sprite",
-            PropertyOrder =
-            {
-                "Name",
-                "NativeX",
-                "NativeY",
-                "Shader",
-                "ImageWidth",
-                "ImageHeight",
-                "BlitBorder",
+            PropertyOrder = {
+                nameof(SpriteChunk.Name),
+                nameof(SpriteChunk.NativeX),
+                nameof(SpriteChunk.NativeY),
+                nameof(SpriteChunk.Shader),
+                nameof(SpriteChunk.ImageWidth),
+                nameof(SpriteChunk.ImageHeight),
+                nameof(SpriteChunk.BlitBorder),
             }
         });
 
@@ -2035,91 +1901,83 @@ internal static class ChunkMap
         Register<StatePropCallbackDataChunk>(new()
         {
             LuaClassName = "StatePropCallbackData",
-            PropertyOrder =
-            {
-                "Name",
-                "Event",
-                "OnFrame",
+            PropertyOrder = {
+                nameof(StatePropCallbackDataChunk.Name),
+                nameof(StatePropCallbackDataChunk.Event),
+                nameof(StatePropCallbackDataChunk.OnFrame),
             }
         });
 
         Register<StatePropDataV1Chunk>(new()
         {
             LuaClassName = "StatePropDataV1",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "ObjectFactoryName",
+            PropertyOrder = {
+                nameof(StatePropDataV1Chunk.Version),
+                nameof(StatePropDataV1Chunk.Name),
+                nameof(StatePropDataV1Chunk.ObjectFactoryName),
             }
         });
 
         Register<StatePropEventDataChunk>(new()
         {
             LuaClassName = "StatePropEventData",
-            PropertyOrder =
-            {
-                "Name",
-                "ToState",
-                "Event",
+            PropertyOrder = {
+                nameof(StatePropEventDataChunk.Name),
+                nameof(StatePropEventDataChunk.ToState),
+                nameof(StatePropEventDataChunk.Event),
             }
         });
 
         Register<StatePropFrameControllerDataChunk>(new()
         {
             LuaClassName = "StatePropFrameControllerData",
-            PropertyOrder =
-            {
-                "Name",
-                "Cyclic",
-                "NumCycles",
-                "HoldFrame",
-                "MinFrame",
-                "MaxFrame",
-                "RelativeSpeed",
+            PropertyOrder = {
+                nameof(StatePropFrameControllerDataChunk.Name),
+                nameof(StatePropFrameControllerDataChunk.Cyclic),
+                nameof(StatePropFrameControllerDataChunk.NumCycles),
+                nameof(StatePropFrameControllerDataChunk.HoldFrame),
+                nameof(StatePropFrameControllerDataChunk.MinFrame),
+                nameof(StatePropFrameControllerDataChunk.MaxFrame),
+                nameof(StatePropFrameControllerDataChunk.RelativeSpeed),
             }
         });
 
         Register<StatePropStateDataV1Chunk>(new()
         {
             LuaClassName = "StatePropStateDataV1",
-            PropertyOrder =
-            {
-                "Name",
-                "AutoTransition",
-                "OutState",
-                "OutFrame",
+            PropertyOrder = {
+                nameof(StatePropStateDataV1Chunk.Name),
+                nameof(StatePropStateDataV1Chunk.AutoTransition),
+                nameof(StatePropStateDataV1Chunk.OutState),
+                nameof(StatePropStateDataV1Chunk.OutFrame),
             }
         });
 
         Register<StatePropVisibilitiesDataChunk>(new()
         {
             LuaClassName = "StatePropVisibilitiesData",
-            PropertyOrder =
-            {
-                "Name",
-                "IsVisible",
+            PropertyOrder = {
+                nameof(StatePropVisibilitiesDataChunk.Name),
+                nameof(StatePropVisibilitiesDataChunk.IsVisible),
             }
         });
 
         Register<StaticEntityChunk>(new()
         {
             LuaClassName = "StaticEntity",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "HasAlpha",
+            PropertyOrder = {
+                nameof(StaticEntityChunk.Name),
+                nameof(StaticEntityChunk.Version),
+                nameof(StaticEntityChunk.HasAlpha),
             }
         });
 
         Register<StaticPhysChunk>(new()
         {
             LuaClassName = "StaticPhys",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(StaticPhysChunk.Name),
+                nameof(StaticPhysChunk.Version),
             }
         });
 
@@ -2128,66 +1986,61 @@ internal static class ChunkMap
         Register<TerrainTypeListChunk>(new()
         {
             LuaClassName = "SurfaceTypeList",
-            PropertyOrder =
-            {
-                "Version",
-                "Types",
+            PropertyOrder = {
+                nameof(TerrainTypeListChunk.Version),
+                nameof(TerrainTypeListChunk.Types),
             }
         });
 
         Register<TextureAnimationChunk>(new()
         {
             LuaClassName = "TextureAnimation",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "MaterialName",
-                "NumFrames",
-                "FrameRate",
-                "Cyclic",
+            PropertyOrder = {
+                nameof(TextureAnimationChunk.Name),
+                nameof(TextureAnimationChunk.Version),
+                nameof(TextureAnimationChunk.MaterialName),
+                nameof(TextureAnimationChunk.NumFrames),
+                nameof(TextureAnimationChunk.FrameRate),
+                nameof(TextureAnimationChunk.Cyclic),
             }
         });
 
         Register<TextureChunk>(new()
         {
             LuaClassName = "Texture",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Width",
-                "Height",
-                "Bpp",
-                "AlphaDepth",
-                "NumMipMaps",
-                "TextureType",
-                "UsageHint",
-                "Priority",
+            PropertyOrder = {
+                nameof(TextureChunk.Name),
+                nameof(TextureChunk.Version),
+                nameof(TextureChunk.Width),
+                nameof(TextureChunk.Height),
+                nameof(TextureChunk.Bpp),
+                nameof(TextureChunk.AlphaDepth),
+                nameof(TextureChunk.NumMipMaps),
+                nameof(TextureChunk.TextureType),
+                nameof(TextureChunk.UsageHint),
+                nameof(TextureChunk.Priority),
             }
         });
 
         Register<TextureFontChunk>(new()
         {
             LuaClassName = "TextureFont",
-            PropertyOrder =
-            {
-                "Version",
-                "Name",
-                "Shader",
-                "FontSize",
-                "FontWidth",
-                "FontHeight",
-                "FontBaseLine",
+            PropertyOrder = {
+                nameof(TextureFontChunk.Version),
+                nameof(TextureFontChunk.Name),
+                nameof(TextureFontChunk.Shader),
+                nameof(TextureFontChunk.FontSize),
+                nameof(TextureFontChunk.FontWidth),
+                nameof(TextureFontChunk.FontHeight),
+                nameof(TextureFontChunk.FontBaseLine),
             }
         });
 
         Register<TextureGlyphListChunk>(new()
         {
             LuaClassName = "TextureGlyphList",
-            PropertyOrder =
-            {
-                "Glyphs",
+            PropertyOrder = {
+                nameof(TextureGlyphListChunk.Glyphs),
             }
         });
 
@@ -2196,88 +2049,64 @@ internal static class ChunkMap
         Register<TreeChunk>(new()
         {
             LuaClassName = "Tree",
-            PropertyOrder =
-            {
-                "Minimum",
-                "Maximum",
-            }
-        });
-
-        Register<TreeNode2Chunk>(new()
-        {
-            LuaClassName = "TreeNode2",
-            PropertyOrder =
-            {
-                "SplitAxis",
-                "SplitPosition",
-                "StaticEntityLimit",
-                "StaticPhysEntityLimit",
-                "IntersectEntityLimit",
-                "DynaPhysEntityLimit",
-                "FenceEntityLimit",
-                "RoadSegmentEntityLimit",
-                "PathSegmentEntityLimit",
-                "AnimEntityLimit",
+            PropertyOrder = {
+                nameof(TreeChunk.BoundsMin),
+                nameof(TreeChunk.BoundsMax),
             }
         });
 
         Register<TreeNodeChunk>(new()
         {
             LuaClassName = "TreeNode",
-            PropertyOrder =
-            {
-                "NumChildren",
-                "ParentOffset",
+            PropertyOrder = {
+                nameof(TreeNodeChunk.SubTreeSize),
+                nameof(TreeNodeChunk.ParentOffset),
             }
         });
 
         Register<TriggerVolumeChunk>(new()
         {
             LuaClassName = "TriggerVolume",
-            PropertyOrder =
-            {
-                "Name",
-                "Type",
-                "HalfExtents",
-                "Matrix",
+            PropertyOrder = {
+                nameof(TriggerVolumeChunk.Name),
+                nameof(TriggerVolumeChunk.Type),
+                nameof(TriggerVolumeChunk.HalfExtents),
+                nameof(TriggerVolumeChunk.Matrix),
             }
         });
 
         Register<UVListChunk>(new()
         {
             LuaClassName = "UVList",
-            PropertyOrder =
-            {
-                "Channel",
-                "UVs",
+            PropertyOrder = {
+                nameof(UVListChunk.Channel),
+                nameof(UVListChunk.UVs),
             }
         });
 
         Register<Vector1DOFChannelChunk>(new()
         {
             LuaClassName = "Vector1DOFChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "DynamicIndex",
-                "Constants",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(Vector1DOFChannelChunk.Version),
+                nameof(Vector1DOFChannelChunk.Param),
+                nameof(Vector1DOFChannelChunk.DynamicIndex),
+                nameof(Vector1DOFChannelChunk.Constants),
+                nameof(Vector1DOFChannelChunk.Frames),
+                nameof(Vector1DOFChannelChunk.Values),
             }
         });
 
         Register<Vector2DOFChannelChunk>(new()
         {
             LuaClassName = "Vector2DOFChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "StaticIndex",
-                "Constants",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(Vector2DOFChannelChunk.Version),
+                nameof(Vector2DOFChannelChunk.Param),
+                nameof(Vector2DOFChannelChunk.StaticIndex),
+                nameof(Vector2DOFChannelChunk.Constants),
+                nameof(Vector2DOFChannelChunk.Frames),
+                nameof(Vector2DOFChannelChunk.Values),
             }
         });
 
@@ -2286,12 +2115,11 @@ internal static class ChunkMap
         Register<Vector3DOFChannelChunk>(new()
         {
             LuaClassName = "Vector3DOFChannel",
-            PropertyOrder =
-            {
-                "Version",
-                "Param",
-                "Frames",
-                "Values",
+            PropertyOrder = {
+                nameof(Vector3DOFChannelChunk.Version),
+                nameof(Vector3DOFChannelChunk.Param),
+                nameof(Vector3DOFChannelChunk.Frames),
+                nameof(Vector3DOFChannelChunk.Values),
             }
         });
 
@@ -2304,9 +2132,8 @@ internal static class ChunkMap
         Register<VertexShaderChunk>(new()
         {
             LuaClassName = "VertexShader",
-            PropertyOrder =
-            {
-                "Name",
+            PropertyOrder = {
+                nameof(VertexShaderChunk.Name),
             }
         });
 
@@ -2317,50 +2144,46 @@ internal static class ChunkMap
         Register<VolumeImageChunk>(new()
         {
             LuaClassName = "VolumeImage",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
-                "Width",
-                "Height",
-                "Depth",
-                "Bpp",
-                "Palettized",
-                "HasAlpha",
-                "Format",
+            PropertyOrder = {
+                nameof(VolumeImageChunk.Name),
+                nameof(VolumeImageChunk.Version),
+                nameof(VolumeImageChunk.Width),
+                nameof(VolumeImageChunk.Height),
+                nameof(VolumeImageChunk.Depth),
+                nameof(VolumeImageChunk.Bpp),
+                nameof(VolumeImageChunk.Palettized),
+                nameof(VolumeImageChunk.HasAlpha),
+                nameof(VolumeImageChunk.Format),
             }
         });
 
         Register<WalkerCameraDataChunk>(new()
         {
             LuaClassName = "WalkerCameraData",
-            PropertyOrder =
-            {
-                "Index",
-                "MinMagnitude",
-                "MaxMagnitude",
-                "Elevation",
-                "TargetOffset",
+            PropertyOrder = {
+                nameof(WalkerCameraDataChunk.Index),
+                nameof(WalkerCameraDataChunk.MinMagnitude),
+                nameof(WalkerCameraDataChunk.MaxMagnitude),
+                nameof(WalkerCameraDataChunk.Elevation),
+                nameof(WalkerCameraDataChunk.TargetOffset),
             }
         });
 
         Register<WallChunk>(new()
         {
             LuaClassName = "Fence2",
-            PropertyOrder =
-            {
-                "Start",
-                "End",
-                "Normal",
+            PropertyOrder = {
+                nameof(WallChunk.Start),
+                nameof(WallChunk.End),
+                nameof(WallChunk.Normal),
             }
         });
 
         Register<WeightListChunk>(new()
         {
             LuaClassName = "WeightList",
-            PropertyOrder =
-            {
-                "Weights",
+            PropertyOrder = {
+                nameof(WeightListChunk.Weights),
             }
         });
 
@@ -2369,10 +2192,9 @@ internal static class ChunkMap
         Register<WorldSphereChunk>(new()
         {
             LuaClassName = "WorldSphere",
-            PropertyOrder =
-            {
-                "Name",
-                "Version",
+            PropertyOrder = {
+                nameof(WorldSphereChunk.Name),
+                nameof(WorldSphereChunk.Version),
             }
         });
 
