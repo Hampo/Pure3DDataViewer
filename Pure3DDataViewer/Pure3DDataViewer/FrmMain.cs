@@ -866,7 +866,7 @@ public partial class FrmMain : Form
                         {
                             var lvi = new ListViewItem($"{property.Name}[<EMPTY>]");
                             lvi.SubItems.Add("<NULL>");
-                            lvi.Tag = (property, -1);
+                            lvi.Tag = (property, 0);
                             _listViewItems.Add(lvi);
                         }
                         else
@@ -1703,16 +1703,26 @@ public partial class FrmMain : Form
                     case (PropertyInfo listProperty, int index):
                         _listViewItems.RemoveAt(i);
 
-                        if (index <= 0)
+                        if (index == 0)
                         {
                             var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
                             List<object> values = [.. enumerable.Cast<object>()];
-                            for (var j = values.Count - 1; j >= 0; j--)
+                            if (values.Count == 0)
                             {
-                                var lviItem = new ListViewItem($"{listProperty.Name}[{j}]");
-                                lviItem.SubItems.Add(values[j]?.ToString() ?? "<NULL>");
-                                lviItem.Tag = (listProperty, j);
+                                var lviItem = new ListViewItem($"{listProperty.Name}[<EMPTY>]");
+                                lviItem.SubItems.Add("<NULL>");
+                                lviItem.Tag = (listProperty, 0);
                                 _listViewItems.Insert(i, lviItem);
+                            }
+                            else
+                            {
+                                for (var j = values.Count - 1; j >= 0; j--)
+                                {
+                                    var lviItem = new ListViewItem($"{listProperty.Name}[{j}]");
+                                    lviItem.SubItems.Add(values[j]?.ToString() ?? "<NULL>");
+                                    lviItem.Tag = (listProperty, j);
+                                    _listViewItems.Insert(i, lviItem);
+                                }
                             }
                         }
 
