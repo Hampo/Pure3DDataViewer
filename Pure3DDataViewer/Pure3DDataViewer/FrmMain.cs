@@ -694,7 +694,7 @@ public partial class FrmMain : Form
         return chunkNode;
     }
 
-    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentFile", "ParentChunk", "IndexInParent", "Children", "HeaderSize", "Size", "Bytes"];
+    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentFile", "ParentChunk", "IndexInParent", "Children", "AllChildren", "HeaderSize", "Size", "Bytes"];
     private bool _afterSelectUpdating = false;
     private readonly List<ListViewItem> _listViewItems = [];
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
