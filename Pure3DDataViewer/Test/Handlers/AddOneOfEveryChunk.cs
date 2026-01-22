@@ -53,7 +53,7 @@ internal class AddOneOfEveryChunk : IFileHandler
 
                 if (parameter.Name == "name")
                 {
-                    parameters.Add(chunkType.Name);
+                    parameters.Add(chunkType.Name[..^5]);
                     continue;
                 }    
 
@@ -72,10 +72,10 @@ internal class AddOneOfEveryChunk : IFileHandler
 
             if (locatorDataIndex != -1)
             {
-                var nameIndex = parameters.IndexOf(chunkType.Name);
+                var nameIndex = parameters.IndexOf(chunkType.Name[..^5]);
                 foreach (LocatorChunk.LocatorTypes locatorType in Enum.GetValues(typeof(LocatorChunk.LocatorTypes)))
                 {
-                    parameters[nameIndex] = $"{chunkType.Name} - {locatorType}";
+                    parameters[nameIndex] = $"{chunkType.Name[..^5]} - {locatorType}";
                     parameters[locatorDataIndex] = CreateLocatorData(locatorType);
                     p3dFile.Chunks.Add((Chunk)constructor.Invoke([.. parameters]));
                 }
