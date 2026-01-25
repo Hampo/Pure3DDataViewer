@@ -466,6 +466,7 @@ public partial class FrmMain : Form
                 P3DFile.Compress(filePath, false, false, false);
             UnsavedChanges = false;
             LastPath = filePath;
+            TVChunks.Nodes[0].Text = LastPath;
             Settings.AddRecentFile(filePath);
 
             _watcher = new FileSystemWatcher(Path.GetDirectoryName(filePath)!)
