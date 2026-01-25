@@ -679,6 +679,8 @@ public partial class FrmMain : Form
             while (parent != null)
             {
                 parent.Expand();
+                parent.BackColor = colours.BackColour;
+                parent.ForeColor = colours.ForeColour;
                 parent = parent.Parent;
             }
         }
