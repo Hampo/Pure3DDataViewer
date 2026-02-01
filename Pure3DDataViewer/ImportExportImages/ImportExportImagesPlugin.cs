@@ -23,6 +23,9 @@ public class ImportExportImagesPlugin : IPlugin
         FileHandlers = [
             new Handlers.ExportAllTextures(),
             new Handlers.ExportAllSprites(),
+
+            new Handlers.ImportImageFile(),
+            new Handlers.ImportImageFolder(),
         ];
 
         ChunkHandlers = [

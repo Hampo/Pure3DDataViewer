@@ -1,4 +1,5 @@
-﻿using NetP3DLib.P3D.Chunks;
+﻿using ImportExportImages.Extensions;
+using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
@@ -53,7 +54,7 @@ public class ImportImage : IChunkHandler<ImageChunk>
             var width = (uint)img.Width;
             var height = (uint)img.Height;
             var bpp = (uint)Image.GetPixelFormatSize(img.PixelFormat);
-            var alphaDepth = GetAlphaDepth(img.PixelFormat);
+            var alphaDepth = img.PixelFormat.GetAlphaDepth();
             bool hasAlpha = (img.PixelFormat & PixelFormat.Alpha) != 0 || (img.PixelFormat & PixelFormat.PAlpha) != 0;
             bool isPalettized = (img.PixelFormat & PixelFormat.Indexed) != 0;
 
@@ -93,14 +94,4 @@ public class ImportImage : IChunkHandler<ImageChunk>
 
         return ChunkCallbackResult.Unchanged;
     }
-
-    private static uint GetAlphaDepth(PixelFormat format) => format switch
-    {
-        PixelFormat.Format32bppArgb => 8,
-        PixelFormat.Format32bppPArgb => 8,
-        PixelFormat.Format64bppArgb => 16,
-        PixelFormat.Format64bppPArgb => 16,
-        PixelFormat.Format16bppArgb1555 => 1,
-        _ => 0
-    };
 }
