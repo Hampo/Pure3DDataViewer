@@ -180,4 +180,16 @@ public static class Settings
         RegistryUtils.SetInt32($"{type.FullName}_BackColour", null, "ChunkColours");
         RegistryUtils.SetInt32($"{type.FullName}_ForeColour", null, "ChunkColours");
     }
+
+    public static bool DarkMode
+    {
+        get => RegistryUtils.GetBoolean("DarkMode", false)!.Value;
+        set => RegistryUtils.SetBoolean("DarkMode", value);
+    }
+
+    public static bool LargeFont
+    {
+        get => RegistryUtils.GetBoolean("LargeFont", false)!.Value;
+        set => RegistryUtils.SetBoolean("LargeFont", value);
+    }
 }

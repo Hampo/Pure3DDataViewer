@@ -1,7 +1,7 @@
 ﻿using NetP3DLib.P3D;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace Pure3DDataViewer;
+
 public partial class FrmOptions : Form
 {
     public FrmOptions()
@@ -23,6 +23,9 @@ public partial class FrmOptions : Form
         foreach (ColumnHeader column in LVChunkColours.Columns)
             column.Width = -2;
         LVChunkColours.EndUpdate();
+
+        CBDarkMode.Checked = Settings.DarkMode;
+        CBLargeFont.Checked = Settings.LargeFont;
     }
 
     private void AddChunkColourType(Type type)
@@ -82,7 +85,7 @@ public partial class FrmOptions : Form
             ShowAlphaChannel = true,
             Text = $"Edit {selectedItem.Text} Back Colour",
         };
-        
+
         if (colorPicker.ShowDialog() != DialogResult.OK)
             return;
 
@@ -150,5 +153,14 @@ public partial class FrmOptions : Form
         selectedItem.SubItems[2].Text = colours.ForeColour.IsEmpty ? "<Default>" : $"#{colours.ForeColour.R:X2}{colours.ForeColour.G:X2}{colours.ForeColour.B:X2}";
 
         LVChunkColours.EndUpdate();
+    }
+
+    private void CBTheming_CheckedChanged(object sender, EventArgs e)
+    {
+        Settings.DarkMode = CBDarkMode.Checked;
+        Settings.LargeFont = CBLargeFont.Checked;
+
+        foreach (Form form in Application.OpenForms)
+            Theming.ApplyTheme(form, CBDarkMode.Checked ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, CBLargeFont.Checked ? Theming.FontMode.Large : Theming.FontMode.Normal);
     }
 }

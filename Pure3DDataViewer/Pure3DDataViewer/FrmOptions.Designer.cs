@@ -40,17 +40,22 @@ partial class FrmOptions
         TSMISetForeColour = new ToolStripMenuItem();
         TSS1 = new ToolStripSeparator();
         TSMIResetColours = new ToolStripMenuItem();
+        TPTheme = new TabPage();
+        CBLargeFont = new CheckBox();
+        CBDarkMode = new CheckBox();
         PnlButtons = new Panel();
         BtnOK = new Button();
         TCOptions.SuspendLayout();
         TPChunkColours.SuspendLayout();
         CMSChunkColours.SuspendLayout();
+        TPTheme.SuspendLayout();
         PnlButtons.SuspendLayout();
         SuspendLayout();
         // 
         // TCOptions
         // 
         TCOptions.Controls.Add(TPChunkColours);
+        TCOptions.Controls.Add(TPTheme);
         TCOptions.Dock = DockStyle.Fill;
         TCOptions.Location = new Point(0, 0);
         TCOptions.Name = "TCOptions";
@@ -134,6 +139,41 @@ partial class FrmOptions
         TSMIResetColours.Text = "Reset Colours";
         TSMIResetColours.Click += TSMIResetColours_Click;
         // 
+        // TPTheme
+        // 
+        TPTheme.Controls.Add(CBLargeFont);
+        TPTheme.Controls.Add(CBDarkMode);
+        TPTheme.Location = new Point(4, 24);
+        TPTheme.Name = "TPTheme";
+        TPTheme.Size = new Size(792, 381);
+        TPTheme.TabIndex = 1;
+        TPTheme.Text = "Theme";
+        TPTheme.UseVisualStyleBackColor = true;
+        // 
+        // CBLargeFont
+        // 
+        CBLargeFont.AutoSize = true;
+        CBLargeFont.Enabled = false;
+        CBLargeFont.Location = new Point(8, 28);
+        CBLargeFont.Name = "CBLargeFont";
+        CBLargeFont.Size = new Size(82, 19);
+        CBLargeFont.TabIndex = 102;
+        CBLargeFont.Text = "Large Font";
+        CBLargeFont.UseVisualStyleBackColor = true;
+        CBLargeFont.CheckedChanged += CBTheming_CheckedChanged;
+        // 
+        // CBDarkMode
+        // 
+        CBDarkMode.AutoSize = true;
+        CBDarkMode.Enabled = false;
+        CBDarkMode.Location = new Point(8, 3);
+        CBDarkMode.Name = "CBDarkMode";
+        CBDarkMode.Size = new Size(84, 19);
+        CBDarkMode.TabIndex = 101;
+        CBDarkMode.Text = "Dark Mode";
+        CBDarkMode.UseVisualStyleBackColor = true;
+        CBDarkMode.CheckedChanged += CBTheming_CheckedChanged;
+        // 
         // PnlButtons
         // 
         PnlButtons.Controls.Add(BtnOK);
@@ -171,6 +211,8 @@ partial class FrmOptions
         TCOptions.ResumeLayout(false);
         TPChunkColours.ResumeLayout(false);
         CMSChunkColours.ResumeLayout(false);
+        TPTheme.ResumeLayout(false);
+        TPTheme.PerformLayout();
         PnlButtons.ResumeLayout(false);
         ResumeLayout(false);
     }
@@ -190,4 +232,7 @@ partial class FrmOptions
     private ToolStripMenuItem TSMISetBackColour;
     private ToolStripMenuItem TSMISetForeColour;
     private ToolStripSeparator TSS1;
+    private TabPage TPTheme;
+    private CheckBox CBLargeFont;
+    private CheckBox CBDarkMode;
 }
