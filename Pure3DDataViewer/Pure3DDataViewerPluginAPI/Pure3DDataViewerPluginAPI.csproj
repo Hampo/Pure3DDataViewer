@@ -73,6 +73,9 @@
     <Compile Update="Editors\FrmStructEditor.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FrmProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>
