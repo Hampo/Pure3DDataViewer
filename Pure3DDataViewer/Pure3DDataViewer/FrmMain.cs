@@ -408,14 +408,15 @@ public partial class FrmMain : Form
 
     private void Save(string? filePath)
     {
-        try
+        var validationErrors = new List<InvalidP3DException>();
+
+        foreach (var chunk in P3DFile.Chunks)
+            validationErrors.AddRange(chunk.ValidateChunks());
+
+        if (validationErrors.Count > 0)
         {
-            foreach (var chunk in P3DFile.Chunks)
-                chunk.Validate();
-        }
-        catch (InvalidP3DException ex)
-        {
-            if (MessageBox.Show($"There were validation errors in the P3D file:\n\n{ex.Chunk} - {ex.Message}\n\nDo you want to ignore these errors and save anyway?", "Validation errors in file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+            var firstError = validationErrors[0];
+            if (MessageBox.Show($"There were {validationErrors.Count} validation errors in the P3D file:\n\n{firstError.Chunk} - {firstError.Message}\n\nDo you want to ignore these errors and save anyway?", "Validation errors in file", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
         }
 
@@ -675,14 +676,13 @@ public partial class FrmMain : Form
 
     private static void ApplyNodeStyling(TreeNode node, Chunk chunk)
     {
-        try
+        if (!chunk.ValidateChunks().Any())
         {
-            chunk.Validate();
             var (chunkBackColour, chunkForeColour) = Settings.GetChunkColour(chunk.GetType());
             node.BackColor = chunkBackColour;
             node.ForeColor = chunkForeColour;
         }
-        catch
+        else
         {
             var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
             node.BackColor = errorBackColour;
@@ -733,13 +733,11 @@ public partial class FrmMain : Form
 #endif
 
         (Color BackColour, Color ForeColour) colours;
-        try
+        if (!chunk.ValidateChunks().Any())
         {
-            chunk.Validate();
-
             colours = Settings.GetChunkColour(chunk.GetType());
         }
-        catch
+        else
         {
             colours = Settings.GetErrorChunkColour();
 
@@ -822,14 +820,8 @@ public partial class FrmMain : Form
                         if (isCancellationRequested())
                             break;
 
-                        try
-                        {
-                            child.Validate();
-                        }
-                        catch (InvalidP3DException ex)
-                        {
-                            errors.Add($"Error in chunk: {ex.Chunk}");
-                        }
+                        errors.AddRange(child.ValidateChunks().Select(e => $"Error in chunk \"{e.Chunk}\": {e.Message}"));
+
                         reportProgress((int)(index++ / p3dFile.Chunks.Count * 100));
                     }
 
@@ -920,14 +912,10 @@ public partial class FrmMain : Form
 
                 TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, chunkType) ?? TPValues;
 
-                try
-                {
-                    chunk.Validate();
-                }
-                catch (InvalidP3DException ex)
+                foreach (var error in chunk.ValidateChunks())
                 {
                     var lviError = new ListViewItem("Validation Error");
-                    lviError.SubItems.Add(ex.Chunk == chunk ? ex.Message : $"Error in child: {ex.Chunk}");
+                    lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk}\": {error.Message}");
                     var (backColour, foreColour) = Settings.GetErrorChunkColour();
                     lviError.BackColor = backColour;
                     lviError.ForeColor = foreColour;
@@ -1821,14 +1809,10 @@ public partial class FrmMain : Form
                 }
             }
 
-            try
-            {
-                chunk.Validate();
-            }
-            catch (InvalidP3DException ex)
+            foreach (var error in chunk.ValidateChunks())
             {
                 var lviError = new ListViewItem("Validation Error");
-                lviError.SubItems.Add(ex.Chunk == chunk ? ex.Message : $"Error in child: {ex.Chunk}");
+                lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk}\": {error.Message}");
                 var (backColour, foreColour) = Settings.GetErrorChunkColour();
                 lviError.BackColor = backColour;
                 lviError.ForeColor = foreColour;
@@ -1867,13 +1851,11 @@ public partial class FrmMain : Form
                 continue;
 
             (Color BackColour, Color ForeColour) childColours;
-            try
+            if (!childChunk.ValidateChunks().Any())
             {
-                childChunk.Validate();
-
                 childColours = Settings.GetChunkColour(childChunk.GetType());
             }
-            catch
+            else
             {
                 childColours = Settings.GetErrorChunkColour();
                 errors = true;

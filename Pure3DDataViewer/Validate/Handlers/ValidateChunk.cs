@@ -1,6 +1,8 @@
 ﻿using NetP3DLib.P3D;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
+using SHARMemory.Memory;
+using System.Text;
 
 namespace Validate.Handlers;
 public class ValidateChunk : IChunkHandler
@@ -17,16 +19,18 @@ public class ValidateChunk : IChunkHandler
 
     public ChunkCallbackResult Handle(Chunk chunk)
     {
-        try
+        var errors = new StringBuilder();
+
+        foreach (var error in chunk.ValidateChunks())
+            errors.AppendLine($"Error in \"{error.Chunk}\": {error.Message}");
+
+        if (errors.Length == 0)
         {
-            chunk.Validate();
-            MessageBox.Show("No errors found in chunk.", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Found error in chunk: {ex.Message}", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show("No errors found in file.", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return ChunkCallbackResult.Unchanged;
         }
 
+        MessageBox.Show($"The following errors were found in the file:\n\n{errors}", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         return ChunkCallbackResult.Unchanged;
     }
 }
