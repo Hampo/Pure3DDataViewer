@@ -1,6 +1,7 @@
 ﻿using ImportExportImages.Helpers;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
+using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
 
@@ -11,10 +12,28 @@ public class ImportImageFolder : IFileHandler
 
     public Image? Image => ImportExportImagesPlugin.ImportImage;
 
-    public IList<(string Name, bool Value)>? GetSettings() => null;
+    public static bool IncludeSubDirectories
+    {
+        get => RegistryUtils.GetBoolean("ImportImageFolderIncludeSubDirectories", false)!.Value;
+        set => RegistryUtils.SetBoolean("ImportImageFolderIncludeSubDirectories", value);
+    }
+
+    public IList<(string Name, bool Value)>? GetSettings() => [
+        ( "Include Sub Directories", IncludeSubDirectories ),
+    ];
 
     public void SetSetting(string name, bool value)
-    { }
+    {
+        switch (name)
+        {
+            case "Include Sub Directories":
+                IncludeSubDirectories = value;
+                break;
+            default:
+                MessageBox.Show($"Unsupported setting name: {name}", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+        }
+    }
 
     private static readonly HashSet<string> SupportedImageFormats = [".bmp", ".gif", ".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".tif", ".tiff", ".ico"];
     public FileCallbackResult Handle(P3DFile p3dFile)
@@ -30,7 +49,7 @@ public class ImportImageFolder : IFileHandler
 
         try
         {
-            var files = Directory.GetFiles(fbd.SelectedPath);
+            var files = Directory.GetFiles(fbd.SelectedPath, "*.*", IncludeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
             List<TextureChunk> textureChunks = new(files.Length);
 
             for (int i = files.Length - 1; i >= 0; i--)
