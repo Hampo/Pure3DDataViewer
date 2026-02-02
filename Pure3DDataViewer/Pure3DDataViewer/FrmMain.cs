@@ -629,10 +629,20 @@ public partial class FrmMain : Form
             Tag = P3DFile
         };
 
-        var childNodes = new TreeNode[P3DFile.Chunks.Count];
-        for (var i = 0; i < P3DFile.Chunks.Count; i++)
-            childNodes[i] = CreateChunkNode(i, P3DFile.Chunks[i]);
-        rootNode.Nodes.AddRange(childNodes);
+        var (cancelled, childNodes) = ProgressHelper.Run("Loading chunk nodes", (reportProgress, isCancellationRequested) =>
+        {
+            var childNodes = new TreeNode[P3DFile.Chunks.Count];
+
+            double index = 0;
+            for (var i = 0; i < P3DFile.Chunks.Count; i++)
+            {
+                childNodes[i] = CreateChunkNode(i, P3DFile.Chunks[i]);
+                reportProgress((int)(index++ / P3DFile.Chunks.Count * 100));
+            }
+            rootNode.Nodes.AddRange(childNodes);
+
+            return childNodes;
+        }, false);
 
         TVChunks.Nodes.Add(rootNode);
         rootNode.Expand();
@@ -641,7 +651,7 @@ public partial class FrmMain : Form
         TVChunks.EndUpdate();
     }
 
-    private TreeNode CreateChunkNode(int index, Chunk chunk)
+    private static TreeNode CreateChunkNode(int index, Chunk chunk)
     {
         var node = new TreeNode($"{index}. {chunk}")
         {
@@ -802,17 +812,37 @@ public partial class FrmMain : Form
 
             if (tag is P3DFile p3dFile)
             {
-                foreach (var child in p3dFile.Chunks)
+                var (cancelled, errors) = ProgressHelper.Run("Validating chunks", (reportProgress, isCancellationRequested) =>
                 {
-                    try
+                    var errors = new List<string>();
+
+                    double index = 0;
+                    foreach (var child in p3dFile.Chunks)
                     {
-                        child.Validate();
+                        if (isCancellationRequested())
+                            break;
+
+                        try
+                        {
+                            child.Validate();
+                        }
+                        catch (InvalidP3DException ex)
+                        {
+                            errors.Add($"Error in chunk: {ex.Chunk}");
+                        }
+                        reportProgress((int)(index++ / p3dFile.Chunks.Count * 100));
                     }
-                    catch (InvalidP3DException ex)
+
+                    return errors;
+                });
+
+                if (!cancelled)
+                {
+                    var (backColour, foreColour) = Settings.GetErrorChunkColour();
+                    foreach (var error in errors)
                     {
                         var lviError = new ListViewItem("Validation Error");
-                        lviError.SubItems.Add($"Error in chunk: {ex.Chunk}");
-                        var (backColour, foreColour) = Settings.GetErrorChunkColour();
+                        lviError.SubItems.Add(error);
                         lviError.BackColor = backColour;
                         lviError.ForeColor = foreColour;
                         _listViewItems.Add(lviError);
@@ -822,7 +852,7 @@ public partial class FrmMain : Form
                 var lvi = new ListViewItem("Size");
                 lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
                 _listViewItems.Add(lvi);
-                HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Size > int.MaxValue ? Encoding.UTF8.GetBytes("File too long to display") : p3dFile.Bytes);
+                HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Size > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : p3dFile.Bytes);
 
                 foreach (var (FileHandler, _, ContextMenu) in _pluginFileHandlers)
                     if (FileHandler.IsFileSupported(p3dFile))
@@ -951,7 +981,8 @@ public partial class FrmMain : Form
                         _listViewItems.Add(lvi);
                     }
                 }
-                HBHex.ByteProvider = new DynamicByteProvider(chunk.DataBytes);
+
+                HBHex.ByteProvider = new DynamicByteProvider(chunk.DataLength > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : chunk.DataBytes);
 
                 return;
             }

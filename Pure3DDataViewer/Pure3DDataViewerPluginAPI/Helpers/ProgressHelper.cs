@@ -16,12 +16,12 @@ public static class ProgressHelper
     /// Should return TResult as the result.</param>
     /// <param name="owner">Optional owner for the modal dialog.</param>
     /// <returns>Tuple: (cancelled, result)</returns>
-    public static (bool Cancelled, TResult Result) Run<TResult>(string title, Func<Action<int>, Func<bool>, TResult> work, IWin32Window? owner = null)
+    public static (bool Cancelled, TResult Result) Run<TResult>(string title, Func<Action<int>, Func<bool>, TResult> work, bool allowCancel = true, IWin32Window? owner = null)
     {
         TResult? result = default;
         bool cancelled = false;
 
-        using var progressForm = new FrmProgress(title);
+        using var progressForm = new FrmProgress(title, allowCancel);
         using var completedEvent = new ManualResetEventSlim(false);
         BackgroundWorker worker = new()
         {

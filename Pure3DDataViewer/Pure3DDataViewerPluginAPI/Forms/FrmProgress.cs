@@ -2,10 +2,12 @@
 
 public partial class FrmProgress : Form
 {
-    public FrmProgress(string text)
+    public FrmProgress(string text, bool allowCancel = true)
     {
         InitializeComponent();
         Text = text;
+        if (!allowCancel)
+            ControlBox = false;
     }
 
     public void UpdateProgress(int value)
