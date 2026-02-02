@@ -8,7 +8,8 @@ internal static class Importer
 {
     internal static TextureChunk ImportTexture(string imagePath)
     {
-        using var img = Image.FromFile(imagePath);
+        using var fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var img = Image.FromStream(fs);
 
         var width = (uint)img.Width;
         var height = (uint)img.Height;
@@ -17,10 +18,9 @@ internal static class Importer
         bool hasAlpha = (img.PixelFormat & PixelFormat.Alpha) != 0 || (img.PixelFormat & PixelFormat.PAlpha) != 0;
         bool isPalettized = (img.PixelFormat & PixelFormat.Indexed) != 0;
 
-        byte[] pngBytes;
         using var ms = new MemoryStream();
         img.Save(ms, ImageFormat.Png);
-        pngBytes = ms.ToArray();
+        var pngBytes = ms.GetBuffer().AsSpan(0, (int)ms.Length).ToArray();
 
         var textureChunk = new TextureChunk(Path.GetFileName(imagePath), 14000, width, height, bpp, alphaDepth, 0, isPalettized ? TextureChunk.TextureTypes.Palettized : TextureChunk.TextureTypes.RGB, TextureChunk.UsageHints.Static, 0);
 

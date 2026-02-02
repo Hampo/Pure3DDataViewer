@@ -31,7 +31,8 @@ public class ImportSprite : IChunkHandler<SpriteChunk>
 
         try
         {
-            using var img = Image.FromFile(ofd.FileName);
+            using var fs = new FileStream(ofd.FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var img = Image.FromStream(fs);
 
             var width = (uint)img.Width;
             var height = (uint)img.Height;
@@ -39,10 +40,9 @@ public class ImportSprite : IChunkHandler<SpriteChunk>
             bool hasAlpha = (img.PixelFormat & PixelFormat.Alpha) != 0 || (img.PixelFormat & PixelFormat.PAlpha) != 0;
             bool isPalettized = (img.PixelFormat & PixelFormat.Indexed) != 0;
 
-            byte[] pngBytes;
             using var ms = new MemoryStream();
             img.Save(ms, ImageFormat.Png);
-            pngBytes = ms.ToArray();
+            var pngBytes = ms.GetBuffer().AsSpan(0, (int)ms.Length).ToArray();
 
             for (int i = spriteChunk.Children.Count - 1; i >= 0; i--)
                 if (spriteChunk.Children[i].ID == (uint)ChunkIdentifier.Image)

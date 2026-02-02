@@ -58,7 +58,14 @@ public class ImportImageFolder : IFileHandler
                 if (!SupportedImageFormats.Contains(Path.GetExtension(file).ToLower()))
                     continue;
 
-                textureChunks.Add(Importer.ImportTexture(file));
+                try
+                {
+                    textureChunks.Add(Importer.ImportTexture(file));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"There was an error importing: \"{file}\": {ex}", "Error Importing Texture", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 
             if (textureChunks.Count == 0)
@@ -76,7 +83,7 @@ public class ImportImageFolder : IFileHandler
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"There was an error importing textures from folder: \"{fbd.SelectedPath}\": {ex}", "Error Importing Texture", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"There was an error importing textures from folder: \"{fbd.SelectedPath}\": {ex}", "Error Importing Textures", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         return FileCallbackResult.Unchanged;
