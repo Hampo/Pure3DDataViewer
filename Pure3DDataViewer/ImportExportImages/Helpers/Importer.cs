@@ -20,7 +20,7 @@ internal static class Importer
 
         using var ms = new MemoryStream();
         img.Save(ms, ImageFormat.Png);
-        var pngBytes = ms.GetBuffer().AsSpan(0, (int)ms.Length).ToArray();
+        var pngBytes = ms.ToArray();
 
         var textureChunk = new TextureChunk(Path.GetFileName(imagePath), 14000, width, height, bpp, alphaDepth, 0, isPalettized ? TextureChunk.TextureTypes.Palettized : TextureChunk.TextureTypes.RGB, TextureChunk.UsageHints.Static, 0);
 
