@@ -7,6 +7,7 @@ using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 using Pure3DDataViewerPluginAPI.Events;
 using Pure3DDataViewerPluginAPI.Extensions;
+using Pure3DDataViewerPluginAPI.Helpers;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
 using System.Reflection;
@@ -523,6 +524,9 @@ public partial class FrmMain : Form
             };
             _watcher.Changed += FileChanged;
 
+            if (p3dFile.Size > int.MaxValue)
+                return; // TODO: Support validating larger files
+
             var originalBytes = File.ReadAllBytes(filePath);
             var originalSignature = BitConverter.ToUInt32(originalBytes);
             switch (originalSignature)
@@ -620,14 +624,67 @@ public partial class FrmMain : Form
         TVChunks.BeginUpdate();
         TVChunks.Nodes.Clear();
 
-        var rootNode = TVChunks.Nodes.Add(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath);
-        foreach (var chunk in P3DFile.Chunks)
-            AddChunk(rootNode, chunk, -1, false, false);
-        rootNode.Tag = P3DFile;
+        var rootNode = new TreeNode(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath)
+        {
+            Tag = P3DFile
+        };
+
+        var childNodes = new TreeNode[P3DFile.Chunks.Count];
+        for (var i = 0; i < P3DFile.Chunks.Count; i++)
+            childNodes[i] = CreateChunkNode(i, P3DFile.Chunks[i]);
+        rootNode.Nodes.AddRange(childNodes);
+
+        TVChunks.Nodes.Add(rootNode);
         rootNode.Expand();
         TVChunks.SelectedNode = rootNode;
 
         TVChunks.EndUpdate();
+    }
+
+    private TreeNode CreateChunkNode(int index, Chunk chunk)
+    {
+        var node = new TreeNode($"{index}. {chunk}")
+        {
+            Tag = chunk
+        };
+
+        if (chunk.Children != null && chunk.Children.Count > 0)
+        {
+            var children = new TreeNode[chunk.Children.Count];
+            for (int i = 0; i < chunk.Children.Count; i++)
+            {
+                children[i] = CreateChunkNode(i, chunk.Children[i]);
+            }
+            node.Nodes.AddRange(children);
+        }
+
+        ApplyNodeStyling(node, chunk);
+
+        return node;
+    }
+
+    private static void ApplyNodeStyling(TreeNode node, Chunk chunk)
+    {
+        try
+        {
+            chunk.Validate();
+            var (chunkBackColour, chunkForeColour) = Settings.GetChunkColour(chunk.GetType());
+            node.BackColor = chunkBackColour;
+            node.ForeColor = chunkForeColour;
+        }
+        catch
+        {
+            var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
+            node.BackColor = errorBackColour;
+            node.ForeColor = errorForeColour;
+        }
+
+#if DEBUG
+        if (chunk is UnknownChunk)
+        {
+            // Marking it for expansion later is faster than calling .Expand() now
+        }
+#endif
     }
 
     private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true, bool beginUpdate = true)
@@ -765,7 +822,7 @@ public partial class FrmMain : Form
                 var lvi = new ListViewItem("Size");
                 lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
                 _listViewItems.Add(lvi);
-                HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Bytes);
+                HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Size > int.MaxValue ? Encoding.UTF8.GetBytes("File too long to display") : p3dFile.Bytes);
 
                 foreach (var (FileHandler, _, ContextMenu) in _pluginFileHandlers)
                     if (FileHandler.IsFileSupported(p3dFile))
@@ -847,7 +904,7 @@ public partial class FrmMain : Form
                     _listViewItems.Add(lviError);
                 }
 
-                var properties = chunkType.GetProperties().OrderBy(x => x.DeclaringType == chunkType);
+                var properties = PropertyHelper.GetProperties(chunkType);
 
                 foreach (var property in properties)
                 {
@@ -1261,7 +1318,7 @@ public partial class FrmMain : Form
     private static bool SearchChunkProperties(Chunk chunk, string query, StringComparison comparison)
     {
         var type = chunk.GetType();
-        var properties = type.GetProperties().OrderBy(x => x.DeclaringType == type);
+        var properties = PropertyHelper.GetProperties(type);
         foreach (var property in properties)
         {
             if (ExcludedProperties.Contains(property.Name))
@@ -1278,7 +1335,7 @@ public partial class FrmMain : Form
             }
             else if (value is not string && property.PropertyType.IsClass && !property.PropertyType.IsPrimitive)
             {
-                var classProperties = value.GetType().GetProperties();
+                var classProperties = PropertyHelper.GetProperties(value.GetType());
                 foreach (var classProperty in classProperties)
                 {
                     object? value2 = classProperty.GetValue(value);
