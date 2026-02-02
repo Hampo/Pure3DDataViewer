@@ -22,7 +22,7 @@ internal static class Importer
         img.Save(ms, ImageFormat.Png);
         var pngBytes = ms.ToArray();
 
-        var textureChunk = new TextureChunk(Path.GetFileName(imagePath), 14000, width, height, bpp, alphaDepth, 0, isPalettized ? TextureChunk.TextureTypes.Palettized : TextureChunk.TextureTypes.RGB, TextureChunk.UsageHints.Static, 0);
+        var textureChunk = new TextureChunk(Path.GetFileName(imagePath), 14000, width, height, bpp, alphaDepth, 1, isPalettized ? TextureChunk.TextureTypes.Palettized : TextureChunk.TextureTypes.RGB, TextureChunk.UsageHints.Static, 0);
 
         var imageChunk = new ImageChunk(textureChunk.Name, 14000, width, height, bpp, isPalettized, hasAlpha, ImageChunk.Formats.PNG);
         textureChunk.Children.Add(imageChunk);
