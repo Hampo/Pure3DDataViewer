@@ -645,6 +645,13 @@ public partial class FrmMain : Form
             return childNodes;
         }, false);
 
+        if (P3DFile.Chunks.Any(x => x.ValidateChunks().Any()))
+        {
+            var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
+            rootNode.BackColor = errorBackColour;
+            rootNode.ForeColor = errorForeColour;
+        }
+
         TVChunks.Nodes.Add(rootNode);
         rootNode.Expand();
         TVChunks.SelectedNode = rootNode;
