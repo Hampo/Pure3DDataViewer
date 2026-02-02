@@ -19,10 +19,8 @@ public class ValidateFile : IFileHandler
         var errors = new StringBuilder();
 
         foreach (var chunk in p3dFile.Chunks)
-        {
             foreach (var error in chunk.ValidateChunks())
                 errors.AppendLine($"Error in \"{error.Chunk}\": {error.Message}");
-        }
 
         if (errors.Length == 0)
         {
