@@ -820,7 +820,7 @@ public partial class FrmMain : Form
                         if (isCancellationRequested())
                             break;
 
-                        errors.AddRange(child.ValidateChunks().Select(e => $"Error in chunk \"{e.Chunk}\": {e.Message}"));
+                        errors.AddRange(child.ValidateChunks().Select(e => $"Error in chunk \"{e.Chunk!.IndexInParent}. {e.Chunk}\": {e.Message}"));
 
                         reportProgress((int)(index++ / p3dFile.Chunks.Count * 100));
                     }
@@ -915,7 +915,7 @@ public partial class FrmMain : Form
                 foreach (var error in chunk.ValidateChunks())
                 {
                     var lviError = new ListViewItem("Validation Error");
-                    lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk}\": {error.Message}");
+                    lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                     var (backColour, foreColour) = Settings.GetErrorChunkColour();
                     lviError.BackColor = backColour;
                     lviError.ForeColor = foreColour;
@@ -1812,7 +1812,7 @@ public partial class FrmMain : Form
             foreach (var error in chunk.ValidateChunks())
             {
                 var lviError = new ListViewItem("Validation Error");
-                lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk}\": {error.Message}");
+                lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                 var (backColour, foreColour) = Settings.GetErrorChunkColour();
                 lviError.BackColor = backColour;
                 lviError.ForeColor = foreColour;
