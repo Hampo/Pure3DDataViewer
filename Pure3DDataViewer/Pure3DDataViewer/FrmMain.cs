@@ -1478,9 +1478,9 @@ public partial class FrmMain : Form
             var chunks = new List<Chunk>(chunkBytes.Length);
             foreach (var bytes in chunkBytes)
             {
-                using var ms = new MemoryStream(bytes);
+                using var ms = new MemoryStream(bytes, false);
                 using var br = new BinaryReader(ms);
-                var chunk = ChunkLoader.LoadChunk(br);
+                var chunk = ChunkLoader.LoadChunk(br, out _);
                 chunks.Add(chunk);
             }
             return chunks;

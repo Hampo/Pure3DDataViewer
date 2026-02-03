@@ -44,7 +44,7 @@ public static class ImageHelper
         {
             case ImageChunk.Formats.PNG:
             case ImageChunk.Formats.BMP:
-                using (var ms = new MemoryStream(imageData.ImageData))
+                using (var ms = new MemoryStream(imageData.ImageData, false))
                     image = Image.FromStream(ms);
                 break;
             case ImageChunk.Formats.DXT:
