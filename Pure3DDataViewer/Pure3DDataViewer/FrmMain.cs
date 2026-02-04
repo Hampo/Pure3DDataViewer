@@ -1222,7 +1222,13 @@ public partial class FrmMain : Form
     private void TmrTVHover_Tick(object sender, EventArgs e)
     {
         if (TmrTVHover.Tag is TreeNode node)
+        {
+            TVChunks.BeginUpdate();
+            var topNode = TVChunks.TopNode;
             node.Expand();
+            TVChunks.TopNode = topNode;
+            TVChunks.EndUpdate();
+        }
         TmrTVHover.Stop();
     }
 
@@ -1422,8 +1428,10 @@ public partial class FrmMain : Form
 
     private static bool ContainsNode(TreeNode parent, TreeNode potentialChild)
     {
-        if (potentialChild.Parent == null) return false;
-        if (potentialChild.Parent == parent) return true;
+        if (potentialChild.Parent == null)
+            return false;
+        if (potentialChild.Parent == parent)
+            return true;
         return ContainsNode(parent, potentialChild.Parent);
     }
 
@@ -1435,7 +1443,12 @@ public partial class FrmMain : Form
         for (int i = 0; i < parent.Nodes.Count; i++)
         {
             if (parent.Nodes[i].Tag is Chunk c)
-                parent.Nodes[i].Text = $"{i}. {c}";
+            {
+                var newText = $"{i}. {c}";
+
+                if (parent.Nodes[i].Text != newText)
+                    parent.Nodes[i].Text = newText;
+            }
         }
     }
 
@@ -2037,34 +2050,39 @@ public partial class FrmMain : Form
 
     private void UpdateErrors()
     {
-        var allNodes = new List<TreeNode>();
-        foreach (TreeNode childNode in TVChunks.Nodes)
-            CollectNodes(childNode, allNodes);
+        bool globalErrorFound = false;
 
-        bool errors = false;
-        foreach (var childNode in allNodes)
+        void ValidateAndColour(TreeNode node)
         {
-            if (childNode.Tag is not Chunk childChunk)
-                continue;
+            if (node.Tag is Chunk chunk)
+            {
+                bool hasError = chunk.ValidateChunks().Any();
+                globalErrorFound = globalErrorFound || hasError;
 
-            (Color BackColour, Color ForeColour) childColours;
-            if (!childChunk.ValidateChunks().Any())
-            {
-                childColours = Settings.GetChunkColour(childChunk.GetType());
+                var (backColour, foreColour) = hasError ? Settings.GetErrorChunkColour() : Settings.GetChunkColour(chunk.GetType());
+
+                if (node.BackColor != backColour)
+                    node.BackColor = backColour;
+
+                if (node.ForeColor != foreColour)
+                    node.ForeColor = foreColour;
             }
-            else
-            {
-                childColours = Settings.GetErrorChunkColour();
-                errors = true;
-            }
-            childNode.BackColor = childColours.BackColour;
-            childNode.ForeColor = childColours.ForeColour;
+
+            foreach (TreeNode child in node.Nodes)
+                ValidateAndColour(child);
         }
 
-        var rootNode = allNodes[0];
-        (Color BackColour, Color ForeColour) = errors ? Settings.GetErrorChunkColour() : (Color.Empty, Color.Empty);
-        rootNode.BackColor = BackColour;
-        rootNode.ForeColor = ForeColour;
+        foreach (TreeNode node in TVChunks.Nodes)
+            ValidateAndColour(node);
+
+        var rootNode = TVChunks.Nodes[0];
+        var (back, fore) = globalErrorFound ? Settings.GetErrorChunkColour() : (Color.Empty, Color.Empty);
+
+        if (rootNode.BackColor != back)
+            rootNode.BackColor = back;
+
+        if (rootNode.ForeColor != fore)
+            rootNode.ForeColor = fore;
     }
 
     private void LVValues_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
