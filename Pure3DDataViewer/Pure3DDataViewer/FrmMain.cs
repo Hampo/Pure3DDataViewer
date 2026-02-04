@@ -1232,13 +1232,17 @@ public partial class FrmMain : Form
         return true;
     }
 
+    private Stack<TreeNode> _autoExpandedNodes = [];
     private void TmrTVHover_Tick(object sender, EventArgs e)
     {
-        if (TmrTVHover.Tag is TreeNode node)
+        if (TmrTVHover.Tag is TreeNode node && !node.IsExpanded)
         {
             TVChunks.BeginUpdate();
             var topNode = TVChunks.TopNode;
+
             node.Expand();
+            _autoExpandedNodes.Push(node);
+
             TVChunks.TopNode = topNode;
             TVChunks.EndUpdate();
         }
@@ -1271,10 +1275,25 @@ public partial class FrmMain : Form
         var targetPoint = TVChunks.PointToClient(new(e.X, e.Y));
         var targetNode = TVChunks.GetNodeAt(targetPoint);
 
+        while (_autoExpandedNodes.Count > 0)
+        {
+            var lastExpanded = _autoExpandedNodes.Peek();
+
+            if (lastExpanded == targetNode)
+                break;
+
+            if (targetNode != null && ContainsNode(lastExpanded, targetNode))
+                break;
+
+            lastExpanded.Collapse();
+            _autoExpandedNodes.Pop();
+        }
+
         if (targetNode != TmrTVHover.Tag)
         {
             TmrTVHover.Tag = targetNode;
             TmrTVHover.Stop();
+
             if (targetNode != null && !targetNode.IsExpanded)
                 TmrTVHover.Start();
         }
