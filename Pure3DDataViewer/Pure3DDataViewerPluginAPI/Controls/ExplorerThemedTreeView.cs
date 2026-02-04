@@ -8,6 +8,7 @@ public class ExplorerThemedTreeView : TreeView
 {
     private const int TV_FIRST = 0x1100;
     private const int TVM_SETINSERTMARK = TV_FIRST + 26;
+    private const int TVM_SETINSERTMARKCOLOR = TV_FIRST + 39;
     private const int WM_ERASEBKGND = 0x14;
 
     [DllImport("user32.dll")]
@@ -139,6 +140,11 @@ public class ExplorerThemedTreeView : TreeView
             this.BackColor = SystemColors.Window;
             this.ForeColor = SystemColors.WindowText;
             this.LineColor = SystemColors.GrayText;
+        }
+        if (Environment.OSVersion.Version >= new Version(6, 0))
+        {
+            int insertMarkColor = DarkMode ? 0x00FFFFFF : 0x00000000;
+            SendMessage(Handle, TVM_SETINSERTMARKCOLOR, 0, (nint)insertMarkColor);
         }
     }
 

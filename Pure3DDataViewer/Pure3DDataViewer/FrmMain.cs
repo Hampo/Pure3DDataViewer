@@ -98,6 +98,7 @@ public partial class FrmMain : Form
     public FrmMain()
     {
         InitializeComponent();
+        typeof(DataGridView).InvokeMember("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty, null, DGVValues, [true]);
     }
 
     private void FrmMain_Load(object sender, EventArgs e)
@@ -782,13 +783,12 @@ public partial class FrmMain : Form
 
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentFile", "ParentChunk", "IndexInParent", "Children", "AllChildren", "HeaderSize", "Size", "Bytes"];
     private bool _afterSelectUpdating = false;
-    private readonly List<ListViewItem> _listViewItems = [];
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
     {
         _afterSelectUpdating = true;
         var prevFocus = SC1.ActiveControl;
-        LVValues.BeginUpdate();
-        _listViewItems.Clear();
+        //DGVValues.SuspendLayout();
+        DGVValues.Rows.Clear();
 
         TCEditors.SuspendLayout();
 
@@ -851,19 +851,15 @@ public partial class FrmMain : Form
                     var (backColour, foreColour) = Settings.GetErrorChunkColour();
                     foreach (var error in errors)
                     {
-                        var lviError = new ListViewItem("Validation Error")
-                        {
-                            BackColor = backColour,
-                            ForeColor = foreColour,
-                        };
-                        lviError.SubItems.Add(error);
-                        _listViewItems.Add(lviError);
+                        var rowIndex = DGVValues.Rows.Add("Validation Error", error);
+                        var row = DGVValues.Rows[rowIndex];
+
+                        row.DefaultCellStyle.BackColor = backColour;
+                        row.DefaultCellStyle.ForeColor = foreColour;
                     }
                 }
 
-                var lvi = new ListViewItem("Size");
-                lvi.SubItems.Add($"{p3dFile.Size:N0} bytes");
-                _listViewItems.Add(lvi);
+                DGVValues.Rows.Add("Size", $"{p3dFile.Size:N0} bytes");
                 HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Size > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : p3dFile.Bytes);
 
                 foreach (var (FileHandler, _, ContextMenu) in _pluginFileHandlers)
@@ -924,7 +920,10 @@ public partial class FrmMain : Form
                     foreach (var editorTP in editors)
                     {
                         if (!TCEditors.TabPages.Contains(editorTP))
+                        {
                             TCEditors.TabPages.Add(editorTP);
+                            Theming.ApplyTheme(editorTP, Settings.DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, Settings.LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
+                        }
                         var editorControl = (EditorControl)editorTP.Controls[0];
                         editorControl.LoadChunk(chunk);
                     }
@@ -932,16 +931,14 @@ public partial class FrmMain : Form
 
                 TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, chunkType) ?? TPValues;
 
+                var (backColour, foreColour) = Settings.GetErrorChunkColour();
                 foreach (var error in chunk.ValidateChunks())
                 {
-                    var (backColour, foreColour) = Settings.GetErrorChunkColour();
-                    var lviError = new ListViewItem("Validation Error")
-                    {
-                        BackColor = backColour,
-                        ForeColor = foreColour,
-                    };
-                    lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
-                    _listViewItems.Add(lviError);
+                    var rowIndex = DGVValues.Rows.Add("Validation Error", error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
+                    var row = DGVValues.Rows[rowIndex];
+
+                    row.DefaultCellStyle.BackColor = backColour;
+                    row.DefaultCellStyle.ForeColor = foreColour;
                 }
 
                 var properties = PropertyHelper.GetProperties(chunkType);
@@ -954,41 +951,33 @@ public partial class FrmMain : Form
                     object? value = property.GetValue(chunk);
                     if (value is byte[] byteArray)
                     {
-                        var lvi = new ListViewItem(property.Name);
-                        lvi.SubItems.Add($"{byteArray.Length:N0} bytes");
-                        lvi.Tag = property;
-                        _listViewItems.Add(lvi);
+                        var rowIndex = DGVValues.Rows.Add(property.Name, $"{byteArray.Length:N0} bytes");
+                        DGVValues.Rows[rowIndex].Tag = property;
                     }
                     else if (property.IsEnumerable() && value is IEnumerable enumerable)
                     {
                         List<object> values = [.. enumerable.Cast<object>()];
                         if (values.Count == 0)
                         {
-                            var lvi = new ListViewItem($"{property.Name}[<EMPTY>]");
-                            lvi.SubItems.Add("<NULL>");
-                            lvi.Tag = (property, 0);
-                            _listViewItems.Add(lvi);
+                            var rowIndex = DGVValues.Rows.Add($"{property.Name}[<EMPTY>]", "<NULL>");
+                            DGVValues.Rows[rowIndex].Tag = (property, 0);
                         }
                         else
                         {
                             for (int i = 0; i < values.Count; i++)
                             {
-                                var lvi = new ListViewItem($"{property.Name}[{i}]");
-                                lvi.SubItems.Add(values[i]?.ToString() ?? "<NULL>");
-                                lvi.Tag = (property, i);
-                                _listViewItems.Add(lvi);
+                                var rowIndex = DGVValues.Rows.Add($"{property.Name}[{i}]", values[i]?.ToString() ?? "<NULL>");
+                                DGVValues.Rows[rowIndex].Tag = (property, i);
                             }
                         }
                     }
                     else
                     {
-                        var lvi = new ListViewItem(property.Name);
-                        lvi.SubItems.Add(value?.ToString() ?? "<NULL>");
+                        var rowIndex = DGVValues.Rows.Add($"{property.Name}", value?.ToString() ?? "<NULL>");
                         if (property.CanWrite)
-                            lvi.Tag = property;
+                            DGVValues.Rows[rowIndex].Tag = property;
                         else
-                            lvi.BackColor = Color.Silver;
-                        _listViewItems.Add(lvi);
+                            DGVValues.Rows[rowIndex].ReadOnly = true;
                     }
                 }
 
@@ -999,31 +988,75 @@ public partial class FrmMain : Form
         }
         finally
         {
-            var newSize = _listViewItems.Count;
-            LVValues.VirtualListSize = newSize;
-            if (newSize > 0)
+            var rowCount = DGVValues.RowCount;
+            if (rowCount > 0)
             {
-                for (int i = 0; i < newSize; i++)
+                for (int i = 0; i < rowCount; i++)
                 {
-                    if (LVValues.Items[i].Text != "Validation Error")
+                    var row = DGVValues.Rows[i];
+                    if (row.Cells[1].Value as string != "Validation Error")
                     {
-                        LVValues.Items[i].Selected = true;
+                        row.Selected = true;
                         break;
                     }
                 }
-                LVValues.TopItem = LVValues.Items[0];
             }
 
-            foreach (ColumnHeader column in LVValues.Columns)
-                column.Width = -2;
-
-            LVValues.EndUpdate();
+            AutoSizeSmart();
 
             TCEditors.ResumeLayout();
             _afterSelectUpdating = false;
             if (prevFocus != null && prevFocus.CanFocus)
                 prevFocus.Focus();
         }
+    }
+
+    private bool _autosizePending = false;
+    private void DGVValues_Resize(object sender, EventArgs e)
+    {
+        if (_autosizePending)
+            return;
+
+        _autosizePending = true;
+
+        DGVValues.BeginInvoke(() =>
+        {
+            _autosizePending = false;
+            AutoSizeSmart();
+        });
+    }
+
+    private void AutoSizeSmart()
+    {
+        if (!DGVValues.IsHandleCreated || DGVValues.Columns.Count == 0 || DGVValues.IsDisposed)
+            return;
+
+        // Suspend layout to prevent flickering during manual adjustments
+        DGVValues.SuspendLayout();
+
+        // 1. Get the width required by the content
+        // We use GetPreferredWidth to avoid changing the actual mode property
+        int contentWidth = DGVValues.RowHeadersVisible ? DGVValues.RowHeadersWidth : 0;
+        foreach (DataGridViewColumn col in DGVValues.Columns)
+        {
+            contentWidth += col.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, true);
+        }
+
+        // 2. Account for the vertical scrollbar if it's visible
+        int scrollbarWidth = SystemInformation.VerticalScrollBarWidth;
+        int availableWidth = DGVValues.DisplayRectangle.Width;
+
+        // 3. Logic: If content is smaller than the box, use Fill. Otherwise, AllCells.
+        if (contentWidth < availableWidth)
+        {
+            DGVValues.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+        else
+        {
+            DGVValues.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+        }
+
+        DGVValues.ResumeLayout();
     }
 
     private void TCEditors_SelectedIndexChanged(object sender, EventArgs e)
@@ -1038,20 +1071,9 @@ public partial class FrmMain : Form
         Settings.SetLastTabPage(tag.GetType(), TCEditors.SelectedTab!);
     }
 
-    private void LVValues_Resize(object sender, EventArgs e)
+    private void DGVValues_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
     {
-        LVValues.BeginUpdate();
-        var selectedIndices = LVValues.SelectedIndices.Cast<int>().ToArray();
-        foreach (ColumnHeader column in LVValues.Columns)
-            column.Width = -2;
-        foreach (int index in selectedIndices)
-            LVValues.Items[index].Selected = true;
-        LVValues.EndUpdate();
-    }
-
-    private void LVValues_MouseDoubleClick(object sender, MouseEventArgs e)
-    {
-        if (sender is not ListView lv)
+        if (e.RowIndex == -1)
             return;
 
         if (e.Button != MouseButtons.Left)
@@ -1060,13 +1082,11 @@ public partial class FrmMain : Form
         if (TVChunks.SelectedNode?.Tag is not Chunk chunk)
             return;
 
-        var lvi = lv.GetItemAt(e.X, e.Y);
-        if (lvi == null)
-            return;
+        var row = DGVValues.Rows[e.RowIndex];
 
         var Updated = false;
         var clone = P3DFile.Clone();
-        switch (lvi.Tag)
+        switch (row.Tag)
         {
             case PropertyInfo property:
                 Updated = EditProperty(property, chunk);
@@ -2005,27 +2025,29 @@ public partial class FrmMain : Form
 
         if (node.IsSelected)
         {
-            for (int i = _listViewItems.Count - 1; i >= 0; i--)
-            {
-                var lvi = _listViewItems[i];
+            DGVValues.SuspendLayout();
 
-                if (lvi.Text == "Validation Error")
+            for (int i = DGVValues.RowCount - 1; i >= 0; i--)
+            {
+                var row = DGVValues.Rows[i];
+
+                if (row.Cells[1].Value as string == "Validation Error")
                 {
-                    _listViewItems.RemoveAt(i);
+                    DGVValues.Rows.RemoveAt(i);
                     continue;
                 }
 
-                switch (lvi.Tag)
+                switch (row.Tag)
                 {
                     case PropertyInfo property:
                         var value = property.GetValue(chunk);
                         if (value is byte[] byteArray)
-                            lvi.SubItems[1].Text = $"{byteArray.Length:N0} bytes";
+                            row.Cells[1].Value = $"{byteArray.Length:N0} bytes";
                         else
-                            lvi.SubItems[1].Text = value?.ToString() ?? "<NULL>";
+                            row.Cells[1].Value = value?.ToString() ?? "<NULL>";
                         break;
                     case (PropertyInfo listProperty, int index):
-                        _listViewItems.RemoveAt(i);
+                        DGVValues.Rows.RemoveAt(i);
 
                         if (index == 0)
                         {
@@ -2033,19 +2055,15 @@ public partial class FrmMain : Form
                             List<object> values = [.. enumerable.Cast<object>()];
                             if (values.Count == 0)
                             {
-                                var lviItem = new ListViewItem($"{listProperty.Name}[<EMPTY>]");
-                                lviItem.SubItems.Add("<NULL>");
-                                lviItem.Tag = (listProperty, 0);
-                                _listViewItems.Insert(i, lviItem);
+                                var rowIndex = DGVValues.Rows.Add($"{listProperty.Name}[<EMPTY>]", "<NULL>");
+                                DGVValues.Rows[rowIndex].Tag = (listProperty, 0);
                             }
                             else
                             {
-                                for (var j = values.Count - 1; j >= 0; j--)
+                                for (int j = 0; j < values.Count; j++)
                                 {
-                                    var lviItem = new ListViewItem($"{listProperty.Name}[{j}]");
-                                    lviItem.SubItems.Add(values[j]?.ToString() ?? "<NULL>");
-                                    lviItem.Tag = (listProperty, j);
-                                    _listViewItems.Insert(i, lviItem);
+                                    var rowIndex = DGVValues.Rows.Add($"{listProperty.Name}[{j}]", values[j]?.ToString() ?? "<NULL>");
+                                    DGVValues.Rows[rowIndex].Tag = (listProperty, j);
                                 }
                             }
                         }
@@ -2054,20 +2072,16 @@ public partial class FrmMain : Form
                 }
             }
 
+            var (backColour, foreColour) = Settings.GetErrorChunkColour();
             foreach (var error in chunk.ValidateChunks())
             {
-                var (backColour, foreColour) = Settings.GetErrorChunkColour();
-                var lviError = new ListViewItem("Validation Error")
-                {
-                    BackColor = backColour,
-                    ForeColor = foreColour,
-                };
-                lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
-                _listViewItems.Insert(0, lviError);
-            }
+                DGVValues.Rows.Insert(0, "Validation Error", error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
+                var row = DGVValues.Rows[0];
 
-            LVValues.VirtualListSize = _listViewItems.Count;
-            LVValues.Invalidate();
+                row.DefaultCellStyle.BackColor = backColour;
+                row.DefaultCellStyle.ForeColor = foreColour;
+            }
+            AutoSizeSmart();
 
             if (_pluginChunkEditors.TryGetValue(chunk.GetType(), out var editors))
             {
@@ -2120,19 +2134,6 @@ public partial class FrmMain : Form
 
         if (rootNode.ForeColor != fore)
             rootNode.ForeColor = fore;
-    }
-
-    private void LVValues_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
-    {
-        if (e.ItemIndex >= _listViewItems.Count)
-        {
-            var lvi = new ListViewItem("");
-            lvi.SubItems.Add("");
-            e.Item = lvi;
-            return;
-        }
-
-        e.Item = _listViewItems[e.ItemIndex];
     }
 
 

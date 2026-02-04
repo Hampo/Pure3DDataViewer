@@ -55,9 +55,9 @@ partial class FrmMain
         TSS8 = new ToolStripSeparator();
         TCEditors = new TabControl();
         TPValues = new TabPage();
-        LVValues = new ListView();
-        CHName = new ColumnHeader();
-        CHValue = new ColumnHeader();
+        DGVValues = new DataGridView();
+        NameColumn = new DataGridViewTextBoxColumn();
+        ValueColumn = new DataGridViewTextBoxColumn();
         TPHex = new TabPage();
         HBHex = new Be.Windows.Forms.HexBox();
         MS1 = new MenuStrip();
@@ -114,6 +114,7 @@ partial class FrmMain
         CMSTVChunks.SuspendLayout();
         TCEditors.SuspendLayout();
         TPValues.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)DGVValues).BeginInit();
         TPHex.SuspendLayout();
         MS1.SuspendLayout();
         SuspendLayout();
@@ -142,9 +143,13 @@ partial class FrmMain
         // TVChunks
         // 
         TVChunks.AllowDrop = true;
+        TVChunks.BackColor = SystemColors.Window;
         TVChunks.ContextMenuStrip = CMSTVChunks;
+        TVChunks.DarkMode = false;
         TVChunks.Dock = DockStyle.Fill;
+        TVChunks.ForeColor = SystemColors.WindowText;
         TVChunks.FullRowSelect = true;
+        TVChunks.LineColor = Color.FromArgb(109, 109, 109);
         TVChunks.Location = new Point(0, 0);
         TVChunks.Margin = new Padding(4, 3, 4, 3);
         TVChunks.Name = "TVChunks";
@@ -310,49 +315,53 @@ partial class FrmMain
         // 
         // TPValues
         // 
-        TPValues.Controls.Add(LVValues);
+        TPValues.Controls.Add(DGVValues);
         TPValues.Location = new Point(4, 24);
         TPValues.Name = "TPValues";
-        TPValues.Padding = new Padding(3);
         TPValues.Size = new Size(456, 467);
         TPValues.TabIndex = 0;
         TPValues.Text = "Values";
         TPValues.UseVisualStyleBackColor = true;
         // 
-        // LVValues
+        // DGVValues
         // 
-        LVValues.Activation = ItemActivation.OneClick;
-        LVValues.Columns.AddRange(new ColumnHeader[] { CHName, CHValue });
-        LVValues.Dock = DockStyle.Fill;
-        LVValues.FullRowSelect = true;
-        LVValues.GridLines = true;
-        LVValues.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-        LVValues.Location = new Point(3, 3);
-        LVValues.MultiSelect = false;
-        LVValues.Name = "LVValues";
-        LVValues.Size = new Size(450, 461);
-        LVValues.TabIndex = 0;
-        LVValues.UseCompatibleStateImageBehavior = false;
-        LVValues.View = View.Details;
-        LVValues.VirtualMode = true;
-        LVValues.RetrieveVirtualItem += LVValues_RetrieveVirtualItem;
-        LVValues.MouseDoubleClick += LVValues_MouseDoubleClick;
-        LVValues.Resize += LVValues_Resize;
+        DGVValues.AllowUserToAddRows = false;
+        DGVValues.AllowUserToDeleteRows = false;
+        DGVValues.AllowUserToResizeRows = false;
+        DGVValues.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        DGVValues.BorderStyle = BorderStyle.None;
+        DGVValues.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        DGVValues.Columns.AddRange(new DataGridViewColumn[] { NameColumn, ValueColumn });
+        DGVValues.Location = new Point(0, 0);
+        DGVValues.MultiSelect = false;
+        DGVValues.Name = "DGVValues";
+        DGVValues.RowHeadersVisible = false;
+        DGVValues.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        DGVValues.Size = new Size(456, 467);
+        DGVValues.TabIndex = 0;
+        DGVValues.CellMouseDoubleClick += DGVValues_CellMouseDoubleClick;
+        DGVValues.Resize += DGVValues_Resize;
         // 
-        // CHName
+        // NameColumn
         // 
-        CHName.Text = "Name";
+        NameColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+        NameColumn.HeaderText = "Name";
+        NameColumn.Name = "NameColumn";
+        NameColumn.ReadOnly = true;
+        NameColumn.Width = 64;
         // 
-        // CHValue
+        // ValueColumn
         // 
-        CHValue.Text = "Value";
+        ValueColumn.HeaderText = "Value";
+        ValueColumn.Name = "ValueColumn";
+        ValueColumn.ReadOnly = true;
+        ValueColumn.Width = 60;
         // 
         // TPHex
         // 
         TPHex.Controls.Add(HBHex);
         TPHex.Location = new Point(4, 24);
         TPHex.Name = "TPHex";
-        TPHex.Padding = new Padding(3);
         TPHex.Size = new Size(456, 467);
         TPHex.TabIndex = 1;
         TPHex.Text = "Hex";
@@ -371,11 +380,11 @@ partial class FrmMain
         HBHex.Dock = DockStyle.Fill;
         HBHex.Font = new Font("Segoe UI", 9F);
         HBHex.LineInfoVisible = true;
-        HBHex.Location = new Point(3, 3);
+        HBHex.Location = new Point(0, 0);
         HBHex.Name = "HBHex";
         HBHex.ReadOnly = true;
         HBHex.ShadowSelectionColor = Color.FromArgb(100, 60, 188, 255);
-        HBHex.Size = new Size(450, 461);
+        HBHex.Size = new Size(456, 467);
         HBHex.StringViewVisible = true;
         HBHex.TabIndex = 0;
         HBHex.VScrollBarVisible = true;
@@ -768,6 +777,7 @@ partial class FrmMain
         CMSTVChunks.ResumeLayout(false);
         TCEditors.ResumeLayout(false);
         TPValues.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)DGVValues).EndInit();
         TPHex.ResumeLayout(false);
         MS1.ResumeLayout(false);
         MS1.PerformLayout();
@@ -789,9 +799,6 @@ partial class FrmMain
     private System.Windows.Forms.ToolStripMenuItem TSMIRecentFiles;
     private System.Windows.Forms.ToolStripSeparator TSS2;
     private System.Windows.Forms.ToolStripMenuItem TSMIExit;
-    private ListView LVValues;
-    private ColumnHeader CHName;
-    private ColumnHeader CHValue;
     private TabControl TCEditors;
     private TabPage TPValues;
     private TabPage TPHex;
@@ -852,4 +859,7 @@ partial class FrmMain
     private ToolStripMenuItem TSMIOptions;
     private ToolStripSeparator TSS11;
     private System.Windows.Forms.Timer TmrTVHover;
+    private DataGridView DGVValues;
+    private DataGridViewTextBoxColumn NameColumn;
+    private DataGridViewTextBoxColumn ValueColumn;
 }

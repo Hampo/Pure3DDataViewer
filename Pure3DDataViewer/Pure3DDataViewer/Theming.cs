@@ -48,6 +48,10 @@ public static class Theming
                 textBoxBase.ForeColor = foreColor;
                 break;
 
+            case DataGridView dataGridView:
+                ApplyDataGridViewTheme(dataGridView, themeMode, fontMode);
+                break;
+
             default:
                 control.BackColor = backColor;
                 control.ForeColor = foreColor;
@@ -93,6 +97,84 @@ public static class Theming
                 subItem.ForeColor = foreColor;
             }
         }
+    }
+
+    private static void ApplyDataGridViewTheme(DataGridView grid, ThemeMode themeMode, FontMode fontMode)
+    {
+        bool dark = themeMode == ThemeMode.Dark;
+
+        Color baseBack = dark ? Color.FromArgb(30, 30, 30) : Color.White;
+        Color altBack = dark ? Color.FromArgb(35, 35, 35) : Color.FromArgb(245, 245, 245);
+        Color fore = dark ? Color.LightGray : Color.Black;
+
+        Color readonlyBack = dark ? Color.FromArgb(70, 70, 70) : Color.Silver;
+        Color readonlyFore = dark ? Color.Gainsboro : Color.Black;
+
+        grid.EnableHeadersVisualStyles = false;
+        grid.BackgroundColor = baseBack;
+        grid.GridColor = dark ? Color.FromArgb(60, 60, 60) : SystemColors.ControlDark;
+        grid.BorderStyle = BorderStyle.None;
+
+        grid.DefaultCellStyle = new DataGridViewCellStyle
+        {
+            BackColor = baseBack,
+            ForeColor = fore,
+            SelectionBackColor = dark ? Color.FromArgb(70, 70, 70) : SystemColors.Highlight,
+            SelectionForeColor = Color.White,
+            Font = fontMode == FontMode.Normal ? NormalFont : LargeFont
+        };
+
+        grid.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
+        {
+            BackColor = altBack,
+            ForeColor = fore,
+            SelectionBackColor = dark ? Color.FromArgb(80, 80, 80) : SystemColors.Highlight,
+            SelectionForeColor = Color.White
+        };
+
+        grid.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+        {
+            BackColor = dark ? Color.FromArgb(45, 45, 45) : SystemColors.Control,
+            ForeColor = fore,
+            Font = fontMode == FontMode.Normal ? NormalFont : LargeFont
+        };
+
+        grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = grid.ColumnHeadersDefaultCellStyle.BackColor;
+        grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = grid.ColumnHeadersDefaultCellStyle.ForeColor;
+
+        grid.RowPrePaint -= DataGridView_RowPrePaint;
+        grid.RowPrePaint += DataGridView_RowPrePaint;
+
+        grid.Tag = new DataGridViewThemeState
+        {
+            ReadonlyBackColor = readonlyBack,
+            ReadonlyForeColor = readonlyFore
+        };
+    }
+
+    private static void DataGridView_RowPrePaint(object? sender, DataGridViewRowPrePaintEventArgs e)
+    {
+        var grid = (DataGridView)sender!;
+        var row = grid.Rows[e.RowIndex];
+        var theme = (DataGridViewThemeState)grid.Tag!;
+
+        bool isReadonly = row.ReadOnly;
+
+        if (!isReadonly)
+            return;
+
+        row.DefaultCellStyle.BackColor = theme.ReadonlyBackColor;
+        row.DefaultCellStyle.ForeColor = theme.ReadonlyForeColor;
+
+        bool selected = row.Selected || grid.CurrentCell?.RowIndex == e.RowIndex;
+        row.DefaultCellStyle.SelectionBackColor = selected ? ControlPaint.Light(theme.ReadonlyBackColor, 0.7f) : theme.ReadonlyBackColor;
+        row.DefaultCellStyle.SelectionForeColor = theme.ReadonlyForeColor;
+    }
+
+    private class DataGridViewThemeState
+    {
+        public Color ReadonlyBackColor { get; set; }
+        public Color ReadonlyForeColor { get; set; }
     }
 
     [DllImport("dwmapi.dll")]
