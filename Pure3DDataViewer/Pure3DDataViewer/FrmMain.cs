@@ -1288,6 +1288,7 @@ public partial class FrmMain : Form
             lastExpanded.Collapse();
             _autoExpandedNodes.Pop();
         }
+        targetNode = TVChunks.GetNodeAt(targetPoint);
 
         if (targetNode != TmrTVHover.Tag)
         {
