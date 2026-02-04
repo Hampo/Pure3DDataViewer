@@ -666,15 +666,29 @@ public partial class FrmMain : Form
             Tag = chunk
         };
 
+#if DEBUG
+        var shouldExpand = false;// chunk is UnknownChunk;
+#endif
+
         if (chunk.Children != null && chunk.Children.Count > 0)
         {
             var children = new TreeNode[chunk.Children.Count];
             for (int i = 0; i < chunk.Children.Count; i++)
             {
-                children[i] = CreateChunkNode(i, chunk.Children[i]);
+                var childNode = CreateChunkNode(i, chunk.Children[i]);
+                children[i] = childNode;
+
+#if DEBUG
+                shouldExpand = shouldExpand || chunk.Children[i] is UnknownChunk;
+#endif
             }
             node.Nodes.AddRange(children);
         }
+
+#if DEBUG
+        if (shouldExpand)
+            node.Expand();
+#endif
 
         ApplyNodeStyling(node, chunk);
 
@@ -695,13 +709,6 @@ public partial class FrmMain : Form
             node.BackColor = errorBackColour;
             node.ForeColor = errorForeColour;
         }
-
-#if DEBUG
-        if (chunk is UnknownChunk)
-        {
-            // Marking it for expansion later is faster than calling .Expand() now
-        }
-#endif
     }
 
     private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true, bool beginUpdate = true)
@@ -752,8 +759,10 @@ public partial class FrmMain : Form
             while (parent != null)
             {
                 parent.Expand();
-                parent.BackColor = colours.BackColour;
-                parent.ForeColor = colours.ForeColour;
+                if (parent.BackColor != colours.BackColour)
+                    parent.BackColor = colours.BackColour;
+                if (parent.ForeColor != colours.ForeColour)
+                    parent.ForeColor = colours.ForeColour;
                 parent = parent.Parent;
             }
         }
@@ -840,10 +849,12 @@ public partial class FrmMain : Form
                     var (backColour, foreColour) = Settings.GetErrorChunkColour();
                     foreach (var error in errors)
                     {
-                        var lviError = new ListViewItem("Validation Error");
+                        var lviError = new ListViewItem("Validation Error")
+                        {
+                            BackColor = backColour,
+                            ForeColor = foreColour,
+                        };
                         lviError.SubItems.Add(error);
-                        lviError.BackColor = backColour;
-                        lviError.ForeColor = foreColour;
                         _listViewItems.Add(lviError);
                     }
                 }
@@ -921,11 +932,13 @@ public partial class FrmMain : Form
 
                 foreach (var error in chunk.ValidateChunks())
                 {
-                    var lviError = new ListViewItem("Validation Error");
-                    lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                     var (backColour, foreColour) = Settings.GetErrorChunkColour();
-                    lviError.BackColor = backColour;
-                    lviError.ForeColor = foreColour;
+                    var lviError = new ListViewItem("Validation Error")
+                    {
+                        BackColor = backColour,
+                        ForeColor = foreColour,
+                    };
+                    lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                     _listViewItems.Add(lviError);
                 }
 
@@ -2021,11 +2034,13 @@ public partial class FrmMain : Form
 
             foreach (var error in chunk.ValidateChunks())
             {
-                var lviError = new ListViewItem("Validation Error");
-                lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                 var (backColour, foreColour) = Settings.GetErrorChunkColour();
-                lviError.BackColor = backColour;
-                lviError.ForeColor = foreColour;
+                var lviError = new ListViewItem("Validation Error")
+                {
+                    BackColor = backColour,
+                    ForeColor = foreColour,
+                };
+                lviError.SubItems.Add(error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                 _listViewItems.Insert(0, lviError);
             }
 
