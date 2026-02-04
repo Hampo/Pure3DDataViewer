@@ -7,6 +7,10 @@ public partial class FrmOptions : Form
     public FrmOptions()
     {
         InitializeComponent();
+#if !DEBUG
+        CBDarkMode.Enabled = false;
+        CBLargeFont.Enabled = false;
+#endif
     }
 
     private void FrmOptions_Load(object sender, EventArgs e)

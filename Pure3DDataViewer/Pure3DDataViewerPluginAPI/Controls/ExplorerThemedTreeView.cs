@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Microsoft.Win32;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Pure3DDataViewerPluginAPI.Controls;
@@ -32,6 +33,22 @@ public class ExplorerThemedTreeView : TreeView
         set => throw new NotSupportedException();
     }
 
+    [System.ComponentModel.Browsable(true)]
+    [System.ComponentModel.DefaultValue(false)]
+    private bool _darkMode = false;
+    public bool DarkMode
+    {
+        get => _darkMode;
+        set
+        {
+            if (_darkMode == value)
+                return;
+
+            _darkMode = value;
+            ApplyTheme();
+        }
+    }
+
     public ExplorerThemedTreeView()
     {
         HideSelection = false;
@@ -39,18 +56,27 @@ public class ExplorerThemedTreeView : TreeView
         if (Environment.OSVersion.Version >= new Version(6, 0))
         {
             base.HotTracking = Application.RenderWithVisualStyles;
-            Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+            SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
         }
 
         typeof(TreeView).InvokeMember("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetProperty, null, this, [true]);
     }
 
+    private static bool CheckSystemDarkMode()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            return (int?)key?.GetValue("AppsUseLightTheme") == 0;
+        }
+        catch { return false; }
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)
-        {
-            Microsoft.Win32.SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
-        }
+            SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
+
         base.Dispose(disposing);
     }
 
@@ -75,19 +101,35 @@ public class ExplorerThemedTreeView : TreeView
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
+        ApplyTheme();
+    }
 
-        try
+    private void ApplyTheme()
+    {
+        if (!IsHandleCreated)
+            return;
+
+        if (Environment.OSVersion.Version >= new Version(10, 0, 17763))
+        {
+            string theme = DarkMode ? "DarkMode_Explorer" : "Explorer";
+            _ = SetWindowTheme(Handle, theme, null);
+        }
+        else
         {
             _ = SetWindowTheme(Handle, "Explorer", null);
         }
-        catch (EntryPointNotFoundException)
+
+        if (DarkMode)
         {
+            this.BackColor = Color.FromArgb(25, 25, 25);
+            this.ForeColor = Color.White;
+            this.LineColor = Color.FromArgb(80, 80, 80);
         }
-        catch (DllNotFoundException)
+        else
         {
-        }
-        catch (NullReferenceException)
-        {
+            this.BackColor = SystemColors.Window;
+            this.ForeColor = SystemColors.WindowText;
+            this.LineColor = SystemColors.GrayText;
         }
     }
 

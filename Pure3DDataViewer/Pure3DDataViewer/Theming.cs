@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using Pure3DDataViewerPluginAPI.Controls;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace Pure3DDataViewer;
 public static class Theming
@@ -38,6 +40,10 @@ public static class Theming
                 form.FormBorderStyle = oldBorderStyle;
                 break;
 
+            case ExplorerThemedTreeView treeView:
+                treeView.DarkMode = themeMode == ThemeMode.Dark;
+                break;
+
             case TextBoxBase textBoxBase:
                 textBoxBase.BackColor = themeMode == ThemeMode.Dark ? Color.FromArgb(45, 45, 45) : backColor;
                 textBoxBase.ForeColor = foreColor;
@@ -49,19 +55,12 @@ public static class Theming
                 break;
         }
 
-        // Loop through children
         foreach (Control child in control.Controls)
-        {
             ApplyTheme(child, themeMode, fontMode);
-        }
 
-        // For menu strip and status strip
         if (control is MenuStrip menu)
         {
-            foreach (ToolStripMenuItem item in menu.Items)
-            {
-                ApplyToolStripTheme(item, themeMode, fontMode);
-            }
+            menu.Renderer = themeMode == ThemeMode.Dark ? new DarkThemeRenderer() : new ToolStripProfessionalRenderer();
         }
         else if (control is StatusStrip statusStrip)
         {
@@ -121,4 +120,40 @@ public static class Theming
     }
 
     private static bool IsWindows10OrGreater(int build = -1) => Environment.OSVersion.Version.Major >= 10 && Environment.OSVersion.Version.Build >= build;
+
+    public class DarkColorTable : ProfessionalColorTable
+    {
+        public override Color MenuItemSelected => Color.FromArgb(50, 50, 50);
+        public override Color MenuItemSelectedGradientBegin => Color.FromArgb(50, 50, 50);
+        public override Color MenuItemSelectedGradientEnd => Color.FromArgb(50, 50, 50);
+        public override Color MenuItemBorder => Color.FromArgb(100, 100, 100);
+
+        // This fixes your light separator
+        public override Color SeparatorDark => Color.FromArgb(80, 80, 80);
+        public override Color SeparatorLight => Color.Transparent; // Hide the 3D 'shadow'
+
+        public override Color ToolStripDropDownBackground => Color.FromArgb(30, 30, 30);
+        public override Color ImageMarginGradientBegin => Color.FromArgb(30, 30, 30);
+        public override Color ImageMarginGradientMiddle => Color.FromArgb(30, 30, 30);
+        public override Color ImageMarginGradientEnd => Color.FromArgb(30, 30, 30);
+    }
+
+    public class DarkThemeRenderer : ToolStripProfessionalRenderer
+    {
+        public DarkThemeRenderer() : base(new DarkColorTable()) { }
+
+        protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+        {
+            // Force the text color to LightGray for all items
+            e.TextColor = Color.LightGray;
+            base.OnRenderItemText(e);
+        }
+
+        protected override void OnRenderArrow(ToolStripArrowRenderEventArgs e)
+        {
+            // Force sub-menu arrows to be LightGray instead of black
+            e.ArrowColor = Color.LightGray;
+            base.OnRenderArrow(e);
+        }
+    }
 }

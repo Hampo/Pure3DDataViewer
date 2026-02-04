@@ -153,7 +153,6 @@ partial class FrmOptions
         // CBLargeFont
         // 
         CBLargeFont.AutoSize = true;
-        CBLargeFont.Enabled = false;
         CBLargeFont.Location = new Point(8, 28);
         CBLargeFont.Name = "CBLargeFont";
         CBLargeFont.Size = new Size(82, 19);
@@ -165,7 +164,6 @@ partial class FrmOptions
         // CBDarkMode
         // 
         CBDarkMode.AutoSize = true;
-        CBDarkMode.Enabled = false;
         CBDarkMode.Location = new Point(8, 3);
         CBDarkMode.Name = "CBDarkMode";
         CBDarkMode.Size = new Size(84, 19);
