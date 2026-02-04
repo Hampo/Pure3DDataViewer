@@ -1,9 +1,20 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Pure3DDataViewerPluginAPI.Controls;
 
 public class ExplorerThemedTreeView : TreeView
 {
+    private const int TV_FIRST = 0x1100;
+    private const int TVM_SETINSERTMARK = TV_FIRST + 26;
+    private const int WM_ERASEBKGND = 0x14;
+
+    [DllImport("user32.dll")]
+    private static extern nint SendMessage(nint hWnd, int msg, nint wParam, nint lParam);
+
+    [DllImport("uxtheme.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
+    private static extern int SetWindowTheme(nint hwnd, string pszSubAppName, string? pszSubIdList);
+
     [System.ComponentModel.DefaultValue(false)]
     public new bool HideSelection
     {
@@ -30,6 +41,8 @@ public class ExplorerThemedTreeView : TreeView
             base.HotTracking = Application.RenderWithVisualStyles;
             Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
         }
+
+        typeof(TreeView).InvokeMember("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetProperty, null, this, [true]);
     }
 
     protected override void Dispose(bool disposing)
@@ -41,6 +54,16 @@ public class ExplorerThemedTreeView : TreeView
         base.Dispose(disposing);
     }
 
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == WM_ERASEBKGND)
+        {
+            m.Result = 1;
+            return;
+        }
+        base.WndProc(ref m);
+    }
+
     private void SystemEvents_UserPreferenceChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
     {
         if (e.Category == Microsoft.Win32.UserPreferenceCategory.VisualStyle)
@@ -48,9 +71,6 @@ public class ExplorerThemedTreeView : TreeView
             base.HotTracking = Application.RenderWithVisualStyles;
         }
     }
-
-    [DllImport("uxtheme.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
-    private static extern int SetWindowTheme(nint hwnd, string pszSubAppName, string? pszSubIdList);
 
     protected override void OnHandleCreated(EventArgs e)
     {
@@ -69,5 +89,15 @@ public class ExplorerThemedTreeView : TreeView
         catch (NullReferenceException)
         {
         }
+    }
+
+    public void SetInsertMark(TreeNode? node, bool after)
+    {
+        if (node == null)
+        {
+            SendMessage(Handle, TVM_SETINSERTMARK, 0, 0);
+            return;
+        }
+        SendMessage(Handle, TVM_SETINSERTMARK, after ? 1 : 0, node.Handle);
     }
 }

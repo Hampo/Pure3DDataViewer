@@ -102,10 +102,11 @@ partial class FrmMain
         TSMIFind = new ToolStripMenuItem();
         TSMIFindNext = new ToolStripMenuItem();
         TSMITools = new ToolStripMenuItem();
-        TSMIHelp = new ToolStripMenuItem();
-        TSMIAbout = new ToolStripMenuItem();
         TSMIOptions = new ToolStripMenuItem();
         TSS11 = new ToolStripSeparator();
+        TSMIHelp = new ToolStripMenuItem();
+        TSMIAbout = new ToolStripMenuItem();
+        TmrTVHover = new System.Windows.Forms.Timer(components);
         ((System.ComponentModel.ISupportInitialize)SC1).BeginInit();
         SC1.Panel1.SuspendLayout();
         SC1.Panel2.SuspendLayout();
@@ -150,10 +151,13 @@ partial class FrmMain
         TVChunks.ShowLines = false;
         TVChunks.Size = new Size(464, 495);
         TVChunks.TabIndex = 0;
+        TVChunks.ItemDrag += TVChunks_ItemDrag;
         TVChunks.AfterSelect += TVChunks_AfterSelect;
         TVChunks.NodeMouseClick += TVChunks_NodeMouseClick;
         TVChunks.DragDrop += TVChunks_DragDrop;
         TVChunks.DragEnter += TVChunks_DragEnter;
+        TVChunks.DragOver += TVChunks_DragOver;
+        TVChunks.DragLeave += TVChunks_DragLeave;
         // 
         // CMSTVChunks
         // 
@@ -709,6 +713,19 @@ partial class FrmMain
         TSMITools.Text = "Tools";
         TSMITools.DropDownOpening += TSMITools_DropDownOpening;
         // 
+        // TSMIOptions
+        // 
+        TSMIOptions.Image = Properties.Resources.Settings_16x;
+        TSMIOptions.Name = "TSMIOptions";
+        TSMIOptions.Size = new Size(116, 22);
+        TSMIOptions.Text = "Options";
+        TSMIOptions.Click += TSMIOptions_Click;
+        // 
+        // TSS11
+        // 
+        TSS11.Name = "TSS11";
+        TSS11.Size = new Size(113, 6);
+        // 
         // TSMIHelp
         // 
         TSMIHelp.DropDownItems.AddRange(new ToolStripItem[] { TSMIAbout });
@@ -724,18 +741,10 @@ partial class FrmMain
         TSMIAbout.Text = "About";
         TSMIAbout.Click += TSMIAbout_Click;
         // 
-        // TSMIOptions
+        // TmrTVHover
         // 
-        TSMIOptions.Image = Properties.Resources.Settings_16x;
-        TSMIOptions.Name = "TSMIOptions";
-        TSMIOptions.Size = new Size(180, 22);
-        TSMIOptions.Text = "Options";
-        TSMIOptions.Click += TSMIOptions_Click;
-        // 
-        // TSS11
-        // 
-        TSS11.Name = "TSS11";
-        TSS11.Size = new Size(177, 6);
+        TmrTVHover.Interval = 600;
+        TmrTVHover.Tick += TmrTVHover_Tick;
         // 
         // FrmMain
         // 
@@ -842,4 +851,5 @@ partial class FrmMain
     private ToolStripSeparator TSS10;
     private ToolStripMenuItem TSMIOptions;
     private ToolStripSeparator TSS11;
+    private System.Windows.Forms.Timer TmrTVHover;
 }

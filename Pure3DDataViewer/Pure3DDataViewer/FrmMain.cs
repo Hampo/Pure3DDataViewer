@@ -1219,34 +1219,224 @@ public partial class FrmMain : Form
         return true;
     }
 
+    private void TmrTVHover_Tick(object sender, EventArgs e)
+    {
+        if (TmrTVHover.Tag is TreeNode node)
+            node.Expand();
+        TmrTVHover.Stop();
+    }
+
+    private void TVChunks_ItemDrag(object sender, ItemDragEventArgs e)
+    {
+        if (e.Item != null && e.Item != TVChunks.Nodes[0])
+            DoDragDrop(e.Item, DragDropEffects.Move);
+    }
+
     private void TVChunks_DragEnter(object sender, DragEventArgs e)
     {
-        e.Effect = e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false ? DragDropEffects.Copy : DragDropEffects.None;
+        if (e.Data == null)
+            e.Effect = DragDropEffects.None;
+        else if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            e.Effect = DragDropEffects.Copy;
+        else if (e.Data.GetDataPresent(typeof(TreeNode)) && ((TreeNode)e.Data.GetData(typeof(TreeNode))!).Tag is Chunk)
+            e.Effect = DragDropEffects.Move;
+        else
+            e.Effect = DragDropEffects.None;
+    }
+
+    private void TVChunks_DragOver(object sender, DragEventArgs e)
+    {
+        if (e.Data == null || !e.Data.GetDataPresent(typeof(TreeNode)) || ((TreeNode)e.Data.GetData(typeof(TreeNode))!).Tag is not Chunk)
+            return;
+
+        var targetPoint = TVChunks.PointToClient(new(e.X, e.Y));
+        var targetNode = TVChunks.GetNodeAt(targetPoint);
+
+        if (targetNode != TmrTVHover.Tag)
+        {
+            TmrTVHover.Tag = targetNode;
+            TmrTVHover.Stop();
+            if (targetNode != null && !targetNode.IsExpanded)
+                TmrTVHover.Start();
+        }
+
+        if (targetNode == null)
+        {
+            TVChunks.SetInsertMark(null, false);
+            e.Effect = DragDropEffects.None;
+        }
+        else
+        {
+            var bounds = targetNode.Bounds;
+            float relativeY = targetPoint.Y - bounds.Top;
+            float threshold = bounds.Height * 0.25f;
+
+            if (relativeY < threshold)
+                TVChunks.SetInsertMark(targetNode, false);
+            else if (relativeY > bounds.Height - threshold)
+                TVChunks.SetInsertMark(targetNode, true);
+            else
+                TVChunks.SetInsertMark(null, false);
+
+            TVChunks.SelectedNode = targetNode;
+            e.Effect = DragDropEffects.Move;
+        }
     }
 
     private void TVChunks_DragDrop(object sender, DragEventArgs e)
     {
-        if (e.Data == null || !e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data == null)
             return;
 
-        var files = (string[])e.Data.GetData(DataFormats.FileDrop)!;
-        if (files.Length == 0)
-            return;
-
-        if (UnsavedChanges)
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var result = MessageBox.Show("There are unsaved changes. Do you want to save them?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
-            switch (result)
+
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop)!;
+            if (files.Length == 0)
+                return;
+
+            if (UnsavedChanges)
             {
-                case DialogResult.Cancel:
-                    return;
-                case DialogResult.Yes:
-                    TSMISave.PerformClick();
-                    break;
+                var result = MessageBox.Show("There are unsaved changes. Do you want to save them?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
+                switch (result)
+                {
+                    case DialogResult.Cancel:
+                        return;
+                    case DialogResult.Yes:
+                        TSMISave.PerformClick();
+                        break;
+                }
             }
+
+            LoadP3DFile(files[0]);
+
+            return;
         }
 
-        LoadP3DFile(files[0]);
+        if (e.Data.GetDataPresent(typeof(TreeNode)) && ((TreeNode)e.Data.GetData(typeof(TreeNode))!).Tag is Chunk draggedChunk)
+        {
+            var targetPoint = TVChunks.PointToClient(new(e.X, e.Y));
+            var targetNode = TVChunks.GetNodeAt(targetPoint);
+            if (targetNode == null)
+            {
+                TVChunks.SetInsertMark(null, false);
+                return;
+            }
+
+            var draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode))!;
+            if (targetNode == draggedNode)
+            {
+                TVChunks.SetInsertMark(null, false);
+                return;
+            }
+            if (ContainsNode(draggedNode, targetNode))
+            {
+                TVChunks.SetInsertMark(null, false);
+                return;
+            }
+
+            TreeNode newParentNode;
+            int newIndex;
+
+            var bounds = targetNode.Bounds;
+            float relativeY = targetPoint.Y - bounds.Top;
+            float threshold = bounds.Height * 0.25f;
+
+            if (relativeY < threshold)
+            {
+                newParentNode = targetNode.Parent;
+                newIndex = targetNode.Index;
+            }
+            else if (relativeY > bounds.Height - threshold)
+            {
+                newParentNode = targetNode.Parent;
+                newIndex = targetNode.Index + 1;
+            }
+            else
+            {
+                newParentNode = targetNode;
+                newIndex = targetNode.Nodes.Count;
+            }
+
+            PreChange("Move Chunk");
+            UnsavedChanges = true;
+            MoveChunkData(draggedChunk, newParentNode.Tag, newIndex);
+            MoveChunkUI(draggedNode, newParentNode, newIndex);
+
+            TVChunks.SetInsertMark(null, false);
+
+            return;
+        }
+    }
+
+    private void TVChunks_DragLeave(object sender, EventArgs e) => TVChunks.SetInsertMark(null, false);
+
+    private static void MoveChunkData(Chunk chunk, object targetTag, int index)
+    {
+        if (chunk.ParentFile != null)
+            chunk.ParentFile.Chunks.RemoveAt(chunk.IndexInParent);
+        else
+            chunk.ParentChunk?.Children.RemoveAt(chunk.IndexInParent);
+
+        switch (targetTag)
+        {
+            case P3DFile parentFile:
+                if (index > parentFile.Chunks.Count)
+                    index = parentFile.Chunks.Count;
+
+                parentFile.Chunks.Insert(index, chunk);
+
+                break;
+            case Chunk parentChunk:
+                if (index > parentChunk.Children.Count)
+                    index = parentChunk.Children.Count;
+
+                parentChunk.Children.Insert(index, chunk);
+
+                break;
+        }
+    }
+
+    private void MoveChunkUI(TreeNode node, TreeNode newParent, int index)
+    {
+        TVChunks.BeginUpdate();
+
+        var oldParent = node.Parent;
+        node.Remove();
+
+        if (index >= newParent.Nodes.Count)
+            newParent.Nodes.Add(node);
+        else
+            newParent.Nodes.Insert(index, node);
+
+        RefreshIndexes(oldParent);
+        if (oldParent != newParent)
+            RefreshIndexes(newParent);
+
+        TVChunks.SelectedNode = node;
+        newParent.Expand();
+        UpdateErrors();
+
+        TVChunks.EndUpdate();
+    }
+
+    private static bool ContainsNode(TreeNode parent, TreeNode potentialChild)
+    {
+        if (potentialChild.Parent == null) return false;
+        if (potentialChild.Parent == parent) return true;
+        return ContainsNode(parent, potentialChild.Parent);
+    }
+
+    private static void RefreshIndexes(TreeNode parent)
+    {
+        if (parent == null)
+            return;
+
+        for (int i = 0; i < parent.Nodes.Count; i++)
+        {
+            if (parent.Nodes[i].Tag is Chunk c)
+                parent.Nodes[i].Text = $"{i}. {c}";
+        }
     }
 
     private FrmFind? _frmFind = null;
@@ -1405,7 +1595,7 @@ public partial class FrmMain : Form
 
         var parentNode = node.Parent;
 
-        PreChange($"Chunk Cut");
+        PreChange("Chunk Cut");
         if (parentNode.Tag is Chunk parentChunk)
             parentChunk.Children.RemoveAt(node.Index);
         else if (parentNode.Tag is P3DFile p3dFile)
