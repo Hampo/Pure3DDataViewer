@@ -4,6 +4,8 @@ namespace Pure3DDataViewer;
 
 public partial class FrmOptions : Form
 {
+    private bool _loading = false;
+
     public FrmOptions()
     {
         InitializeComponent();
@@ -28,8 +30,10 @@ public partial class FrmOptions : Form
             column.Width = -2;
         LVChunkColours.EndUpdate();
 
+        _loading = true;
         CBDarkMode.Checked = Settings.DarkMode;
         CBLargeFont.Checked = Settings.LargeFont;
+        _loading = false;
     }
 
     private void AddChunkColourType(Type type)
@@ -159,12 +163,19 @@ public partial class FrmOptions : Form
         LVChunkColours.EndUpdate();
     }
 
-    private void CBTheming_CheckedChanged(object sender, EventArgs e)
+    private void CBDarkMode_CheckedChanged(object sender, EventArgs e)
     {
+        if (_loading)
+            return;
+        
         Settings.DarkMode = CBDarkMode.Checked;
-        Settings.LargeFont = CBLargeFont.Checked;
+    }
 
-        foreach (Form form in Application.OpenForms)
-            Theming.ApplyTheme(form, CBDarkMode.Checked ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, CBLargeFont.Checked ? Theming.FontMode.Large : Theming.FontMode.Normal);
+    private void CBLargeFont_CheckedChanged(object sender, EventArgs e)
+    {
+        if (_loading)
+            return;
+
+        Settings.LargeFont = CBLargeFont.Checked;
     }
 }

@@ -45,7 +45,26 @@ public class ExplorerThemedTreeView : TreeView
                 return;
 
             _darkMode = value;
+            BeginUpdate();
             ApplyTheme();
+            
+            if (Nodes.Count > 0)
+            {
+                var rootNode = Nodes[0];
+
+                if (rootNode.IsExpanded)
+                {
+                    rootNode.Collapse();
+                    rootNode.Expand();
+                }
+                else
+                {
+                    rootNode.Expand();
+                    rootNode.Collapse();
+                }
+            }
+
+            EndUpdate();
         }
     }
 
@@ -60,16 +79,6 @@ public class ExplorerThemedTreeView : TreeView
         }
 
         typeof(TreeView).InvokeMember("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetProperty, null, this, [true]);
-    }
-
-    private static bool CheckSystemDarkMode()
-    {
-        try
-        {
-            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            return (int?)key?.GetValue("AppsUseLightTheme") == 0;
-        }
-        catch { return false; }
     }
 
     protected override void Dispose(bool disposing)

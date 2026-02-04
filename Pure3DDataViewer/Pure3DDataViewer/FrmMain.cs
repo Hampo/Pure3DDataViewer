@@ -108,6 +108,8 @@ public partial class FrmMain : Form
         _Text = $"{Text} v{version}";
         UpdateText();
 
+        Theming.ApplyTheme(this, Settings.DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, Settings.LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
+
         PluginLoader.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));
         if (PluginLoader.Plugins.Count == 0)
         {

@@ -159,7 +159,7 @@ partial class FrmOptions
         CBLargeFont.TabIndex = 102;
         CBLargeFont.Text = "Large Font";
         CBLargeFont.UseVisualStyleBackColor = true;
-        CBLargeFont.CheckedChanged += CBTheming_CheckedChanged;
+        CBLargeFont.CheckedChanged += CBLargeFont_CheckedChanged;
         // 
         // CBDarkMode
         // 
@@ -170,7 +170,7 @@ partial class FrmOptions
         CBDarkMode.TabIndex = 101;
         CBDarkMode.Text = "Dark Mode";
         CBDarkMode.UseVisualStyleBackColor = true;
-        CBDarkMode.CheckedChanged += CBTheming_CheckedChanged;
+        CBDarkMode.CheckedChanged += CBDarkMode_CheckedChanged;
         // 
         // PnlButtons
         // 

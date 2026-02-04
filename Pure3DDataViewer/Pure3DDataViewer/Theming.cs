@@ -1,6 +1,5 @@
 ﻿using Pure3DDataViewerPluginAPI.Controls;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace Pure3DDataViewer;
 public static class Theming
@@ -121,7 +120,7 @@ public static class Theming
 
     private static bool IsWindows10OrGreater(int build = -1) => Environment.OSVersion.Version.Major >= 10 && Environment.OSVersion.Version.Build >= build;
 
-    public class DarkColorTable : ProfessionalColorTable
+    private class DarkColorTable : ProfessionalColorTable
     {
         public override Color MenuItemSelected => Color.FromArgb(50, 50, 50);
         public override Color MenuItemSelectedGradientBegin => Color.FromArgb(50, 50, 50);
@@ -138,7 +137,7 @@ public static class Theming
         public override Color ImageMarginGradientEnd => Color.FromArgb(30, 30, 30);
     }
 
-    public class DarkThemeRenderer : ToolStripProfessionalRenderer
+    private class DarkThemeRenderer : ToolStripProfessionalRenderer
     {
         public DarkThemeRenderer() : base(new DarkColorTable()) { }
 

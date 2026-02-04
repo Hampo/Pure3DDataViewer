@@ -1,4 +1,5 @@
-﻿using NetP3DLib.P3D;
+﻿using Microsoft.Win32;
+using NetP3DLib.P3D;
 using Pure3DDataViewerPluginAPI;
 
 namespace Pure3DDataViewer;
@@ -181,15 +182,43 @@ public static class Settings
         RegistryUtils.SetInt32($"{type.FullName}_ForeColour", null, "ChunkColours");
     }
 
+    private static bool CheckSystemDarkMode()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            return (int?)key?.GetValue("AppsUseLightTheme") == 0;
+        }
+        catch { return false; }
+    }
+
     public static bool DarkMode
     {
-        get => RegistryUtils.GetBoolean("DarkMode", false)!.Value;
-        set => RegistryUtils.SetBoolean("DarkMode", value);
+        get => RegistryUtils.GetBoolean("DarkMode", CheckSystemDarkMode())!.Value;
+        set
+        {
+            if (value == DarkMode)
+                return;
+
+            RegistryUtils.SetBoolean("DarkMode", value);
+
+            foreach (Form form in Application.OpenForms)
+                Theming.ApplyTheme(form, value ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
+        }
     }
 
     public static bool LargeFont
     {
         get => RegistryUtils.GetBoolean("LargeFont", false)!.Value;
-        set => RegistryUtils.SetBoolean("LargeFont", value);
+        set
+        {
+            if (value == LargeFont)
+                return;
+
+            RegistryUtils.SetBoolean("LargeFont", value);
+
+            foreach (Form form in Application.OpenForms)
+                Theming.ApplyTheme(form, DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, value ? Theming.FontMode.Large : Theming.FontMode.Normal);
+        }
     }
 }
