@@ -627,92 +627,93 @@ public partial class FrmMain : Form
     private void PopulateData()
     {
         TVChunks.BeginUpdate();
-        TVChunks.Nodes.Clear();
-
-        var rootNode = new TreeNode(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath)
+        try
         {
-            Tag = P3DFile
-        };
+            TVChunks.Nodes.Clear();
 
-        var (cancelled, childNodes) = ProgressHelper.Run("Loading chunk nodes", (reportProgress, isCancellationRequested) =>
-        {
-            var childNodes = new TreeNode[P3DFile.Chunks.Count];
-
-            double index = 0;
-            for (var i = 0; i < P3DFile.Chunks.Count; i++)
+            var rootNode = new TreeNode(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath)
             {
-                childNodes[i] = CreateChunkNode(i, P3DFile.Chunks[i]);
-                reportProgress((int)(index++ / P3DFile.Chunks.Count * 100));
+                Tag = P3DFile
+            };
+            
+            bool fileHasErrors = false;
+
+            var (cancelled, childNodes) = ProgressHelper.Run("Loading chunk nodes", (reportProgress, isCancellationRequested) =>
+            {
+                var childNodes = new TreeNode[P3DFile.Chunks.Count];
+
+                double index = 0;
+                for (var i = 0; i < P3DFile.Chunks.Count; i++)
+                {
+                    var (node, hasError) = CreateChunkNode(i, P3DFile.Chunks[i]);
+                    childNodes[i] = node;
+                    fileHasErrors |= hasError;
+
+                    reportProgress((int)(index++ / P3DFile.Chunks.Count * 100));
+                }
+                rootNode.Nodes.AddRange(childNodes);
+
+                return childNodes;
+            }, false);
+
+            if (fileHasErrors)
+            {
+                var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
+                rootNode.BackColor = errorBackColour;
+                rootNode.ForeColor = errorForeColour;
             }
-            rootNode.Nodes.AddRange(childNodes);
 
-            return childNodes;
-        }, false);
-
-        if (P3DFile.Chunks.Any(x => x.ValidateChunks().Any()))
-        {
-            var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
-            rootNode.BackColor = errorBackColour;
-            rootNode.ForeColor = errorForeColour;
+            TVChunks.Nodes.Add(rootNode);
+            rootNode.Expand();
+            TVChunks.SelectedNode = rootNode;
         }
-
-        TVChunks.Nodes.Add(rootNode);
-        rootNode.Expand();
-        TVChunks.SelectedNode = rootNode;
-
-        TVChunks.EndUpdate();
+        finally
+        {
+            TVChunks.EndUpdate();
+        }
     }
 
-    private static TreeNode CreateChunkNode(int index, Chunk chunk)
+    private static (TreeNode Node, bool HasError) CreateChunkNode(int index, Chunk chunk)
     {
         var node = new TreeNode($"{index}. {chunk}")
         {
             Tag = chunk
         };
+        bool branchHasError = chunk.ValidateChunk().Any();
 
-#if DEBUG
-        var shouldExpand = false;// chunk is UnknownChunk;
-#endif
+        var shouldExpand = false;
 
         if (chunk.Children != null && chunk.Children.Count > 0)
         {
             var children = new TreeNode[chunk.Children.Count];
             for (int i = 0; i < chunk.Children.Count; i++)
             {
-                var childNode = CreateChunkNode(i, chunk.Children[i]);
+                var (childNode, childHasError) = CreateChunkNode(i, chunk.Children[i]);
                 children[i] = childNode;
 
+                branchHasError |= childHasError;
+                shouldExpand |= childHasError;
 #if DEBUG
-                shouldExpand = shouldExpand || chunk.Children[i] is UnknownChunk;
+                shouldExpand |= chunk.Children[i] is UnknownChunk;
 #endif
             }
             node.Nodes.AddRange(children);
         }
 
-#if DEBUG
         if (shouldExpand)
             node.Expand();
-#endif
 
-        ApplyNodeStyling(node, chunk);
+        ApplyNodeStyling(node, chunk, branchHasError);
 
-        return node;
+        return (node, branchHasError);
     }
 
-    private static void ApplyNodeStyling(TreeNode node, Chunk chunk)
+    private static void ApplyNodeStyling(TreeNode node, Chunk chunk, bool hasError)
     {
-        if (!chunk.ValidateChunks().Any())
-        {
-            var (chunkBackColour, chunkForeColour) = Settings.GetChunkColour(chunk.GetType());
-            node.BackColor = chunkBackColour;
-            node.ForeColor = chunkForeColour;
-        }
-        else
-        {
-            var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
-            node.BackColor = errorBackColour;
-            node.ForeColor = errorForeColour;
-        }
+        var (back, fore) = hasError ? Settings.GetErrorChunkColour() : Settings.GetChunkColour(chunk.GetType());
+
+        node.BackColor = back;
+        node.ForeColor = fore;
     }
 
     private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true, bool beginUpdate = true)
