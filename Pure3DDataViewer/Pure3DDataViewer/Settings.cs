@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using NetP3DLib.P3D;
 using Pure3DDataViewerPluginAPI;
+using System.ComponentModel;
 
 namespace Pure3DDataViewer;
 public static class Settings
@@ -81,21 +82,26 @@ public static class Settings
         set => RegistryUtils.SetString("LastNewChunkType", value != null ? $"{value.FullName}, {value.Assembly.GetName().Name}" : null);
     }
 
-    public static TabPage? GetLastTabPage(TabControl tc, Type type)
+    public static int GetLastEditor(BindingList<FrmMain.Editor> editors, Type type)
     {
         if (string.IsNullOrEmpty(type.FullName))
-            return null;
+            return 0;
 
-        var tpName = RegistryUtils.GetString(type.FullName, null, "LastEditor");
-        return tc.TabPages.Cast<TabPage>().FirstOrDefault(tp => tp.Name == tpName);
+        var controlName = RegistryUtils.GetString(type.FullName, null, "LastEditor");
+
+        for (int i = 0; i < editors.Count; i++)
+            if (editors[i].Control.GetType().FullName == controlName)
+                return i;
+
+        return 0;
     }
 
-    public static void SetLastTabPage(Type type, TabPage tp)
+    public static void SetLastEditor(Type type, Control control)
     {
         if (string.IsNullOrEmpty(type.FullName))
             return;
 
-        RegistryUtils.SetString(type.FullName, tp.Name, "LastEditor");
+        RegistryUtils.SetString(type.FullName, control.GetType().FullName, "LastEditor");
     }
 
     public static string FindQuery

@@ -53,13 +53,12 @@ partial class FrmMain
         TSMIDeleteChildren2 = new ToolStripMenuItem();
         TSMIRename2 = new ToolStripMenuItem();
         TSS8 = new ToolStripSeparator();
-        TCEditors = new TabControl();
-        TPValues = new TabPage();
+        PnlEditors = new Panel();
         DGVValues = new DataGridView();
         NameColumn = new DataGridViewTextBoxColumn();
         ValueColumn = new DataGridViewTextBoxColumn();
-        TPHex = new TabPage();
         HBHex = new Be.Windows.Forms.HexBox();
+        CBEditor = new ComboBox();
         MS1 = new MenuStrip();
         TSMIFile = new ToolStripMenuItem();
         TSMINew = new ToolStripMenuItem();
@@ -112,10 +111,8 @@ partial class FrmMain
         SC1.Panel2.SuspendLayout();
         SC1.SuspendLayout();
         CMSTVChunks.SuspendLayout();
-        TCEditors.SuspendLayout();
-        TPValues.SuspendLayout();
+        PnlEditors.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)DGVValues).BeginInit();
-        TPHex.SuspendLayout();
         MS1.SuspendLayout();
         SuspendLayout();
         // 
@@ -132,7 +129,8 @@ partial class FrmMain
         // 
         // SC1.Panel2
         // 
-        SC1.Panel2.Controls.Add(TCEditors);
+        SC1.Panel2.Controls.Add(PnlEditors);
+        SC1.Panel2.Controls.Add(CBEditor);
         SC1.Size = new Size(933, 495);
         SC1.SplitterDistance = 464;
         SC1.SplitterWidth = 5;
@@ -301,43 +299,32 @@ partial class FrmMain
         TSS8.Name = "TSS8";
         TSS8.Size = new Size(136, 6);
         // 
-        // TCEditors
+        // PnlEditors
         // 
-        TCEditors.Controls.Add(TPValues);
-        TCEditors.Controls.Add(TPHex);
-        TCEditors.Dock = DockStyle.Fill;
-        TCEditors.Location = new Point(0, 0);
-        TCEditors.Name = "TCEditors";
-        TCEditors.SelectedIndex = 0;
-        TCEditors.Size = new Size(464, 495);
-        TCEditors.TabIndex = 1;
-        TCEditors.SelectedIndexChanged += TCEditors_SelectedIndexChanged;
-        // 
-        // TPValues
-        // 
-        TPValues.Controls.Add(DGVValues);
-        TPValues.Location = new Point(4, 24);
-        TPValues.Name = "TPValues";
-        TPValues.Size = new Size(456, 467);
-        TPValues.TabIndex = 0;
-        TPValues.Text = "Values";
-        TPValues.UseVisualStyleBackColor = true;
+        PnlEditors.Controls.Add(DGVValues);
+        PnlEditors.Controls.Add(HBHex);
+        PnlEditors.Dock = DockStyle.Fill;
+        PnlEditors.Location = new Point(0, 23);
+        PnlEditors.Name = "PnlEditors";
+        PnlEditors.Size = new Size(464, 472);
+        PnlEditors.TabIndex = 1;
         // 
         // DGVValues
         // 
         DGVValues.AllowUserToAddRows = false;
         DGVValues.AllowUserToDeleteRows = false;
         DGVValues.AllowUserToResizeRows = false;
-        DGVValues.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         DGVValues.BorderStyle = BorderStyle.None;
         DGVValues.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         DGVValues.Columns.AddRange(new DataGridViewColumn[] { NameColumn, ValueColumn });
+        DGVValues.Dock = DockStyle.Fill;
         DGVValues.Location = new Point(0, 0);
         DGVValues.MultiSelect = false;
         DGVValues.Name = "DGVValues";
         DGVValues.RowHeadersVisible = false;
         DGVValues.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        DGVValues.Size = new Size(456, 467);
+        DGVValues.ShowCellToolTips = false;
+        DGVValues.Size = new Size(464, 472);
         DGVValues.TabIndex = 0;
         DGVValues.CellMouseDoubleClick += DGVValues_CellMouseDoubleClick;
         DGVValues.Resize += DGVValues_Resize;
@@ -348,24 +335,16 @@ partial class FrmMain
         NameColumn.HeaderText = "Name";
         NameColumn.Name = "NameColumn";
         NameColumn.ReadOnly = true;
-        NameColumn.Width = 64;
+        NameColumn.SortMode = DataGridViewColumnSortMode.NotSortable;
+        NameColumn.Width = 45;
         // 
         // ValueColumn
         // 
         ValueColumn.HeaderText = "Value";
         ValueColumn.Name = "ValueColumn";
         ValueColumn.ReadOnly = true;
+        ValueColumn.SortMode = DataGridViewColumnSortMode.NotSortable;
         ValueColumn.Width = 60;
-        // 
-        // TPHex
-        // 
-        TPHex.Controls.Add(HBHex);
-        TPHex.Location = new Point(4, 24);
-        TPHex.Name = "TPHex";
-        TPHex.Size = new Size(456, 467);
-        TPHex.TabIndex = 1;
-        TPHex.Text = "Hex";
-        TPHex.UseVisualStyleBackColor = true;
         // 
         // HBHex
         // 
@@ -384,10 +363,22 @@ partial class FrmMain
         HBHex.Name = "HBHex";
         HBHex.ReadOnly = true;
         HBHex.ShadowSelectionColor = Color.FromArgb(100, 60, 188, 255);
-        HBHex.Size = new Size(456, 467);
+        HBHex.Size = new Size(464, 472);
         HBHex.StringViewVisible = true;
         HBHex.TabIndex = 0;
+        HBHex.Visible = false;
         HBHex.VScrollBarVisible = true;
+        // 
+        // CBEditor
+        // 
+        CBEditor.Dock = DockStyle.Top;
+        CBEditor.DropDownStyle = ComboBoxStyle.DropDownList;
+        CBEditor.FormattingEnabled = true;
+        CBEditor.Location = new Point(0, 0);
+        CBEditor.Name = "CBEditor";
+        CBEditor.Size = new Size(464, 23);
+        CBEditor.TabIndex = 0;
+        CBEditor.SelectedIndexChanged += CBEditor_SelectedIndexChanged;
         // 
         // MS1
         // 
@@ -775,10 +766,8 @@ partial class FrmMain
         ((System.ComponentModel.ISupportInitialize)SC1).EndInit();
         SC1.ResumeLayout(false);
         CMSTVChunks.ResumeLayout(false);
-        TCEditors.ResumeLayout(false);
-        TPValues.ResumeLayout(false);
+        PnlEditors.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)DGVValues).EndInit();
-        TPHex.ResumeLayout(false);
         MS1.ResumeLayout(false);
         MS1.PerformLayout();
         ResumeLayout(false);
@@ -799,9 +788,6 @@ partial class FrmMain
     private System.Windows.Forms.ToolStripMenuItem TSMIRecentFiles;
     private System.Windows.Forms.ToolStripSeparator TSS2;
     private System.Windows.Forms.ToolStripMenuItem TSMIExit;
-    private TabControl TCEditors;
-    private TabPage TPValues;
-    private TabPage TPHex;
     private Be.Windows.Forms.HexBox HBHex;
     private ToolStripMenuItem TSMIEdit;
     private ToolStripMenuItem TSMIFind;
@@ -860,6 +846,8 @@ partial class FrmMain
     private ToolStripSeparator TSS11;
     private System.Windows.Forms.Timer TmrTVHover;
     private DataGridView DGVValues;
+    private Panel PnlEditors;
+    private ComboBox CBEditor;
     private DataGridViewTextBoxColumn NameColumn;
     private DataGridViewTextBoxColumn ValueColumn;
 }

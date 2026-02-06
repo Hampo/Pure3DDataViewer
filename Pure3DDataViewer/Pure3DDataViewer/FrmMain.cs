@@ -10,7 +10,7 @@ using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Helpers;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
-using System.IO.Packaging;
+using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -60,8 +60,9 @@ public partial class FrmMain : Form
 
     private readonly List<(IFileHandler FileHandler, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginFileHandlers = [];
     private readonly List<(Type ChunkType, ToolStripMenuItem ToolMenu, ToolStripMenuItem ContextMenu)> _pluginChunkHandlers = [];
-    private readonly Dictionary<Type, List<TabPage>> _pluginChunkEditors = [];
+    private readonly Dictionary<Type, List<IChunkEditor>> _pluginChunkEditors = [];
     private readonly ToolStripSeparator _toolsFileChunkSeparator = new();
+    private readonly BindingList<Editor> _editors = [];
 
     private void UpdateText()
     {
@@ -100,6 +101,12 @@ public partial class FrmMain : Form
     {
         InitializeComponent();
         typeof(DataGridView).InvokeMember("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty, null, DGVValues, [true]);
+
+        _editors.Add(new("Values", DGVValues));
+        _editors.Add(new("Hex Viewer", HBHex));
+        CBEditor.DataSource = _editors;
+        CBEditor.DisplayMember = "Name";
+        CBEditor.ValueMember = "Control";
     }
 
     private void FrmMain_Load(object sender, EventArgs e)
@@ -192,22 +199,18 @@ public partial class FrmMain : Form
                     var editor = chunkEditor.Editor;
                     editor.UpdatedChunk += IChunkEditor_UpdatedChunk;
                     editor.Dock = DockStyle.Fill;
-
-                    var tp = new TabPage(chunkEditor.Name)
-                    {
-                        Name = chunkEditor.GetType().FullName,
-                        Tag = types,
-                    };
-                    tp.Controls.Add(editor);
+                    editor.Visible = false;
+                    editor.Name = chunkEditor.GetType().FullName;
+                    PnlEditors.Controls.Add(editor);
 
                     foreach (var type in types)
                     {
                         if (!_pluginChunkEditors.TryGetValue(type, out var editors))
                         {
-                            _pluginChunkEditors[type] = [tp];
+                            _pluginChunkEditors[type] = [chunkEditor];
                             continue;
                         }
-                        editors.Add(tp);
+                        editors.Add(chunkEditor);
                     }
                 }
             }
@@ -635,7 +638,7 @@ public partial class FrmMain : Form
             {
                 Tag = P3DFile
             };
-            
+
             bool fileHasErrors = false;
 
             var (cancelled, childNodes) = ProgressHelper.Run("Loading chunk nodes", (reportProgress, isCancellationRequested) =>
@@ -789,10 +792,7 @@ public partial class FrmMain : Form
     {
         _afterSelectUpdating = true;
         var prevFocus = SC1.ActiveControl;
-        //DGVValues.SuspendLayout();
         DGVValues.Rows.Clear();
-
-        TCEditors.SuspendLayout();
 
         var tag = e.Node?.Tag;
 
@@ -868,10 +868,10 @@ public partial class FrmMain : Form
                     if (FileHandler.IsFileSupported(p3dFile))
                         CMSTVChunks.Items.Add(ContextMenu);
 
-                for (int i = TCEditors.TabCount - 1; i >= 2; i--)
-                    TCEditors.TabPages.RemoveAt(i);
+                for (int i = _editors.Count - 1; i >= 2; i--)
+                    _editors.RemoveAt(i);
 
-                TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, typeof(P3DFile)) ?? TPValues;
+                CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, typeof(P3DFile));
 
                 return;
             }
@@ -910,28 +910,16 @@ public partial class FrmMain : Form
                     CMSTVChunks.Items.Add(ContextMenu);
                 }
 
-                for (int i = TCEditors.TabCount - 1; i >= 2; i--)
-                {
-                    var tp = TCEditors.TabPages[i];
-                    if (tp.Tag is HashSet<Type> tagTypes && tagTypes.Contains(chunkType))
-                        continue;
-                    TCEditors.TabPages.RemoveAt(i);
-                }
-                if (_pluginChunkEditors.TryGetValue(chunk.GetType(), out var editors))
-                {
-                    foreach (var editorTP in editors)
-                    {
-                        if (!TCEditors.TabPages.Contains(editorTP))
-                        {
-                            TCEditors.TabPages.Add(editorTP);
-                            Theming.ApplyTheme(editorTP, Settings.DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, Settings.LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
-                        }
-                        var editorControl = (EditorControl)editorTP.Controls[0];
-                        editorControl.LoadChunk(chunk);
-                    }
-                }
+                for (int i = _editors.Count - 1; i >= 2; i--)
+                    if (!_editors[i].ChunkEditor?.ChunkTypes.Contains(chunkType) ?? false)
+                        _editors.RemoveAt(i);
 
-                TCEditors.SelectedTab = Settings.GetLastTabPage(TCEditors, chunkType) ?? TPValues;
+                if (_pluginChunkEditors.TryGetValue(chunkType, out var editors))
+                    foreach (var editor in editors)
+                        if (!_editors.Any(x => x.ChunkEditor == editor))
+                            _editors.Add(new(editor.Name, editor.Editor, editor));
+
+                CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
 
                 var (backColour, foreColour) = Settings.GetErrorChunkColour();
                 foreach (var error in chunk.ValidateChunks())
@@ -1006,10 +994,24 @@ public partial class FrmMain : Form
 
             AutoSizeSmart();
 
-            TCEditors.ResumeLayout();
             _afterSelectUpdating = false;
             if (prevFocus != null && prevFocus.CanFocus)
                 prevFocus.Focus();
+
+            if (tag is Chunk chunk && CBEditor.SelectedValue != null)
+            {
+                var selectedType = CBEditor.SelectedValue.GetType();
+                foreach (Control control in PnlEditors.Controls)
+                {
+                    if (control.GetType() != selectedType)
+                        continue;
+
+                    if (control is not EditorControl editorControl)
+                        continue;
+
+                    editorControl.LoadChunk(chunk);
+                }
+            }
         }
     }
 
@@ -1051,18 +1053,6 @@ public partial class FrmMain : Form
         }
 
         DGVValues.ResumeLayout();
-    }
-
-    private void TCEditors_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        if (_afterSelectUpdating)
-            return;
-
-        var tag = TVChunks.SelectedNode?.Tag;
-        if (tag == null)
-            return;
-
-        Settings.SetLastTabPage(tag.GetType(), TCEditors.SelectedTab!);
     }
 
     private void DGVValues_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
@@ -2087,16 +2077,18 @@ public partial class FrmMain : Form
             }
             AutoSizeSmart();
 
-            if (_pluginChunkEditors.TryGetValue(chunk.GetType(), out var editors))
+            var chunkType = chunk.GetType();
+            if (_pluginChunkEditors.TryGetValue(chunkType, out var editors))
             {
-                foreach (var editorTP in editors)
+                foreach (var editor in editors)
                 {
-                    if (!TCEditors.TabPages.Contains(editorTP))
-                        TCEditors.TabPages.Add(editorTP);
-                    var editorControl = (EditorControl)editorTP.Controls[0];
-                    editorControl.LoadChunk(chunk);
+                    if (!_editors.Any(x => x.Name == editor.Name))
+                        _editors.Add(new(editor.Name, editor.Editor));
+                    editor.Editor.LoadChunk(chunk);
                 }
             }
+
+            CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
         }
 
         if (beginUpdate)
@@ -2435,5 +2427,45 @@ public partial class FrmMain : Form
         using var options = new FrmOptions();
         options.ShowDialog();
         UpdateErrors();
+    }
+
+    private void CBEditor_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var editor = (Editor?)CBEditor.SelectedItem;
+        if (!editor.HasValue)
+            return;
+
+        var tag = TVChunks.SelectedNode?.Tag;
+        if (tag == null)
+            return;
+
+        var editorType = editor.Value.Control.GetType();
+        foreach (Control control in PnlEditors.Controls)
+        {
+            var controlType = control.GetType();
+            var visible = controlType == editorType;
+            control.Visible = visible;
+            if (visible && control is EditorControl editorControl && tag is Chunk chunk)
+                editorControl.LoadChunk(chunk);
+        }
+
+        if (!_afterSelectUpdating)
+            Settings.SetLastEditor(tag.GetType(), editor.Value.Control);
+    }
+
+    public readonly struct Editor
+    {
+        public string Name { get; }
+        public Control Control { get; }
+        public IChunkEditor? ChunkEditor { get; }
+
+        public Editor(string name, Control control, IChunkEditor? chunkEditor = null)
+        {
+            Name = name;
+            Control = control;
+            ChunkEditor = chunkEditor;
+        }
+
+        public override readonly string ToString() => Name;
     }
 }
