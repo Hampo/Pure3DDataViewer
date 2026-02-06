@@ -998,20 +998,9 @@ public partial class FrmMain : Form
             if (prevFocus != null && prevFocus.CanFocus)
                 prevFocus.Focus();
 
-            if (tag is Chunk chunk && CBEditor.SelectedValue != null)
-            {
-                var selectedType = CBEditor.SelectedValue.GetType();
-                foreach (Control control in PnlEditors.Controls)
-                {
-                    if (control.GetType() != selectedType)
-                        continue;
-
-                    if (control is not EditorControl editorControl)
-                        continue;
-
+            if (tag is Chunk chunk)
+                foreach (var editorControl in PnlEditors.Controls.OfType<EditorControl>().Where(x => x.Visible))
                     editorControl.LoadChunk(chunk);
-                }
-            }
         }
     }
 
@@ -2079,16 +2068,14 @@ public partial class FrmMain : Form
 
             var chunkType = chunk.GetType();
             if (_pluginChunkEditors.TryGetValue(chunkType, out var editors))
-            {
                 foreach (var editor in editors)
-                {
                     if (!_editors.Any(x => x.Name == editor.Name))
                         _editors.Add(new(editor.Name, editor.Editor));
-                    editor.Editor.LoadChunk(chunk);
-                }
-            }
 
             CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
+
+            foreach (var editorControl in PnlEditors.Controls.OfType<EditorControl>().Where(x => x.Visible))
+                editorControl.LoadChunk(chunk);
         }
 
         if (beginUpdate)

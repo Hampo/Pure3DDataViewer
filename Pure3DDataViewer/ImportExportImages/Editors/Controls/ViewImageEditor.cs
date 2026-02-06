@@ -55,6 +55,7 @@ public partial class ViewImageEditor : EditorControl
             _ => throw new NotSupportedException($"{nameof(ViewImageEditor)} does not support chunks of type {chunk.GetType()}")
         };
         PBImage.Image = image ?? PBImage.ErrorImage;
+        PBImage.BackColor = BackgroundColor;
     }
 
     private void TSMISetBackgroundColour_Click(object sender, EventArgs e)
