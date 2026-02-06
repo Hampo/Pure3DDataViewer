@@ -314,7 +314,7 @@ partial class FrmMain
         DGVValues.AllowUserToAddRows = false;
         DGVValues.AllowUserToDeleteRows = false;
         DGVValues.AllowUserToResizeRows = false;
-        DGVValues.BorderStyle = BorderStyle.None;
+        DGVValues.BorderStyle = BorderStyle.Fixed3D;
         DGVValues.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         DGVValues.Columns.AddRange(new DataGridViewColumn[] { NameColumn, ValueColumn });
         DGVValues.Dock = DockStyle.Fill;

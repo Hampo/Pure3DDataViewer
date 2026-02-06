@@ -107,19 +107,18 @@ public static class Theming
         Color altBack = dark ? Color.FromArgb(35, 35, 35) : Color.FromArgb(245, 245, 245);
         Color fore = dark ? Color.LightGray : Color.Black;
 
-        Color readonlyBack = dark ? Color.FromArgb(70, 70, 70) : Color.Silver;
-        Color readonlyFore = dark ? Color.Gainsboro : Color.Black;
+        Color readonlyBack = dark ? Color.FromArgb(55, 55, 55) : Color.Silver;
+        Color readonlyFore = dark ? Color.FromArgb(160, 160, 160) : Color.Black;
 
         grid.EnableHeadersVisualStyles = false;
         grid.BackgroundColor = baseBack;
         grid.GridColor = dark ? Color.FromArgb(60, 60, 60) : SystemColors.ControlDark;
-        grid.BorderStyle = BorderStyle.None;
 
         grid.DefaultCellStyle = new DataGridViewCellStyle
         {
             BackColor = baseBack,
             ForeColor = fore,
-            SelectionBackColor = dark ? Color.FromArgb(70, 70, 70) : SystemColors.Highlight,
+            SelectionBackColor = dark ? Color.FromArgb(55, 90, 140) : SystemColors.Highlight,
             SelectionForeColor = Color.White,
             Font = fontMode == FontMode.Normal ? NormalFont : LargeFont
         };
@@ -128,7 +127,7 @@ public static class Theming
         {
             BackColor = altBack,
             ForeColor = fore,
-            SelectionBackColor = dark ? Color.FromArgb(80, 80, 80) : SystemColors.Highlight,
+            SelectionBackColor = dark ? Color.FromArgb(65, 100, 155) : SystemColors.Highlight,
             SelectionForeColor = Color.White
         };
 
