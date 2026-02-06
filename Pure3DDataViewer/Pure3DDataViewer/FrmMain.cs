@@ -10,6 +10,7 @@ using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Helpers;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
+using System.IO.Packaging;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -1031,23 +1032,15 @@ public partial class FrmMain : Form
         if (!DGVValues.IsHandleCreated || DGVValues.Columns.Count == 0 || DGVValues.IsDisposed)
             return;
 
-        // Suspend layout to prevent flickering during manual adjustments
         DGVValues.SuspendLayout();
 
-        // 1. Get the width required by the content
-        // We use GetPreferredWidth to avoid changing the actual mode property
         int contentWidth = DGVValues.RowHeadersVisible ? DGVValues.RowHeadersWidth : 0;
         foreach (DataGridViewColumn col in DGVValues.Columns)
         {
             contentWidth += col.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, true);
         }
 
-        // 2. Account for the vertical scrollbar if it's visible
-        int scrollbarWidth = SystemInformation.VerticalScrollBarWidth;
-        int availableWidth = DGVValues.DisplayRectangle.Width;
-
-        // 3. Logic: If content is smaller than the box, use Fill. Otherwise, AllCells.
-        if (contentWidth < availableWidth)
+        if (contentWidth < DGVValues.DisplayRectangle.Width)
         {
             DGVValues.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
@@ -1254,7 +1247,7 @@ public partial class FrmMain : Form
         return true;
     }
 
-    private Stack<TreeNode> _autoExpandedNodes = [];
+    private readonly Stack<TreeNode> _autoExpandedNodes = [];
     private void TmrTVHover_Tick(object sender, EventArgs e)
     {
         if (TmrTVHover.Tag is TreeNode node && !node.IsExpanded)
@@ -1425,12 +1418,30 @@ public partial class FrmMain : Form
             MoveChunkUI(draggedNode, newParentNode, newIndex);
 
             TVChunks.SetInsertMark(null, false);
+            _autoExpandedNodes.Clear();
 
             return;
         }
     }
 
-    private void TVChunks_DragLeave(object sender, EventArgs e) => TVChunks.SetInsertMark(null, false);
+    private void TVChunks_DragLeave(object sender, EventArgs e)
+    {
+        TVChunks.SetInsertMark(null, false);
+        while (_autoExpandedNodes.Count > 0)
+        {
+            var node = _autoExpandedNodes.Pop();
+            node.Collapse();
+        }
+    }
+
+    private static bool ContainsNode(TreeNode parent, TreeNode potentialChild)
+    {
+        if (potentialChild.Parent == null)
+            return false;
+        if (potentialChild.Parent == parent)
+            return true;
+        return ContainsNode(parent, potentialChild.Parent);
+    }
 
     private static void MoveChunkData(Chunk chunk, object targetTag, int index)
     {
@@ -1458,21 +1469,22 @@ public partial class FrmMain : Form
         }
     }
 
-    private void MoveChunkUI(TreeNode node, TreeNode newParent, int index)
+    private void MoveChunkUI(TreeNode node, TreeNode newParent, int newIndex)
     {
         TVChunks.BeginUpdate();
 
         var oldParent = node.Parent;
+        int oldIndex = node.Index;
         node.Remove();
 
-        if (index >= newParent.Nodes.Count)
+        if (newIndex >= newParent.Nodes.Count)
             newParent.Nodes.Add(node);
         else
-            newParent.Nodes.Insert(index, node);
+            newParent.Nodes.Insert(newIndex, node);
 
-        RefreshIndexes(oldParent);
+        RefreshIndexes(oldParent, oldIndex);
         if (oldParent != newParent)
-            RefreshIndexes(newParent);
+            RefreshIndexes(newParent, newIndex);
 
         TVChunks.SelectedNode = node;
         newParent.Expand();
@@ -1481,21 +1493,12 @@ public partial class FrmMain : Form
         TVChunks.EndUpdate();
     }
 
-    private static bool ContainsNode(TreeNode parent, TreeNode potentialChild)
-    {
-        if (potentialChild.Parent == null)
-            return false;
-        if (potentialChild.Parent == parent)
-            return true;
-        return ContainsNode(parent, potentialChild.Parent);
-    }
-
-    private static void RefreshIndexes(TreeNode parent)
+    private static void RefreshIndexes(TreeNode parent, int startIndex)
     {
         if (parent == null)
             return;
 
-        for (int i = 0; i < parent.Nodes.Count; i++)
+        for (int i = startIndex; i < parent.Nodes.Count; i++)
         {
             if (parent.Nodes[i].Tag is Chunk c)
             {
@@ -2101,39 +2104,63 @@ public partial class FrmMain : Form
 
     private void UpdateErrors()
     {
-        bool globalErrorFound = false;
+        TVChunks.BeginUpdate();
 
-        void ValidateAndColour(TreeNode node)
+        try
         {
-            if (node.Tag is Chunk chunk)
+            var errorColours = Settings.GetErrorChunkColour();
+            var chunkColours = new Dictionary<Type, (Color BackColour, Color ForeColour)>();
+            bool ValidateAndColour(TreeNode node)
             {
-                bool hasError = chunk.ValidateChunks().Any();
-                globalErrorFound = globalErrorFound || hasError;
+                if (node.Tag is not Chunk chunk)
+                    return false;
+                var chunkType = chunk.GetType();
 
-                var (backColour, foreColour) = hasError ? Settings.GetErrorChunkColour() : Settings.GetChunkColour(chunk.GetType());
+                bool childrenHaveErrors = false;
+                foreach (TreeNode child in node.Nodes)
+                    childrenHaveErrors |= ValidateAndColour(child);
 
-                if (node.BackColor != backColour)
-                    node.BackColor = backColour;
+                bool selfHasErrors = chunk.ValidateChunk().Any();
 
-                if (node.ForeColor != foreColour)
-                    node.ForeColor = foreColour;
+                bool branchHasErrors = selfHasErrors || childrenHaveErrors;
+
+                (Color BackColour, Color ForeColour) colours;
+                if (branchHasErrors)
+                {
+                    colours = errorColours;
+                }
+                else if (!chunkColours.TryGetValue(chunkType, out colours))
+                {
+                    colours = Settings.GetChunkColour(chunkType);
+                    chunkColours[chunkType] = colours;
+                }
+
+                if (node.BackColor != colours.BackColour)
+                    node.BackColor = colours.BackColour;
+
+                if (node.ForeColor != colours.ForeColour)
+                    node.ForeColor = colours.ForeColour;
+
+                return branchHasErrors;
             }
 
-            foreach (TreeNode child in node.Nodes)
-                ValidateAndColour(child);
+            var rootNode = TVChunks.Nodes[0];
+            bool globalErrorFound = false;
+            foreach (TreeNode node in rootNode.Nodes)
+                globalErrorFound |= ValidateAndColour(node);
+
+            var (back, fore) = globalErrorFound ? errorColours : (Color.Empty, Color.Empty);
+
+            if (rootNode.BackColor != back)
+                rootNode.BackColor = back;
+
+            if (rootNode.ForeColor != fore)
+                rootNode.ForeColor = fore;
         }
-
-        foreach (TreeNode node in TVChunks.Nodes)
-            ValidateAndColour(node);
-
-        var rootNode = TVChunks.Nodes[0];
-        var (back, fore) = globalErrorFound ? Settings.GetErrorChunkColour() : (Color.Empty, Color.Empty);
-
-        if (rootNode.BackColor != back)
-            rootNode.BackColor = back;
-
-        if (rootNode.ForeColor != fore)
-            rootNode.ForeColor = fore;
+        finally
+        {
+            TVChunks.EndUpdate();
+        }
     }
 
 
