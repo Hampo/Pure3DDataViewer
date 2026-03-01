@@ -24,7 +24,9 @@ internal class LocatorFromGameExcludeTriggerVolumes : IChunkHandler<LocatorChunk
             return ChunkCallbackResult.Unchanged;
         }
 
-        chunk.Position = pos.Value;
+        chunk.Position = pos.Value.Item1;
+        if (chunk.TypeData is LocatorChunk.CarStartLocatorData carStartLocatorData)
+            carStartLocatorData.Rotation = pos.Value.Item2;
         return ChunkCallbackResult.ModifiedData;
     }
 

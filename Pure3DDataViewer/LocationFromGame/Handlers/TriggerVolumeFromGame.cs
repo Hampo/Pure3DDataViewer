@@ -25,9 +25,9 @@ internal class TriggerVolumeFromGame : IChunkHandler<TriggerVolumeChunk>
         }
 
         var matrix = chunk.Matrix;
-        matrix.M41 = pos.Value.X;
-        matrix.M42 = pos.Value.Y;
-        matrix.M43 = pos.Value.Z;
+        matrix.M41 = pos.Value.Item1.X;
+        matrix.M42 = pos.Value.Item1.Y;
+        matrix.M43 = pos.Value.Item1.Z;
         chunk.Matrix = matrix;
 
         return ChunkCallbackResult.ModifiedData;
