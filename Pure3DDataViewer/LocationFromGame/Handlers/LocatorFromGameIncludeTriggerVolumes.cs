@@ -24,15 +24,17 @@ internal class LocatorFromGameIncludeTriggerVolumes : IChunkHandler<LocatorChunk
             return ChunkCallbackResult.Unchanged;
         }
 
-        chunk.Position = pos.Value.Item1;
+        var (position, rotation) = pos.Value;
+
+        chunk.Position = position;
         if (chunk.TypeData is LocatorChunk.CarStartLocatorData carStartLocatorData)
-            carStartLocatorData.Rotation = pos.Value.Item2;
+            carStartLocatorData.Rotation = (float)(rotation * (180.0 / Math.PI));
         foreach (var triggerVolume in chunk.GetChunksOfType<TriggerVolumeChunk>())
         {
             var matrix = triggerVolume.Matrix;
-            matrix.M41 = chunk.Position.X;
-            matrix.M42 = chunk.Position.Y;
-            matrix.M43 = chunk.Position.Z;
+            matrix.M41 = position.X;
+            matrix.M42 = position.Y;
+            matrix.M43 = position.Z;
             triggerVolume.Matrix = matrix;
         }    
         return ChunkCallbackResult.ModifiedChildren;

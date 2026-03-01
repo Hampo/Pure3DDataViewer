@@ -10,7 +10,7 @@ public static class MemoryUtils
         return p == null ? null : new(p);
     }
 
-    public static (Vector3, float)? GetPosition()
+    public static (Vector3 Position, double Rotation)? GetPosition()
     {
         using var mem = GetSHARMemory();
         if (mem == null)
@@ -36,7 +36,7 @@ public static class MemoryUtils
             while (rot < 0)
                 rot += Math.PI * 2;
 
-            return (new(mat.M41, mat.M42 - wheelRadius - suspensionRestPoint.Y, mat.M43), (float)rot);
+            return (new(mat.M41, mat.M42 - wheelRadius - suspensionRestPoint.Y, mat.M43), rot);
         }
         else
         {
