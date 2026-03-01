@@ -1,7 +1,7 @@
 ﻿using SHARMemory.SHAR.Classes;
 using System.Numerics;
 
-namespace Pure3DDataViewerPluginAPI;
+namespace Pure3DDataViewerPluginAPI.Utils;
 public static class MemoryUtils
 {
     public static SHARMemory.SHAR.Memory? GetSHARMemory()

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
 using NetP3DLib.P3D;
-using Pure3DDataViewerPluginAPI;
+using Pure3DDataViewerPluginAPI.Utils;
 using System.ComponentModel;
 
 namespace Pure3DDataViewer;

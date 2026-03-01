@@ -1,7 +1,7 @@
 ﻿using NetP3DLib.P3D.Chunks;
-using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
+using Pure3DDataViewerPluginAPI.Utils;
 
 namespace LocationFromGame.Handlers;
 internal class LocatorFromGameExcludeTriggerVolumes : IChunkHandler<LocatorChunk>
@@ -28,7 +28,7 @@ internal class LocatorFromGameExcludeTriggerVolumes : IChunkHandler<LocatorChunk
 
         chunk.Position = position;
         if (chunk.TypeData is LocatorChunk.CarStartLocatorData carStartLocatorData)
-            carStartLocatorData.Rotation = (float)(rotation * (180.0 / Math.PI));
+            carStartLocatorData.Rotation = (float)MathUtils.RadToDeg(rotation);
         return ChunkCallbackResult.ModifiedData;
     }
 

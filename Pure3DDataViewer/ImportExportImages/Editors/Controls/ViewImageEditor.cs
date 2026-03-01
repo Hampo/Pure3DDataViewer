@@ -1,8 +1,8 @@
 ﻿using Pure3DDataViewerPluginAPI.Extensions;
 using NetP3DLib.P3D.Chunks;
-using Pure3DDataViewerPluginAPI;
 using Pure3DDataViewerPluginAPI.Controls;
 using NetP3DLib.P3D;
+using Pure3DDataViewerPluginAPI.Utils;
 
 namespace ImportExportImages.Editors.Controls;
 public partial class ViewImageEditor : EditorControl

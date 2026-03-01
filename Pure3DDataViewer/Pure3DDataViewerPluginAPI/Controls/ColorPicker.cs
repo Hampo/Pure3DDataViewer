@@ -1,4 +1,6 @@
-﻿namespace Pure3DDataViewerPluginAPI.Controls;
+﻿using Pure3DDataViewerPluginAPI.Utils;
+
+namespace Pure3DDataViewerPluginAPI.Controls;
 public partial class ColorPicker : UserControl
 {
     public static int[]? CustomColours

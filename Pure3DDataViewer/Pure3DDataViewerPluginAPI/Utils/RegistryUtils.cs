@@ -1,4 +1,4 @@
-﻿namespace Pure3DDataViewerPluginAPI;
+﻿namespace Pure3DDataViewerPluginAPI.Utils;
 public static class RegistryUtils
 {
     private const string RegistrySettings = @"Software\Pure3DDataViewer";
