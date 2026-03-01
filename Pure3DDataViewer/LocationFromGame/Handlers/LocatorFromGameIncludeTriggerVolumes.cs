@@ -28,7 +28,7 @@ internal class LocatorFromGameIncludeTriggerVolumes : IChunkHandler<LocatorChunk
 
         chunk.Position = position;
         if (chunk.TypeData is LocatorChunk.CarStartLocatorData carStartLocatorData)
-            carStartLocatorData.Rotation = (float)MathUtils.RadToDeg(rotation);
+            carStartLocatorData.Rotation = (float)rotation;
         foreach (var triggerVolume in chunk.GetChunksOfType<TriggerVolumeChunk>())
         {
             var matrix = triggerVolume.Matrix;

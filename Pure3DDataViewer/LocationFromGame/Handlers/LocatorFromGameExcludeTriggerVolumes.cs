@@ -28,7 +28,7 @@ internal class LocatorFromGameExcludeTriggerVolumes : IChunkHandler<LocatorChunk
 
         chunk.Position = position;
         if (chunk.TypeData is LocatorChunk.CarStartLocatorData carStartLocatorData)
-            carStartLocatorData.Rotation = (float)MathUtils.RadToDeg(rotation);
+            carStartLocatorData.Rotation = (float)rotation;
         return ChunkCallbackResult.ModifiedData;
     }
 
