@@ -2010,6 +2010,9 @@ public partial class FrmMain : Form
         {
             DGVValues.SuspendLayout();
 
+            var firstRowIndex = DGVValues.RowCount > 0 ? DGVValues.FirstDisplayedScrollingRowIndex : -1;
+            var selectedIndex = DGVValues.SelectedRows.Count > 0 ? DGVValues.SelectedRows[0].Index : -1;
+
             for (int i = DGVValues.RowCount - 1; i >= 0; i--)
             {
                 var row = DGVValues.Rows[i];
@@ -2038,15 +2041,15 @@ public partial class FrmMain : Form
                             List<object> values = [.. enumerable.Cast<object>()];
                             if (values.Count == 0)
                             {
-                                var rowIndex = DGVValues.Rows.Add($"{listProperty.Name}[<EMPTY>]", "<NULL>");
-                                DGVValues.Rows[rowIndex].Tag = (listProperty, 0);
+                                DGVValues.Rows.Insert(i, $"{listProperty.Name}[<EMPTY>]", "<NULL>");
+                                DGVValues.Rows[i].Tag = (listProperty, 0);
                             }
                             else
                             {
-                                for (int j = 0; j < values.Count; j++)
+                                for (int j = values.Count - 1; j >= 0; j--)
                                 {
-                                    var rowIndex = DGVValues.Rows.Add($"{listProperty.Name}[{j}]", values[j]?.ToString() ?? "<NULL>");
-                                    DGVValues.Rows[rowIndex].Tag = (listProperty, j);
+                                    DGVValues.Rows.Insert(i, $"{listProperty.Name}[{j}]", values[j]?.ToString() ?? "<NULL>");
+                                    DGVValues.Rows[i].Tag = (listProperty, j);
                                 }
                             }
                         }
@@ -2064,6 +2067,12 @@ public partial class FrmMain : Form
                 row.DefaultCellStyle.BackColor = backColour;
                 row.DefaultCellStyle.ForeColor = foreColour;
             }
+
+            if (selectedIndex >= 0)
+                DGVValues.Rows[Math.Min(selectedIndex, DGVValues.RowCount - 1)].Selected = true;
+            if (firstRowIndex >= 0 && DGVValues.RowCount > 0)
+                DGVValues.FirstDisplayedScrollingRowIndex = Math.Min(firstRowIndex, DGVValues.RowCount - 1);
+
             AutoSizeSmart();
 
             var chunkType = chunk.GetType();
