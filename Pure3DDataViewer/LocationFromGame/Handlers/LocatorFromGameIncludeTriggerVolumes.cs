@@ -30,9 +30,9 @@ internal class LocatorFromGameIncludeTriggerVolumes : IChunkHandler<LocatorChunk
         foreach (var triggerVolume in chunk.GetChunksOfType<TriggerVolumeChunk>())
         {
             var matrix = triggerVolume.Matrix;
-            matrix.M41 = pos.Value.X;
-            matrix.M42 = pos.Value.Y;
-            matrix.M43 = pos.Value.Z;
+            matrix.M41 = chunk.Position.X;
+            matrix.M42 = chunk.Position.Y;
+            matrix.M43 = chunk.Position.Z;
             triggerVolume.Matrix = matrix;
         }    
         return ChunkCallbackResult.ModifiedChildren;
