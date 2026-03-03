@@ -43,7 +43,7 @@ public partial class FrmStructEditor : Form
         TLP1.ColumnStyles[0].Width = nameColumnWidth + 15;
 
         ResumeLayout(true);
-        Width = TLP1.Width + 35;
+        Width = Math.Max(200, TLP1.Width + 35);
         Height = TLP1.Height + BtnOK.Height + 70;
     }
 
