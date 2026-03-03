@@ -1134,13 +1134,23 @@ internal static class ChunkMap
                         if (!staticCameraData.TransitionTargetRate.HasValue)
                             break;
                         sb.Append($", {FormatLuaValue(staticCameraData.TransitionTargetRate.Value)}");
-                        if (!staticCameraData.Flags.HasValue)
+                        if (!staticCameraData.OneShot.HasValue)
                             break;
-                        sb.Append($", {FormatLuaValue(staticCameraData.Flags.Value)}");
-                        if (!staticCameraData.CutInOut.HasValue || !staticCameraData.Data.HasValue)
+                        var flags = 0u;
+                        if (staticCameraData.OneShot.Value)
+                            flags |= 1u;
+                        if (staticCameraData.DisableFOV!.Value)
+                            flags |= (1u << 1);
+                        sb.Append($", {FormatLuaValue(flags)}");
+                        if (!staticCameraData.CutInOut.HasValue || !staticCameraData.CarOnly.HasValue)
                             break;
-                        sb.Append($", {FormatLuaValue(staticCameraData.CutInOut.Value)}");
-                        sb.Append($", {FormatLuaValue(staticCameraData.Data.Value)}");
+                        sb.Append($", {FormatLuaValue(staticCameraData.CutInOut.Value ? 1u : 0u)}");
+                        var flags2 = 0u;
+                        if (staticCameraData.CarOnly.Value)
+                            flags2 |= 1u;
+                        if (staticCameraData.OnFootOnly!.Value)
+                            flags2 |= (1u << 1);
+                        sb.Append($", {FormatLuaValue(flags2)}");
                         break;
                     case LocatorChunk.PedGroupLocatorData pedGroupData:
                         sb.Append($", {FormatLuaValue(pedGroupData.GroupNum)}");
