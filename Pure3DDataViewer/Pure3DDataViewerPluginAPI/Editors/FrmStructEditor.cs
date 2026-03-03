@@ -14,11 +14,11 @@ public partial class FrmStructEditor : Form
     public FrmStructEditor(ref object structObject)
     {
         _struct = structObject;
-        _members = structObject.GetType()
+        _members = [.. structObject.GetType()
             .GetMembers(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => (m.MemberType == MemberTypes.Field && m is FieldInfo) ||
-                        (m.MemberType == MemberTypes.Property && m is PropertyInfo property && property.GetIndexParameters().Length == 0 && property.CanWrite))
-            .ToArray();
+            .Where(m => ((m.MemberType == MemberTypes.Field && m is FieldInfo field && !field.IsStatic) ||
+                        (m.MemberType == MemberTypes.Property && m is PropertyInfo property && property.GetIndexParameters().Length == 0 && property.CanWrite)) 
+                        && !(m.Name == "Translation" && m.DeclaringType == typeof(System.Numerics.Matrix4x4)))];
 
         InitializeComponent();
 
@@ -54,7 +54,7 @@ public partial class FrmStructEditor : Form
         if (nullableType == null && (subMember ?? member).MemberType == MemberTypes.Property && (subMember ?? member) is PropertyInfo property && property.IsStruct())
         {
             var structMembers = property.PropertyType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
-                .Where(m => (m.MemberType == MemberTypes.Field && m is FieldInfo) ||
+                .Where(m => (m.MemberType == MemberTypes.Field && m is FieldInfo field && !field.IsStatic) ||
                             (m.MemberType == MemberTypes.Property && m is PropertyInfo property && property.GetIndexParameters().Length == 0 && property.CanWrite))
                 .ToArray();
 
