@@ -1,4 +1,5 @@
-﻿using NetP3DLib.P3D;
+﻿using NetP3DLib.IO;
+using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
 
 namespace CustomChunkTest.Chunks;
@@ -30,7 +31,7 @@ public class DiffMatchDataChunk : Chunk
         ChunkIndex = chunkIndex;
     }
 
-    protected override void WriteData(BinaryWriter bw)
+    protected override void WriteData(EndianAwareBinaryWriter bw)
     {
         bw.Write(ChunkIndex);
     }

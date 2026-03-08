@@ -1,4 +1,5 @@
 ﻿using Be.Windows.Forms;
+using NetP3DLib.IO;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Enums;
@@ -1720,7 +1721,7 @@ public partial class FrmMain : Form
             foreach (var bytes in chunkBytes)
             {
                 using var ms = new MemoryStream(bytes, false);
-                using var br = new BinaryReader(ms);
+                using var br = new EndianAwareBinaryReader(ms);
                 var chunk = ChunkLoader.LoadChunk(br, out _);
                 chunks.Add(chunk);
             }
