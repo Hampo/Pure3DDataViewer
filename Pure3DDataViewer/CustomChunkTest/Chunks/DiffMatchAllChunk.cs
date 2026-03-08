@@ -21,7 +21,7 @@ public class DiffMatchAllChunk : Chunk
     }
     public override uint DataLength => sizeof(uint);
 
-    public DiffMatchAllChunk(BinaryReader br) : base(0x73737373)
+    public DiffMatchAllChunk(EndianAwareBinaryReader br) : base(0x73737373)
     {
         ChunkIndex = br.ReadUInt32();
     }

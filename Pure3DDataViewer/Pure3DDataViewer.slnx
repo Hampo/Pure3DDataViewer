@@ -3,6 +3,7 @@
     <Project Path="Pure3DDataViewerPluginAPI/Pure3DDataViewerPluginAPI.csproj" />
   </Folder>
   <Folder Name="/Libraries/">
+    <Project Path="../external/NetP3DLib/NetP3DLib/NetP3DLib.Generators/NetP3DLib.Generators.csproj" />
     <Project Path="../external/NetP3DLib/NetP3DLib/NetP3DLib/NetP3DLib.csproj" />
     <Project Path="../external/SHARMemory/SHARMemory/SHARMemory/SHARMemory.csproj" />
   </Folder>
