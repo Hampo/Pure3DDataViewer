@@ -1,4 +1,5 @@
-﻿using NetP3DLib.P3D;
+﻿using NetP3DLib.IO;
+using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
@@ -25,7 +26,7 @@ public partial class FrmNewChunk : Form
             var constructor = type.GetConstructors().FirstOrDefault(constructor =>
             {
                 var parameters = constructor.GetParameters();
-                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(BinaryReader));
+                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(EndianAwareBinaryReader));
             });
             if (constructor == null)
                 continue;
