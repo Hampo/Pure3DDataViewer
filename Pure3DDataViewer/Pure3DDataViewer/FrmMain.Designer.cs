@@ -154,6 +154,7 @@ partial class FrmMain
         TVChunks.ShowLines = false;
         TVChunks.Size = new Size(464, 495);
         TVChunks.TabIndex = 0;
+        TVChunks.BeforeExpand += TVChunks_BeforeExpand;
         TVChunks.ItemDrag += TVChunks_ItemDrag;
         TVChunks.AfterSelect += TVChunks_AfterSelect;
         TVChunks.NodeMouseClick += TVChunks_NodeMouseClick;

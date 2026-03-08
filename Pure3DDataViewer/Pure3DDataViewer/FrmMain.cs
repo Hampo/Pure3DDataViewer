@@ -20,7 +20,42 @@ namespace Pure3DDataViewer;
 
 public partial class FrmMain : Form
 {
-    private P3DFile P3DFile = new();
+    private CancellationTokenSource? _cts = null;
+    private P3DFile? _p3dFile = null;
+    private P3DFile P3DFile
+    {
+        get
+        {
+            if (_p3dFile == null)
+            {
+                _p3dFile = new();
+                _p3dFile.ChunkAdded += P3DFile_ChunkAdded;
+                _p3dFile.ChunkRemoved += P3DFile_ChunkRemoved;
+                _cts = new();
+            }
+
+            return _p3dFile;
+        }
+        set
+        {
+            if (_p3dFile == value)
+                return;
+
+            _cts?.Cancel();
+            _cts = new();
+
+            if (_p3dFile != null)
+            {
+                _p3dFile.ChunkAdded -= P3DFile_ChunkAdded;
+                _p3dFile.ChunkRemoved -= P3DFile_ChunkRemoved;
+            }
+
+            _p3dFile = value;
+
+            _p3dFile.ChunkAdded += P3DFile_ChunkAdded;
+            _p3dFile.ChunkRemoved += P3DFile_ChunkRemoved;
+        }
+    }
 
     private FileSystemWatcher? _watcher = null;
 
@@ -297,7 +332,6 @@ public partial class FrmMain : Form
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedData:
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedChildren:
                             PreChange($"{chunkHandler.Name}", clone);
-                            UpdateChunk(node, chunk);
                             break;
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Deleted:
                             var parentNode = node.Parent;
@@ -316,7 +350,7 @@ public partial class FrmMain : Form
                                 TVChunks.SelectedNode = node.PrevNode;
                             else
                                 TVChunks.SelectedNode = parentNode;
-                            parentNode.Nodes.Remove(node);
+
                             for (int i = 0; i < parentNode.Nodes.Count; i++)
                             {
                                 var childNode = parentNode.Nodes[i];
@@ -505,112 +539,6 @@ public partial class FrmMain : Form
 
     private void TSMIExit_Click(object sender, EventArgs e) => Application.Exit();
 
-    private void LoadP3DFile(string filePath)
-    {
-        if (!File.Exists(filePath))
-        {
-            MessageBox.Show($"Could not find P3D file: {filePath}", "Error opening file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-        }
-
-        try
-        {
-            var p3dFile = new P3DFile(filePath);
-            UndoStack.Clear();
-            RedoStack.Clear();
-            P3DFile = p3dFile;
-            LastPath = filePath;
-            PopulateData();
-            UnsavedChanges = false;
-            Settings.AddRecentFile(LastPath);
-
-            _watcher?.Dispose();
-            _watcher = new FileSystemWatcher(Path.GetDirectoryName(filePath)!)
-            {
-                Filter = Path.GetFileName(filePath)!,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-                EnableRaisingEvents = true,
-            };
-            _watcher.Changed += FileChanged;
-
-            if (p3dFile.Size > int.MaxValue)
-                return; // TODO: Support validating larger files
-
-            var originalBytes = File.ReadAllBytes(filePath);
-            var originalSignature = BitConverter.ToUInt32(originalBytes);
-            switch (originalSignature)
-            {
-                case P3DFile.COMPRESSED_SIGNATURE:
-                    TSMICompressed.Checked = true;
-                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                    {
-                        case NetP3DLib.IO.Endianness.Little:
-                            TSMILittleEndian.Checked = true;
-                            break;
-                        case NetP3DLib.IO.Endianness.Big:
-                            TSMIBigEndian.Checked = true;
-                            break;
-                    }
-                    break;
-                case P3DFile.COMPRESSED_SIGNATURE_SWAP:
-                    TSMICompressed.Checked = false; // TODO: When compressed endian supported, change this
-                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                    {
-                        case NetP3DLib.IO.Endianness.Little:
-                            TSMIBigEndian.Checked = true;
-                            break;
-                        case NetP3DLib.IO.Endianness.Big:
-                            TSMILittleEndian.Checked = true;
-                            break;
-                    }
-                    UnsavedChanges = true;
-                    MessageBox.Show($"Detected that the opened file is both compressed and has an endian that doesn't match the system's.\nIt is currently not possible to compress a file in a swapped endian.\nSaving will either remove compression or flip endian.", "Compression and endian mismatch detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                case P3DFile.SIGNATURE_SWAP:
-                    TSMICompressed.Checked = false;
-                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                    {
-                        case NetP3DLib.IO.Endianness.Little:
-                            TSMIBigEndian.Checked = true;
-                            break;
-                        case NetP3DLib.IO.Endianness.Big:
-                            TSMILittleEndian.Checked = true;
-                            break;
-                    }
-                    break;
-                case P3DFile.SIGNATURE:
-                    TSMICompressed.Checked = false;
-                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
-                    {
-                        case NetP3DLib.IO.Endianness.Little:
-                            TSMILittleEndian.Checked = true;
-                            break;
-                        case NetP3DLib.IO.Endianness.Big:
-                            TSMIBigEndian.Checked = true;
-                            break;
-                    }
-                    break;
-            }
-
-            var newBytes = new byte[p3dFile.Size];
-            using var ms = new MemoryStream(newBytes);
-            if (!TSMICompressed.Checked)
-                p3dFile.Write(ms, TSMILittleEndian.Checked ? NetP3DLib.IO.Endianness.Little : NetP3DLib.IO.Endianness.Big, false);
-            else
-                newBytes = LZR_Compression.CompressFile(p3dFile, false, false);
-
-            if (!originalBytes.SequenceEqual(newBytes))
-            {
-                UnsavedChanges = true;
-                MessageBox.Show($"Detected that the opened file has changed values.\n\nThis is likely caused by one of the following:\n- The file contains chunks with incorrect property values that were auto corrected.\n- Some Radical files released with SHAR contain incorrect chunk headers.\n- The file contains different string padding than expected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error loading P3D file: {ex}", "Error opening file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-
     private void FileChanged(object sender, FileSystemEventArgs e)
     {
         Invoke(() =>
@@ -626,165 +554,6 @@ public partial class FrmMain : Form
 
             LoadP3DFile(LastPath);
         });
-    }
-
-    private void PopulateData()
-    {
-        TVChunks.BeginUpdate();
-        try
-        {
-            TVChunks.Nodes.Clear();
-
-            var rootNode = new TreeNode(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath)
-            {
-                Tag = P3DFile
-            };
-
-            bool fileHasErrors = false;
-
-            var (cancelled, childNodes) = ProgressHelper.Run("Loading chunk nodes", (reportProgress, isCancellationRequested) =>
-            {
-                var childNodes = new TreeNode[P3DFile.Chunks.Count];
-
-                double index = 0;
-                for (var i = 0; i < P3DFile.Chunks.Count; i++)
-                {
-                    var (node, hasError) = CreateChunkNode(i, P3DFile.Chunks[i]);
-                    childNodes[i] = node;
-                    fileHasErrors |= hasError;
-
-                    reportProgress((int)(index++ / P3DFile.Chunks.Count * 100));
-                }
-                rootNode.Nodes.AddRange(childNodes);
-
-                return childNodes;
-            }, false);
-
-            if (fileHasErrors)
-            {
-                var (errorBackColour, errorForeColour) = Settings.GetErrorChunkColour();
-                rootNode.BackColor = errorBackColour;
-                rootNode.ForeColor = errorForeColour;
-            }
-
-            TVChunks.Nodes.Add(rootNode);
-            rootNode.Expand();
-            TVChunks.SelectedNode = rootNode;
-        }
-        finally
-        {
-            TVChunks.EndUpdate();
-        }
-    }
-
-    private static (TreeNode Node, bool HasError) CreateChunkNode(int index, Chunk chunk)
-    {
-        var node = new TreeNode($"{index}. {chunk}")
-        {
-            Tag = chunk
-        };
-        bool branchHasError = chunk.ValidateChunk().Any();
-
-        var shouldExpand = false;
-
-        if (chunk.Children != null && chunk.Children.Count > 0)
-        {
-            var children = new TreeNode[chunk.Children.Count];
-            for (int i = 0; i < chunk.Children.Count; i++)
-            {
-                var (childNode, childHasError) = CreateChunkNode(i, chunk.Children[i]);
-                children[i] = childNode;
-
-                branchHasError |= childHasError;
-                shouldExpand |= childHasError;
-#if DEBUG
-                shouldExpand |= chunk.Children[i] is UnknownChunk;
-#endif
-            }
-            node.Nodes.AddRange(children);
-        }
-
-        if (shouldExpand)
-            node.Expand();
-
-        ApplyNodeStyling(node, chunk, branchHasError);
-
-        return (node, branchHasError);
-    }
-
-    private static void ApplyNodeStyling(TreeNode node, Chunk chunk, bool hasError)
-    {
-        var (back, fore) = hasError ? Settings.GetErrorChunkColour() : Settings.GetChunkColour(chunk.GetType());
-
-        node.BackColor = back;
-        node.ForeColor = fore;
-    }
-
-    private TreeNode AddChunk(TreeNode parentNode, Chunk chunk, int index = -1, bool updateErrors = true, bool beginUpdate = true)
-    {
-        TreeNode chunkNode;
-        if (index < 0)
-        {
-            chunkNode = parentNode.Nodes.Add($"{parentNode.Nodes.Count}. {chunk}");
-        }
-        else
-        {
-            if (beginUpdate)
-                parentNode.TreeView.BeginUpdate();
-            chunkNode = parentNode.Nodes.Insert(index, $"{index}. {chunk}");
-            for (int i = 0; i < parentNode.Nodes.Count; i++)
-            {
-                var node = parentNode.Nodes[i];
-                if (node.Tag is Chunk nodeChunk)
-                    node.Text = $"{node.Index}. {nodeChunk}";
-            }
-            if (beginUpdate)
-                parentNode.TreeView.EndUpdate();
-        }
-        chunkNode.Tag = chunk;
-
-#if DEBUG
-        if (chunk is UnknownChunk)
-        {
-            var parent = parentNode;
-            while (parent != null)
-            {
-                parent.Expand();
-                parent = parent.Parent;
-            }
-        }
-#endif
-
-        (Color BackColour, Color ForeColour) colours;
-        if (!chunk.ValidateChunks().Any())
-        {
-            colours = Settings.GetChunkColour(chunk.GetType());
-        }
-        else
-        {
-            colours = Settings.GetErrorChunkColour();
-
-            var parent = parentNode;
-            while (parent != null)
-            {
-                parent.Expand();
-                if (parent.BackColor != colours.BackColour)
-                    parent.BackColor = colours.BackColour;
-                if (parent.ForeColor != colours.ForeColour)
-                    parent.ForeColor = colours.ForeColour;
-                parent = parent.Parent;
-            }
-        }
-        chunkNode.BackColor = colours.BackColour;
-        chunkNode.ForeColor = colours.ForeColour;
-
-        foreach (var child in chunk.Children)
-            AddChunk(chunkNode, child, -1, false);
-
-        if (updateErrors)
-            UpdateErrors();
-
-        return chunkNode;
     }
 
     private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentFile", "ParentChunk", "IndexInParent", "Children", "AllChildren", "HeaderSize", "Size", "Bytes"];
@@ -1458,11 +1227,6 @@ public partial class FrmMain : Form
         int oldIndex = node.Index;
         node.Remove();
 
-        if (newIndex >= newParent.Nodes.Count)
-            newParent.Nodes.Add(node);
-        else
-            newParent.Nodes.Insert(newIndex, node);
-
         RefreshIndexes(oldParent, oldIndex);
         if (oldParent != newParent)
             RefreshIndexes(newParent, newIndex);
@@ -1661,7 +1425,7 @@ public partial class FrmMain : Form
             TVChunks.SelectedNode = node.PrevNode;
         else
             TVChunks.SelectedNode = parentNode;
-        parentNode.Nodes.Remove(node);
+
         for (int i = 0; i < parentNode.Nodes.Count; i++)
         {
             var childNode = parentNode.Nodes[i];
@@ -1763,8 +1527,8 @@ public partial class FrmMain : Form
         for (var i = chunks.Count - 1; i >= 0; i--)
         {
             parentChunks.Insert(index, chunks[i]);
-            var chunkNode = AddChunk(parentNode, chunks[i], index);
-            chunkNode.EnsureVisible();
+            parentNode.Expand();
+            parentNode.Nodes[index].EnsureVisible();
         }
     }
 
@@ -1798,8 +1562,8 @@ public partial class FrmMain : Form
         for (var i = chunks.Count - 1; i >= 0; i--)
         {
             parentChunks.Insert(index, chunks[i]);
-            var chunkNode = AddChunk(parentNode, chunks[i], index);
-            chunkNode.EnsureVisible();
+            parentNode.Expand();
+            parentNode.Nodes[index].EnsureVisible();
         }
     }
 
@@ -1831,8 +1595,8 @@ public partial class FrmMain : Form
         foreach (var chunk in chunks)
         {
             parentChunks.Add(chunk);
-            var chunkNode = AddChunk(node, chunk);
-            chunkNode.EnsureVisible();
+            node.Expand();
+            node.Nodes[chunk.IndexInParent].EnsureVisible();
         }
     }
 
@@ -1875,8 +1639,8 @@ public partial class FrmMain : Form
             foreach (var newChunk in newChunks)
             {
                 parentChunks.Add(newChunk);
-                chunkNode = AddChunk(node, newChunk);
-                chunkNode.EnsureVisible();
+                node.Expand();
+                node.Nodes[newChunk.IndexInParent].EnsureVisible();
             }
             TVChunks.SelectedNode = chunkNode;
         }
@@ -1984,25 +1748,6 @@ public partial class FrmMain : Form
 
         node.Tag = chunk;
         node.Text = $"{node.Index}. {chunk}";
-
-        var childCount = chunk.Children.Count;
-        var nodeCount = node.Nodes.Count;
-
-        if (nodeCount > childCount)
-            for (int i = nodeCount - 1; i >= childCount; i--)
-                node.Nodes.RemoveAt(i);
-        else if (childCount > nodeCount)
-            for (int i = nodeCount; i < childCount; i++)
-                AddChunk(node, chunk.Children[i], beginUpdate: false);
-
-        for (int i = 0; i < childCount; i++)
-        {
-            var childNode = node.Nodes[i];
-            var childChunk = chunk.Children[i];
-            childNode.Tag = childChunk;
-
-            UpdateChunk(childNode, childChunk, false, false);
-        }
 
         if (updateErrors)
             UpdateErrors();
@@ -2197,7 +1942,7 @@ public partial class FrmMain : Form
             TVChunks.SelectedNode = node.PrevNode;
         else
             TVChunks.SelectedNode = parentNode;
-        parentNode.Nodes.Remove(node);
+
         for (int i = 0; i < parentNode.Nodes.Count; i++)
         {
             var childNode = parentNode.Nodes[i];
@@ -2239,14 +1984,12 @@ public partial class FrmMain : Form
             for (var i = parentChunk.Children.Count - 1; i >= 0; i--)
                 if (parentChunk.Children[i].GetType() == chunkType)
                     parentChunk.Children.RemoveAt(i);
-            UpdateChunk(parentNode, parentChunk);
         }
         else if (parentNode.Tag is P3DFile p3dFile)
         {
             for (var i = p3dFile.Chunks.Count - 1; i >= 0; i--)
                 if (p3dFile.Chunks[i].GetType() == chunkType)
                     p3dFile.Chunks.RemoveAt(i);
-            PopulateData();
         }
     }
 
@@ -2290,7 +2033,7 @@ public partial class FrmMain : Form
         else if (parentNode.Tag is P3DFile p3dFile)
             p3dFile.Chunks.Insert(index, clone);
 
-        TVChunks.SelectedNode = AddChunk(parentNode, clone, index);
+        TVChunks.SelectedNode = parentNode.Nodes[index];
         UnsavedChanges = true;
     }
 
@@ -2449,6 +2192,360 @@ public partial class FrmMain : Form
         if (!_afterSelectUpdating)
             Settings.SetLastEditor(tag.GetType(), editor.Value.Control);
     }
+
+    #region FileHandling
+    public bool LoadP3DFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            MessageBox.Show($"Could not find P3D file: {filePath}", "Error opening file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+        }
+
+        try
+        {
+            var p3dFile = new P3DFile(filePath);
+
+            UndoStack.Clear();
+            RedoStack.Clear();
+            UnsavedChanges = false;
+
+            LastPath = filePath;
+            P3DFile = p3dFile;
+
+            PopulateData();
+
+            Settings.AddRecentFile(LastPath);
+
+            _watcher?.Dispose();
+            _watcher = new FileSystemWatcher(Path.GetDirectoryName(filePath)!)
+            {
+                Filter = Path.GetFileName(filePath)!,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+            _watcher.Changed += FileChanged;
+
+            var originalBytes = File.ReadAllBytes(filePath);
+            var originalSignature = BitConverter.ToUInt32(originalBytes);
+            switch (originalSignature)
+            {
+                case P3DFile.COMPRESSED_SIGNATURE:
+                    TSMICompressed.Checked = true;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case Endianness.Little:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                        case Endianness.Big:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                    }
+                    break;
+                case P3DFile.COMPRESSED_SIGNATURE_SWAP:
+                    TSMICompressed.Checked = false; // TODO: When compressed endian supported, change this
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case Endianness.Little:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                        case Endianness.Big:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                    }
+                    UnsavedChanges = true;
+                    MessageBox.Show($"Detected that the opened file is both compressed and has an endian that doesn't match the system's.\nIt is currently not possible to compress a file in a swapped endian.\nSaving will either remove compression or flip endian.", "Compression and endian mismatch detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return true;
+                case P3DFile.SIGNATURE_SWAP:
+                    TSMICompressed.Checked = false;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case Endianness.Little:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                        case Endianness.Big:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                    }
+                    break;
+                case P3DFile.SIGNATURE:
+                    TSMICompressed.Checked = false;
+                    switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
+                    {
+                        case Endianness.Little:
+                            TSMILittleEndian.Checked = true;
+                            break;
+                        case Endianness.Big:
+                            TSMIBigEndian.Checked = true;
+                            break;
+                    }
+                    break;
+            }
+
+            var newBytes = new byte[p3dFile.Size];
+            using var ms = new MemoryStream(newBytes);
+            if (!TSMICompressed.Checked)
+                p3dFile.Write(ms, TSMILittleEndian.Checked ? Endianness.Little : Endianness.Big, false);
+            else
+                newBytes = LZR_Compression.CompressFile(p3dFile, false, false);
+
+            if (!originalBytes.SequenceEqual(newBytes))
+            {
+                UnsavedChanges = true;
+                MessageBox.Show($"Detected that the opened file has changed values.\n\nThis is likely caused by one of the following:\n- The file contains chunks with incorrect property values that were auto corrected.\n- Some Radical files released with SHAR contain incorrect chunk headers.\n- The file contains different string padding than expected.\n\nSaving is recommended, but will result in a modified file.", "Changes detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading P3D file: {ex}", "Error opening file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+        }
+    }
+
+    private void P3DFile_ChunkAdded(Chunk newChunk)
+    {
+        if (TVChunks.Nodes.Count > 0)
+            InsertChunkNode(TVChunks.Nodes[0], newChunk);
+    }
+
+    private void P3DFile_ChunkRemoved(Chunk removedChild, int oldIndex)
+    {
+        if (TVChunks.Nodes.Count > 0)
+            RemoveChunkNode(TVChunks.Nodes[0], removedChild, oldIndex);
+    }
+
+    private void InsertChunkNode(TreeNode parentNode, Chunk newChild)
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(() => InsertChunkNode(parentNode, newChild));
+            return;
+        }
+
+        if (!parentNode.IsExpanded)
+        {
+            if (parentNode.Nodes.Count == 0)
+                parentNode.Nodes.Add("<<DUMMY>>");
+
+            return;
+        }
+
+        TVChunks.BeginUpdate();
+        if (parentNode.Nodes.Count == 1 && parentNode.Nodes[0].Text == "<<DUMMY>>")
+            parentNode.Nodes.Clear();
+
+        int index = newChild.IndexInParent;
+
+        var childNode = new TreeNode($"{index}. {newChild}")
+        {
+            Tag = newChild
+        };
+        ApplyNodeStyling(childNode, newChild, newChild.ValidateChunks().Any());
+
+        if (newChild.Children.Count > 0)
+            childNode.Nodes.Add("<<DUMMY>>");
+
+        SubscribeNode(childNode, newChild);
+
+        try
+        {
+            if (index >= parentNode.Nodes.Count)
+                parentNode.Nodes.Add(childNode);
+            else
+                parentNode.Nodes.Insert(index, childNode);
+            UpdateChunkIndices(parentNode, index);
+        }
+        finally
+        {
+            TVChunks.EndUpdate();
+        }
+    }
+
+    private void RemoveChunkNode(TreeNode parentNode, Chunk removedChild, int oldIndex)
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(() => RemoveChunkNode(parentNode, removedChild, oldIndex));
+            return;
+        }
+
+        if (!parentNode.IsExpanded)
+        {
+            bool isParentEmpty = parentNode.Tag is P3DFile p3d ? p3d.Chunks.Count == 0 :
+                                 parentNode.Tag is Chunk chunk ? chunk.Children.Count == 0 : true;
+
+            if (isParentEmpty)
+                parentNode.Nodes.Clear();
+            return;
+        }
+
+        TreeNode? removedNode = parentNode.Nodes[oldIndex];
+
+        if (removedNode == null)
+            return;
+
+        TVChunks.BeginUpdate();
+        try
+        {
+            int removedIndex = removedNode.Index;
+            UnsubscribeNode(removedNode);
+            removedNode.Remove();
+            UpdateChunkIndices(parentNode, removedIndex);
+        }
+        finally
+        {
+            TVChunks.EndUpdate();
+        }
+    }
+
+    private void PopulateData()
+    {
+        TVChunks.BeginUpdate();
+        try
+        {
+            foreach (TreeNode node in TVChunks.Nodes)
+                UnsubscribeNode(node);
+            TVChunks.Nodes.Clear();
+
+            var rootNode = new TreeNode(string.IsNullOrWhiteSpace(LastPath) ? "Untitled" : LastPath)
+            {
+                Tag = P3DFile
+            };
+
+            if (P3DFile.Chunks.Count > 0)
+                rootNode.Nodes.Add("<<DUMMY>>");
+
+            var errors = P3DFile.Chunks.Any(x => x.ValidateChunks().Any());
+            if (errors)
+            {
+                var (back, fore) = Settings.GetErrorChunkColour();
+
+                rootNode.BackColor = back;
+                rootNode.ForeColor = fore;
+            }
+
+            TVChunks.Nodes.Add(rootNode);
+            rootNode.Expand();
+            TVChunks.SelectedNode = rootNode;
+        }
+        finally
+        {
+            TVChunks.EndUpdate();
+        }
+    }
+
+    private int _loadingChunks = 0;
+    private async void TVChunks_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+    {
+        var node = e.Node;
+        if (node == null || !(node.Nodes.Count == 1 && node.Nodes[0].Text == "<<DUMMY>>"))
+            return;
+
+        _loadingChunks++;
+        node.Nodes.Clear();
+
+        var token = _cts!.Token;
+
+        try
+        {
+            IList<Chunk> childChunks;
+            if (node.Tag is P3DFile p3dFile)
+                childChunks = p3dFile.Chunks;
+            else if (node.Tag is Chunk chunk)
+                childChunks = chunk.Children;
+            else
+                return;
+
+            const int batchSize = 50;
+            for (var i = 0; i < childChunks.Count; i += batchSize)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var currentBatchSize = Math.Min(batchSize, childChunks.Count - i);
+                for (var j = 0; j < currentBatchSize; j++)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    var index = i + j;
+                    var child = childChunks[index];
+                    var childNode = new TreeNode($"{index}. {child}")
+                    {
+                        Tag = child
+                    };
+                    ApplyNodeStyling(childNode, child, child.ValidateChunks().Any());
+                    SubscribeNode(childNode, child);
+
+                    if (child.Children.Count > 0)
+                        childNode.Nodes.Add("<<DUMMY>>");
+
+                    node.Nodes.Add(childNode);
+                }
+
+                await Task.Delay(1, token);
+            }
+        }
+        catch (OperationCanceledException)
+        { }
+        finally
+        {
+            if (--_loadingChunks == 0)
+            {
+
+            }
+        }
+    }
+
+    private static void ApplyNodeStyling(TreeNode node, Chunk chunk, bool hasError)
+    {
+        var (back, fore) = hasError ? Settings.GetErrorChunkColour() : Settings.GetChunkColour(chunk.GetType());
+
+        node.BackColor = back;
+        node.ForeColor = fore;
+    }
+
+    private readonly Dictionary<TreeNode, Action> _nodeCleanups = [];
+    private void SubscribeNode(TreeNode node, Chunk chunk)
+    {
+        void OnChildAdded(Chunk newChild) => InsertChunkNode(node, newChild);
+        void OnChildRemoved(Chunk removedChild, int oldIndex) => RemoveChunkNode(node, removedChild, oldIndex);
+
+        chunk.ChildAdded += OnChildAdded;
+        chunk.ChildRemoved += OnChildRemoved;
+
+        _nodeCleanups[node] = () =>
+        {
+            chunk.ChildAdded -= OnChildAdded;
+            chunk.ChildRemoved -= OnChildRemoved;
+        };
+    }
+
+    private void UnsubscribeNode(TreeNode node)
+    {
+        if (_nodeCleanups.Remove(node, out var cleanup))
+            cleanup();
+
+        foreach (TreeNode childNode in node.Nodes)
+            UnsubscribeNode(childNode);
+    }
+
+    private void UpdateChunkIndices(TreeNode parentNode, int startIndex)
+    {
+        TVChunks.BeginUpdate();
+        for (var i = startIndex; i < parentNode.Nodes.Count; i++)
+        {
+            var node = parentNode.Nodes[i];
+            if (node.Tag is Chunk chunk)
+            {
+                var text = $"{i}. {chunk}";
+                if (node.Text != text)
+                    node.Text = text;
+            }
+        }
+        TVChunks.EndUpdate();
+    }
+    #endregion
 
     public readonly struct Editor
     {
