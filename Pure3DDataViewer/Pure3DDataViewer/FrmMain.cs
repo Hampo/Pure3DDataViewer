@@ -2192,7 +2192,6 @@ public partial class FrmMain : Form
             Settings.SetLastEditor(tag.GetType(), editor.Value.Control);
     }
 
-    #region FileHandling
     public bool LoadP3DFile(string filePath)
     {
         if (!File.Exists(filePath))
@@ -2628,7 +2627,38 @@ public partial class FrmMain : Form
         }
         TVChunks.EndUpdate();
     }
-    #endregion
+
+    private TreeNode? GetTreeNodeFromChunk(Chunk chunk)
+    {
+        if (chunk == null)
+            return null;
+
+        if (chunk.ParentFile == null && chunk.ParentChunk == null)
+            return null;
+
+        var indices = new List<int>();
+        var current = chunk;
+        while (current != null && current.ParentChunk != null)
+        {
+            indices.Add(current.IndexInParent);
+            current = current.ParentChunk;
+        }
+
+        if (current?.ParentFile == null)
+            return null;
+        indices.Add(current.IndexInParent);
+
+        var node = TVChunks.Nodes[0];
+        for (var i = indices.Count - 1; i >= 0; i--)
+        {
+            var idx = indices[i];
+            if (idx < 0 || idx >= node.Nodes.Count)
+                return null;
+            node = node.Nodes[idx];
+        }
+
+        return node;
+    }
 
     public readonly struct Editor
     {
