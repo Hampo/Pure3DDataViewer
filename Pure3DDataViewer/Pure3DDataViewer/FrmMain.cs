@@ -1835,6 +1835,9 @@ public partial class FrmMain : Form
 
     private void UpdateErrors()
     {
+        if (TVChunks.Nodes.Count < 1)
+            return;
+
         TVChunks.BeginUpdate();
 
         try
