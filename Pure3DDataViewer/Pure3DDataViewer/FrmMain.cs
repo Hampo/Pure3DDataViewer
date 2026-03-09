@@ -2,6 +2,7 @@
 using NetP3DLib.IO;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
+using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
 using NetP3DLib.P3D.Exceptions;
 using Pure3DDataViewerPluginAPI.Controls;
@@ -32,6 +33,9 @@ public partial class FrmMain : Form
                 _p3dFile = new();
                 _p3dFile.ChunkAdded += P3DFile_ChunkAdded;
                 _p3dFile.ChunkRemoved += P3DFile_ChunkRemoved;
+                _p3dFile.ChunksAdded += P3DFile_ChunksAdded;
+                _p3dFile.ChunksRemoved += P3DFile_ChunksRemoved;
+                _p3dFile.ChunksCleared += P3DFile_ChunksCleared;
                 _cts = new();
             }
 
@@ -49,12 +53,18 @@ public partial class FrmMain : Form
             {
                 _p3dFile.ChunkAdded -= P3DFile_ChunkAdded;
                 _p3dFile.ChunkRemoved -= P3DFile_ChunkRemoved;
+                _p3dFile.ChunksAdded -= P3DFile_ChunksAdded;
+                _p3dFile.ChunksRemoved -= P3DFile_ChunksRemoved;
+                _p3dFile.ChunksCleared -= P3DFile_ChunksCleared;
             }
 
             _p3dFile = value;
 
             _p3dFile.ChunkAdded += P3DFile_ChunkAdded;
             _p3dFile.ChunkRemoved += P3DFile_ChunkRemoved;
+            _p3dFile.ChunksAdded += P3DFile_ChunksAdded;
+            _p3dFile.ChunksRemoved += P3DFile_ChunksRemoved;
+            _p3dFile.ChunksCleared += P3DFile_ChunksCleared;
         }
     }
 
@@ -2311,14 +2321,55 @@ public partial class FrmMain : Form
             InsertChunkNode(TVChunks.Nodes[0], newChunk);
     }
 
-    private void P3DFile_ChunkRemoved(Chunk removedChild, int oldIndex)
+    private void P3DFile_ChunkRemoved(Chunk removedChunk, int oldIndex)
     {
         if (TVChunks.Nodes.Count > 0)
-            RemoveChunkNode(TVChunks.Nodes[0], removedChild, oldIndex);
+            RemoveChunkNode(TVChunks.Nodes[0], removedChunk, oldIndex);
     }
 
-    private void InsertChunkNode(TreeNode parentNode, Chunk newChild)
+    private void P3DFile_ChunksAdded(IReadOnlyList<Chunk> newChunks)
     {
+        if (TVChunks.Nodes.Count > 0)
+        {
+            TVChunks.BeginUpdate();
+            foreach (var newChunk in newChunks)
+                InsertChunkNode(TVChunks.Nodes[0], newChunk, false);
+            UpdateChunkIndices(TVChunks.Nodes[0], newChunks[0].IndexInParent);
+            TVChunks.EndUpdate();
+        }
+    }
+
+    private void P3DFile_ChunksRemoved(IReadOnlyList<(Chunk chunk, int oldIndex)> removedChunks)
+    {
+        if (TVChunks.Nodes.Count > 0)
+        {
+            TVChunks.BeginUpdate();
+            var firstIndex = int.MaxValue;
+            foreach (var (removedChunk, oldIndex) in removedChunks.OrderByDescending(x => x.oldIndex))
+            {
+                RemoveChunkNode(TVChunks.Nodes[0], removedChunk, oldIndex, false);
+                firstIndex = oldIndex;
+            }
+            UpdateChunkIndices(TVChunks.Nodes[0], firstIndex);
+            TVChunks.EndUpdate();
+        }
+    }
+
+    private void P3DFile_ChunksCleared()
+    {
+        if (TVChunks.Nodes.Count > 0)
+        {
+            TVChunks.BeginUpdate();
+            TVChunks.Nodes.Clear();
+            TVChunks.EndUpdate();
+        }
+    }
+
+    private void InsertChunkNode(TreeNode parentNode, Chunk newChild, bool updateChunkIndices = true)
+    {
+        if (newChild.IndexInParent == -1)
+            return;
+
         if (InvokeRequired)
         {
             BeginInvoke(() => InsertChunkNode(parentNode, newChild));
@@ -2356,7 +2407,8 @@ public partial class FrmMain : Form
                 parentNode.Nodes.Add(childNode);
             else
                 parentNode.Nodes.Insert(index, childNode);
-            UpdateChunkIndices(parentNode, index);
+            if (updateChunkIndices)
+                UpdateChunkIndices(parentNode, index);
         }
         finally
         {
@@ -2364,7 +2416,7 @@ public partial class FrmMain : Form
         }
     }
 
-    private void RemoveChunkNode(TreeNode parentNode, Chunk removedChild, int oldIndex)
+    private void RemoveChunkNode(TreeNode parentNode, Chunk removedChild, int oldIndex, bool updateChunkIndices = true)
     {
         if (InvokeRequired)
         {
@@ -2382,10 +2434,10 @@ public partial class FrmMain : Form
             return;
         }
 
-        TreeNode? removedNode = parentNode.Nodes[oldIndex];
-
-        if (removedNode == null)
+        if (oldIndex < 0 || oldIndex >= parentNode.Nodes.Count)
             return;
+
+        TreeNode removedNode = parentNode.Nodes[oldIndex];
 
         TVChunks.BeginUpdate();
         try
@@ -2393,7 +2445,8 @@ public partial class FrmMain : Form
             int removedIndex = removedNode.Index;
             UnsubscribeNode(removedNode);
             removedNode.Remove();
-            UpdateChunkIndices(parentNode, removedIndex);
+            if (updateChunkIndices)
+                UpdateChunkIndices(parentNode, removedIndex);
         }
         finally
         {
@@ -2466,13 +2519,15 @@ public partial class FrmMain : Form
 
                 var currentBatchSize = Math.Min(batchSize, childChunks.Count - i);
 
-                var newNodes = new TreeNode[currentBatchSize];
+                var newNodes = new List<TreeNode>(currentBatchSize);
                 for (var j = 0; j < currentBatchSize; j++)
                 {
                     token.ThrowIfCancellationRequested();
 
                     var index = i + j;
                     var child = childChunks[index];
+                    if (child.IndexInParent == -1)
+                        continue;
                     var childNode = new TreeNode($"{index}. {child}")
                     {
                         Tag = child
@@ -2484,10 +2539,10 @@ public partial class FrmMain : Form
                     if (child.Children.Count > 0)
                         childNode.Nodes.Add("<<DUMMY>>");
 
-                    newNodes[j] = childNode;
+                    newNodes.Add(childNode);
                 }
 
-                node.Nodes.AddRange(newNodes);
+                node.Nodes.AddRange([.. newNodes]);
 
                 if (i + batchSize < childChunks.Count)
                     await Task.Delay(1, token);
@@ -2518,14 +2573,46 @@ public partial class FrmMain : Form
     {
         void OnChildAdded(Chunk newChild) => InsertChunkNode(node, newChild);
         void OnChildRemoved(Chunk removedChild, int oldIndex) => RemoveChunkNode(node, removedChild, oldIndex);
+        void OnChildrenAdded(IReadOnlyList<Chunk> children)
+        {
+            TVChunks.BeginUpdate();
+            foreach (var child in children)
+                InsertChunkNode(node, child, false);
+            UpdateChunkIndices(node, children[0].IndexInParent);
+            TVChunks.EndUpdate();
+        }
+        void OnChildrenRemoved(IReadOnlyList<(Chunk chunk, int oldIndex)> children)
+        {
+            TVChunks.BeginUpdate();
+            var firstIndex = int.MaxValue;
+            foreach (var (removedChild, oldIndex) in children.OrderByDescending(x => x.oldIndex))
+            {
+                RemoveChunkNode(node, removedChild, oldIndex, false);
+                firstIndex = oldIndex;
+            }
+            UpdateChunkIndices(node, firstIndex);
+            TVChunks.EndUpdate();
+        }
+        void OnChildrenCleared()
+        {
+            TVChunks.BeginUpdate();
+            node.Nodes.Clear();
+            TVChunks.EndUpdate();
+        }
 
         chunk.ChildAdded += OnChildAdded;
         chunk.ChildRemoved += OnChildRemoved;
+        chunk.ChildrenAdded += OnChildrenAdded;
+        chunk.ChildrenRemoved += OnChildrenRemoved;
+        chunk.ChildrenCleared += OnChildrenCleared;
 
         _nodeCleanups[node] = () =>
         {
             chunk.ChildAdded -= OnChildAdded;
             chunk.ChildRemoved -= OnChildRemoved;
+            chunk.ChildrenAdded -= OnChildrenAdded;
+            chunk.ChildrenRemoved -= OnChildrenRemoved;
+            chunk.ChildrenCleared -= OnChildrenCleared;
         };
     }
 
