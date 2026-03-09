@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Pure3DDataViewer;
 
@@ -2464,6 +2465,8 @@ public partial class FrmMain : Form
                 token.ThrowIfCancellationRequested();
 
                 var currentBatchSize = Math.Min(batchSize, childChunks.Count - i);
+
+                var newNodes = new TreeNode[currentBatchSize];
                 for (var j = 0; j < currentBatchSize; j++)
                 {
                     token.ThrowIfCancellationRequested();
@@ -2474,23 +2477,28 @@ public partial class FrmMain : Form
                     {
                         Tag = child
                     };
+
                     ApplyNodeStyling(childNode, child, child.ValidateChunks().Any());
                     SubscribeNode(childNode, child);
 
                     if (child.Children.Count > 0)
                         childNode.Nodes.Add("<<DUMMY>>");
 
-                    node.Nodes.Add(childNode);
+                    newNodes[j] = childNode;
                 }
 
-                await Task.Delay(1, token);
+                node.Nodes.AddRange(newNodes);
+
+                if (i + batchSize < childChunks.Count)
+                    await Task.Delay(1, token);
             }
         }
         catch (OperationCanceledException)
         { }
         finally
         {
-            if (--_loadingChunks == 0)
+            _loadingChunks--;
+            if (_loadingChunks == 0)
             {
 
             }
