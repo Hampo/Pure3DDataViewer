@@ -319,6 +319,8 @@ public partial class FrmMain : Form
                             PreChange($"{fileHandler.Name}", clone);
                             UnsavedChanges = true;
                             UpdateErrors();
+                            if (tag is Chunk chunk2)
+                                UpdateChunk(TVChunks.SelectedNode, chunk2);
                             //PopulateData();
                             break;
                     }
@@ -342,6 +344,7 @@ public partial class FrmMain : Form
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedData:
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedChildren:
                             PreChange($"{chunkHandler.Name}", clone);
+                            UpdateChunk(TVChunks.SelectedNode, chunk);
                             break;
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Deleted:
                             var parentNode = node.Parent;
@@ -361,12 +364,6 @@ public partial class FrmMain : Form
                             else
                                 TVChunks.SelectedNode = parentNode;
 
-                            for (int i = 0; i < parentNode.Nodes.Count; i++)
-                            {
-                                var childNode = parentNode.Nodes[i];
-                                if (childNode.Tag is Chunk nodeChunk)
-                                    childNode.Text = $"{childNode.Index}. {nodeChunk}";
-                            }
                             UpdateErrors();
                             TVChunks.EndUpdate();
                             break;
