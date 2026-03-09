@@ -63,9 +63,11 @@ public class ImportImage : IChunkHandler<ImageChunk>
             img.Save(ms, ImageFormat.Png);
             var pngBytes = ms.ToArray();
 
-            for (int i = imageChunk.Children.Count - 1; i >= 0; i--)
+            var indices = new List<int>(imageChunk.Children.Count);
+            for (int i = 0; i < imageChunk.Children.Count; i++)
                 if (imageChunk.Children[i].ID == (uint)ChunkIdentifier.Image_Data)
-                    imageChunk.Children.RemoveAt(i);
+                    indices.Add(i);
+            imageChunk.Children.RemoveAtIndices(indices);
 
             imageChunk.Width = width;
             imageChunk.Height = height;

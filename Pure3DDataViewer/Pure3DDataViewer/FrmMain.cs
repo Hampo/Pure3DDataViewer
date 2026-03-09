@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Pure3DDataViewer;
@@ -320,7 +321,8 @@ public partial class FrmMain : Form
                         case Pure3DDataViewerPluginAPI.Enums.FileCallbackResult.Modified:
                             PreChange($"{fileHandler.Name}", clone);
                             UnsavedChanges = true;
-                            PopulateData();
+                            UpdateErrors();
+                            //PopulateData();
                             break;
                     }
                 }
@@ -1176,7 +1178,9 @@ public partial class FrmMain : Form
             PreChange("Move Chunk");
             UnsavedChanges = true;
             MoveChunkData(draggedChunk, newParentNode.Tag, newIndex);
-            MoveChunkUI(draggedNode, newParentNode, newIndex);
+            TVChunks.SelectedNode = draggedNode;
+            newParentNode.Expand();
+            UpdateErrors();
 
             TVChunks.SetInsertMark(null, false);
             _autoExpandedNodes.Clear();
@@ -1228,25 +1232,6 @@ public partial class FrmMain : Form
 
                 break;
         }
-    }
-
-    private void MoveChunkUI(TreeNode node, TreeNode newParent, int newIndex)
-    {
-        TVChunks.BeginUpdate();
-
-        var oldParent = node.Parent;
-        int oldIndex = node.Index;
-        node.Remove();
-
-        RefreshIndexes(oldParent, oldIndex);
-        if (oldParent != newParent)
-            RefreshIndexes(newParent, newIndex);
-
-        TVChunks.SelectedNode = node;
-        newParent.Expand();
-        UpdateErrors();
-
-        TVChunks.EndUpdate();
     }
 
     private static void RefreshIndexes(TreeNode parent, int startIndex)
@@ -1992,15 +1977,21 @@ public partial class FrmMain : Form
         if (parentNode.Tag is Chunk parentChunk)
         {
             TVChunks.SelectedNode = parentNode;
-            for (var i = parentChunk.Children.Count - 1; i >= 0; i--)
+            var indices = new List<int>(parentChunk.Children.Count);
+            for (var i = 0; i < parentChunk.Children.Count; i++)
                 if (parentChunk.Children[i].GetType() == chunkType)
-                    parentChunk.Children.RemoveAt(i);
+                    indices.Add(i);
+
+            parentChunk.Children.RemoveAtIndices(indices);
         }
         else if (parentNode.Tag is P3DFile p3dFile)
         {
-            for (var i = p3dFile.Chunks.Count - 1; i >= 0; i--)
+            var indices = new List<int>(p3dFile.Chunks.Count);
+            for (var i = 0; i < p3dFile.Chunks.Count; i++)
                 if (p3dFile.Chunks[i].GetType() == chunkType)
-                    p3dFile.Chunks.RemoveAt(i);
+                    indices.Add(i);
+
+            p3dFile.Chunks.RemoveAtIndices(indices);
         }
     }
 
@@ -2344,7 +2335,7 @@ public partial class FrmMain : Form
         if (TVChunks.Nodes.Count > 0)
         {
             TVChunks.BeginUpdate();
-            var firstIndex = int.MaxValue;
+            var firstIndex = 0;
             foreach (var (removedChunk, oldIndex) in removedChunks.OrderByDescending(x => x.oldIndex))
             {
                 RemoveChunkNode(TVChunks.Nodes[0], removedChunk, oldIndex, false);
@@ -2584,7 +2575,7 @@ public partial class FrmMain : Form
         void OnChildrenRemoved(IReadOnlyList<(Chunk chunk, int oldIndex)> children)
         {
             TVChunks.BeginUpdate();
-            var firstIndex = int.MaxValue;
+            var firstIndex = 0;
             foreach (var (removedChild, oldIndex) in children.OrderByDescending(x => x.oldIndex))
             {
                 RemoveChunkNode(node, removedChild, oldIndex, false);

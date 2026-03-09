@@ -73,8 +73,8 @@ public class FindDuplicateNamedChunks : IFileHandler
     {
         Dictionary<Type, HashSet<string>> seenNameMap = [];
 
-        List<string> foundChunks = [];
-        List<int> indexes = [];
+        var foundChunks = new List<string>(p3dFile.Chunks.Count);
+        var indices = new List<int>(p3dFile.Chunks.Count);
 
         var namedChunks = p3dFile.GetChunksOfType<NamedChunk>();
         for (int i = 0; i < namedChunks.Count; i++)
@@ -96,7 +96,7 @@ public class FindDuplicateNamedChunks : IFileHandler
             if (seenNames.Contains(chunk.Name))
             {
                 foundChunks.Add($"{i}. {chunk}");
-                indexes.Add(i);
+                indices.Add(i);
             }
 
             seenNames.Add(chunk.Name);
@@ -111,8 +111,7 @@ public class FindDuplicateNamedChunks : IFileHandler
         if (MessageBox.Show($"Found {foundChunks.Count} duplicate named chunks.\nWould you like to remove them?\n\n- {string.Join("\n- ", foundChunks)}", Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
             return FileCallbackResult.Unchanged;
 
-        foreach (var index in indexes.OrderByDescending(x => x))
-            p3dFile.Chunks.RemoveAt(index);
+        p3dFile.Chunks.RemoveAtIndices(indices);
 
         return FileCallbackResult.Modified;
     }

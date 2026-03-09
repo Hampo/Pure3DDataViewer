@@ -44,9 +44,11 @@ public class ImportSprite : IChunkHandler<SpriteChunk>
             img.Save(ms, ImageFormat.Png);
             var pngBytes = ms.ToArray();
 
-            for (int i = spriteChunk.Children.Count - 1; i >= 0; i--)
+            var indices = new List<int>(spriteChunk.Children.Count);
+            for (int i = 0; i < spriteChunk.Children.Count; i++)
                 if (spriteChunk.Children[i].ID == (uint)ChunkIdentifier.Image)
-                    spriteChunk.Children.RemoveAt(i);
+                    indices.Add(i);
+            spriteChunk.Children.RemoveAtIndices(indices);
 
             var imageChunk = new ImageChunk(spriteChunk.Name, 14000, width, height, bpp, isPalettized, hasAlpha, ImageChunk.Formats.PNG);
             spriteChunk.Children.Add(imageChunk);

@@ -16,27 +16,18 @@ public class DeduplicateChunks : IFileHandler
 
     public FileCallbackResult Handle(P3DFile p3dFile)
     {
-        List<Chunk> newChunks = [.. p3dFile.Chunks];
-        List<Chunk> seenChunks = [];
+        var seenChunks = new HashSet<Chunk>(p3dFile.Chunks.Count);
+        var dupeIndices = new List<int>(p3dFile.Chunks.Count);
 
-        long removedCount = 0;
-
-        int i = 0;
-        while (i < newChunks.Count)
+        for (int i = 0; i < p3dFile.Chunks.Count; i++)
         {
-            var chunk = newChunks[i];
-            if (!seenChunks.Contains(chunk))
-            {
-                seenChunks.Add(chunk);
-                i++;
-            }
-            else
-            {
-                newChunks.RemoveAt(i);
-                removedCount++;
-            }
+            var chunk = p3dFile.Chunks[i];
+            if (seenChunks.Contains(chunk))
+                dupeIndices.Add(i);
+            seenChunks.Add(chunk);
         }
 
+        var removedCount = dupeIndices.Count;
         if (removedCount == 0)
         {
             MessageBox.Show("No duplicate chunks found.", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -46,8 +37,7 @@ public class DeduplicateChunks : IFileHandler
         if (MessageBox.Show($"Found {removedCount} duplicate chunk{(removedCount == 1 ? "" : "s")}.\nDo you want to remove {(removedCount == 1 ? "it" : "them")}?", Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return FileCallbackResult.Unchanged;
 
-        p3dFile.Chunks.Clear();
-        p3dFile.Chunks.AddRange(newChunks);
+        p3dFile.Chunks.RemoveAtIndices(dupeIndices);
         return FileCallbackResult.Modified;
     }
 

@@ -46,9 +46,11 @@ public class ImportTexture : IChunkHandler<TextureChunk>
             img.Save(ms, ImageFormat.Png);
             var pngBytes = ms.ToArray();
 
-            for (int i = textureChunk.Children.Count - 1; i >= 0; i--)
+            var indices = new List<int>(textureChunk.Children.Count);
+            for (int i = 0; i < textureChunk.Children.Count; i++)
                 if (textureChunk.Children[i].ID == (uint)ChunkIdentifier.Image)
-                    textureChunk.Children.RemoveAt(i);
+                    indices.Add(i);
+            textureChunk.Children.RemoveAtIndices(indices);
 
             textureChunk.Width = width;
             textureChunk.Height = height;
