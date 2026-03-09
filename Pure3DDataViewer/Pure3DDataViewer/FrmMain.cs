@@ -2,7 +2,6 @@
 using NetP3DLib.IO;
 using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
-using NetP3DLib.P3D.Chunks;
 using NetP3DLib.P3D.Enums;
 using NetP3DLib.P3D.Exceptions;
 using Pure3DDataViewerPluginAPI.Controls;
@@ -16,8 +15,6 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Pure3DDataViewer;
 
@@ -2354,7 +2351,7 @@ public partial class FrmMain : Form
         if (TVChunks.Nodes.Count > 0)
         {
             TVChunks.BeginUpdate();
-            TVChunks.Nodes.Clear();
+            TVChunks.Nodes[0].Nodes.Clear();
             TVChunks.EndUpdate();
         }
     }
