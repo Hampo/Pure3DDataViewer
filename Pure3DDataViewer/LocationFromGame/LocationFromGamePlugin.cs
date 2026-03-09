@@ -19,6 +19,8 @@ public class LocationFromGamePlugin : IPlugin
 
             new Handlers.TriggerVolumeFromGame(),
             new Handlers.TriggerVolumeFromLocator(),
+
+            new Handlers.TeleportToInGame(),
         ];
 
         var assembly = Assembly.GetExecutingAssembly();

@@ -1,4 +1,5 @@
-﻿using SHARMemory.SHAR.Classes;
+﻿using Pure3DDataViewerPluginAPI.Classes;
+using SHARMemory.SHAR.Classes;
 using System.Numerics;
 
 namespace Pure3DDataViewerPluginAPI.Utils;
@@ -9,6 +10,8 @@ public static class MemoryUtils
         var p = SHARMemory.SHAR.Memory.GetSHARProcess();
         return p == null ? null : new(p);
     }
+
+    public static InterprocessCommunication GetInterprocessCommunication(SHARMemory.SHAR.Memory memory) => new(memory.Process.Id);
 
     public static (Vector3 Position, double Rotation)? GetPosition()
     {
@@ -45,5 +48,13 @@ public static class MemoryUtils
 
             return (new(pos.X, pos.Y, pos.Z), rot);
         }
+    }
+
+    public static void Teleport(Vector3 pos, float rotationY)
+    {
+        using var mem = GetSHARMemory() ?? throw new Exception("Could not find The Simpsons: Hit & Run process.");
+        using var ipc = GetInterprocessCommunication(mem);
+
+        InterprocessCommunicationUtils.Teleport(ipc, mem, pos, true, rotationY);
     }
 }
