@@ -1,4 +1,5 @@
-﻿using NetP3DLib.P3D;
+﻿using NetP3DLib.IO;
+using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Extensions;
@@ -25,7 +26,7 @@ internal class AddOneOfEveryChunk : IFileHandler
             var constructor = chunkType.GetConstructors().FirstOrDefault(constructor =>
             {
                 var parameters = constructor.GetParameters();
-                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(BinaryReader));
+                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(EndianAwareBinaryReader));
             });
             if (constructor == null)
                 continue;
@@ -116,7 +117,7 @@ internal class AddOneOfEveryChunk : IFileHandler
         var constructor = type.GetConstructors().FirstOrDefault(constructor =>
         {
             var parameters = constructor.GetParameters();
-            return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(List<uint>));
+            return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(IList<uint>));
         }) ?? throw new Exception($"No valid constructor found for Locator Type: {locatorType}.");
 
         return (LocatorChunk.LocatorData)constructor.Invoke([.. constructor.GetParameters().Select(x => x.ParameterType.GetDefault())]);

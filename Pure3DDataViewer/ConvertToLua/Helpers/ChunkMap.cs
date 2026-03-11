@@ -252,7 +252,7 @@ internal static class ChunkMap
         {
             LuaClassName = "CollisionAxisAlignedBoundingBox",
             PropertyOrder = {
-                nameof(CollisionAxisAlignedBoundingBoxChunk.Nothing),
+                nameof(CollisionAxisAlignedBoundingBoxChunk.Dummy),
             }
         });
 
@@ -885,7 +885,7 @@ internal static class ChunkMap
 
                 var sb = new StringBuilder();
                 sb.Append('"');
-                foreach (var b in imageDataChunk.ImageData)
+                foreach (var b in imageDataChunk.ImageData.ToArray())
                     _ = sb.AppendFormat(@"\x{0:X2}", b);
                 sb.Append('"');
 

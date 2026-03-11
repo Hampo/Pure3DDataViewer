@@ -332,7 +332,7 @@ public partial class FrmNewChunk : Form
             constructor = type.GetConstructors().FirstOrDefault(constructor =>
             {
                 var parameters = constructor.GetParameters();
-                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(List<uint>));
+                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(IList<uint>));
             }) ?? throw new Exception($"No valid constructor found for Locator Type: {locatorType}.");
 
             LocatorDataConstructorMap[locatorType] = constructor;

@@ -44,7 +44,7 @@ public static class ImageHelper
         {
             case ImageChunk.Formats.PNG:
             case ImageChunk.Formats.BMP:
-                using (var ms = new MemoryStream(imageData.ImageData, false))
+                using (var ms = new MemoryStream(imageData.ImageData.ToArray(), false))
                     image = Image.FromStream(ms);
                 break;
             case ImageChunk.Formats.DXT:
@@ -54,12 +54,13 @@ public static class ImageHelper
             case ImageChunk.Formats.DXT4:
             case ImageChunk.Formats.DXT5:
             case ImageChunk.Formats.GCDXT1:
-                var handle = GCHandle.Alloc(imageData.ImageData, GCHandleType.Pinned);
+                var imageDataBytes = imageData.ImageData.ToArray();
+                var handle = GCHandle.Alloc(imageDataBytes, GCHandleType.Pinned);
                 try
                 {
                     var ptr = handle.AddrOfPinnedObject();
 
-                    using var dxtImage = DirectXTexNet.TexHelper.Instance.LoadFromDDSMemory(ptr, imageData.ImageData.Length, DirectXTexNet.DDS_FLAGS.NONE);
+                    using var dxtImage = DirectXTexNet.TexHelper.Instance.LoadFromDDSMemory(ptr, imageDataBytes.Length, DirectXTexNet.DDS_FLAGS.NONE);
 
                     var format = dxtImage.GetImage(0).Format;
                     if (DirectXTexNet.TexHelper.Instance.IsCompressed(format))
