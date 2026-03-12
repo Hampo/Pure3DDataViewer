@@ -26,7 +26,7 @@ internal class AddOneOfEveryChunk : IFileHandler
             var constructor = chunkType.GetConstructors().FirstOrDefault(constructor =>
             {
                 var parameters = constructor.GetParameters();
-                return !(parameters.Length == 1 && parameters[0].ParameterType == typeof(EndianAwareBinaryReader));
+                return !(parameters.Length >= 1 && parameters[0].ParameterType == typeof(EndianAwareBinaryReader));
             });
             if (constructor == null)
                 continue;
