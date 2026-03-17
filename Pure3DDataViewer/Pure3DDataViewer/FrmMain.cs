@@ -1264,8 +1264,9 @@ public partial class FrmMain : Form
             var currentChunk = selectedChunk;
             while (currentChunk.ParentChunk != null)
             {
+                startIndex++;
                 for (var i = 0; i < currentChunk.IndexInParent; i++)
-                    startIndex += currentChunk.ParentChunk.Children[i].AllChildren.Count + 1;
+                    startIndex += currentChunk.ParentChunk.Children[i].AllChildren.Count;
 
                 currentChunk = currentChunk.ParentChunk;
             }
