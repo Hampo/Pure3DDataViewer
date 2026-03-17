@@ -740,7 +740,9 @@ public partial class FrmMain : Form
                     }
                 }
 
-                HBHex.ByteProvider = new DynamicByteProvider(chunk.DataLength > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : chunk.DataBytes);
+                if (HBHex.ByteProvider is ChunkByteProvider oldProvider)
+                    oldProvider.Dispose();
+                HBHex.ByteProvider = new ChunkByteProvider(chunk);
 
                 return;
             }
@@ -1213,23 +1215,6 @@ public partial class FrmMain : Form
                 parentChunk.Children.Insert(index, chunk);
 
                 break;
-        }
-    }
-
-    private static void RefreshIndexes(TreeNode parent, int startIndex)
-    {
-        if (parent == null)
-            return;
-
-        for (int i = startIndex; i < parent.Nodes.Count; i++)
-        {
-            if (parent.Nodes[i].Tag is Chunk c)
-            {
-                var newText = $"{i}. {c}";
-
-                if (parent.Nodes[i].Text != newText)
-                    parent.Nodes[i].Text = newText;
-            }
         }
     }
 
@@ -2388,8 +2373,6 @@ public partial class FrmMain : Form
 
             if (node.IsSelected)
             {
-                HBHex.ByteProvider = new DynamicByteProvider(chunk.DataLength > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : chunk.DataBytes);
-
                 var firstRowIndex = DGVValues.RowCount > 0 ? DGVValues.FirstDisplayedScrollingRowIndex : -1;
                 var selectedIndex = DGVValues.SelectedRows.Count > 0 ? DGVValues.SelectedRows[0].Index : -1;
 
@@ -2462,6 +2445,8 @@ public partial class FrmMain : Form
                             _editors.Add(new(editor.Name, editor.Editor));
 
                 CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
+                if (CBEditor.SelectedIndex == 1)
+                    HBHex.Invalidate();
 
                 foreach (var editorControl in PnlEditors.Controls.OfType<EditorControl>().Where(x => x.Visible))
                     editorControl.LoadChunk(chunk);
