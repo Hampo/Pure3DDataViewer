@@ -136,6 +136,7 @@ partial class FrmMain
         SC1.SplitterDistance = 464;
         SC1.SplitterWidth = 5;
         SC1.TabIndex = 0;
+        SC1.SplitterMoved += SC1_SplitterMoved;
         // 
         // TVChunks
         // 

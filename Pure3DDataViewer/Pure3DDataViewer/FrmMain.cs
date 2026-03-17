@@ -164,6 +164,7 @@ public partial class FrmMain : Form
         UpdateText();
 
         Theming.ApplyTheme(this, Settings.DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, Settings.LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
+        SC1.SplitterDistance = Settings.SplitterDistance;
 
         PluginLoader.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));
         if (PluginLoader.Plugins.Count == 0)
@@ -2601,6 +2602,8 @@ public partial class FrmMain : Form
 
         return node;
     }
+
+    private void SC1_SplitterMoved(object sender, SplitterEventArgs e) => Settings.SplitterDistance = SC1.SplitterDistance;
 
     public readonly struct Editor
     {

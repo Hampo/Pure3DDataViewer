@@ -227,4 +227,10 @@ public static class Settings
                 Theming.ApplyTheme(form, DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, value ? Theming.FontMode.Large : Theming.FontMode.Normal);
         }
     }
+
+    public static int SplitterDistance
+    {
+        get => RegistryUtils.GetInt32("SplitterDistance", 464)!.Value;
+        set => RegistryUtils.SetInt32("SplitterDistance", value);
+    }
 }
