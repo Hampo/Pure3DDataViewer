@@ -1559,17 +1559,17 @@ internal static class ChunkMap
 
         // TODO: ParticlePointGenerator - Missing matching Lua file
 
-        Register<ParticleSystem2Chunk>(new()
+        Register<ParticleSystemChunk>(new()
         {
             LuaClassName = "ParticleSystem2",
             PropertyOrder = {
-                nameof(ParticleSystem2Chunk.Version),
-                nameof(ParticleSystem2Chunk.Name),
-                nameof(ParticleSystem2Chunk.FactoryName),
+                nameof(ParticleSystemChunk.Version),
+                nameof(ParticleSystemChunk.Name),
+                nameof(ParticleSystemChunk.FactoryName),
             }
         });
 
-        // TODO: ParticleSystem - Missing matching Lua file
+        // TODO: ParticleSystem2 - Missing matching Lua file
 
         Register<ParticleSystemFactoryChunk>(new()
         {
