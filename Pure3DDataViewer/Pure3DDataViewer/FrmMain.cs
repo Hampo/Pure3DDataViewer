@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Pure3DDataViewer;
 
@@ -286,11 +287,7 @@ public partial class FrmMain : Form
 
     private void IChunkEditor_UpdatedChunk(object? sender, UpdatedChunkEventArgs e)
     {
-        var node = TVChunks.SelectedNode;
-        if (node == null)
-            return;
-
-        UpdateChunk(node, e.Chunk);
+        return;
     }
 
     private void TSMIPlugin_Click(object? sender, EventArgs e)
@@ -318,9 +315,6 @@ public partial class FrmMain : Form
                         case Pure3DDataViewerPluginAPI.Enums.FileCallbackResult.Modified:
                             PreChange($"{fileHandler.Name}", clone);
                             UnsavedChanges = true;
-                            UpdateErrors();
-                            if (tag is Chunk chunk2)
-                                UpdateChunk(TVChunks.SelectedNode, chunk2);
                             //PopulateData();
                             break;
                     }
@@ -344,7 +338,6 @@ public partial class FrmMain : Form
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedData:
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedChildren:
                             PreChange($"{chunkHandler.Name}", clone);
-                            UpdateChunk(TVChunks.SelectedNode, chunk);
                             break;
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Deleted:
                             var parentNode = node.Parent;
@@ -364,7 +357,6 @@ public partial class FrmMain : Form
                             else
                                 TVChunks.SelectedNode = parentNode;
 
-                            UpdateErrors();
                             TVChunks.EndUpdate();
                             break;
                     }
@@ -847,10 +839,7 @@ public partial class FrmMain : Form
         }
 
         if (Updated)
-        {
             PreChange("Update Value", clone);
-            UpdateChunk(TVChunks.SelectedNode, chunk);
-        }
     }
 
     public static bool EditProperty(PropertyInfo property, object obj, int? index = null)
@@ -1174,7 +1163,6 @@ public partial class FrmMain : Form
             MoveChunkData(draggedChunk, newParentNode.Tag, newIndex);
             TVChunks.SelectedNode = draggedNode;
             newParentNode.Expand();
-            UpdateErrors();
 
             TVChunks.SetInsertMark(null, false);
             _autoExpandedNodes.Clear();
@@ -1400,12 +1388,13 @@ public partial class FrmMain : Form
         CopyChunks([chunk]);
 
         var parentNode = node.Parent;
+        var index = node.Index;
 
         PreChange("Chunk Cut");
         if (parentNode.Tag is Chunk parentChunk)
-            parentChunk.Children.RemoveAt(node.Index);
+            parentChunk.Children.RemoveAt(index);
         else if (parentNode.Tag is P3DFile p3dFile)
-            p3dFile.Chunks.RemoveAt(node.Index);
+            p3dFile.Chunks.RemoveAt(index);
         UnsavedChanges = true;
 
         TVChunks.BeginUpdate();
@@ -1416,13 +1405,7 @@ public partial class FrmMain : Form
         else
             TVChunks.SelectedNode = parentNode;
 
-        for (int i = 0; i < parentNode.Nodes.Count; i++)
-        {
-            var childNode = parentNode.Nodes[i];
-            if (childNode.Tag is Chunk nodeChunk)
-                childNode.Text = $"{childNode.Index}. {nodeChunk}";
-        }
-        UpdateErrors();
+        UpdateChunkIndices(parentNode, index);
         TVChunks.EndUpdate();
     }
 
@@ -1730,167 +1713,6 @@ public partial class FrmMain : Form
         frmAbout.ShowDialog();
     }
 
-    private void UpdateChunk(TreeNode node, Chunk chunk, bool beginUpdate = true, bool updateErrors = true)
-    {
-        UnsavedChanges = true;
-        if (beginUpdate)
-            TVChunks.BeginUpdate();
-
-        node.Tag = chunk;
-        node.Text = $"{node.Index}. {chunk}";
-
-        if (updateErrors)
-            UpdateErrors();
-
-        if (node.IsSelected)
-        {
-            DGVValues.SuspendLayout();
-
-            var firstRowIndex = DGVValues.RowCount > 0 ? DGVValues.FirstDisplayedScrollingRowIndex : -1;
-            var selectedIndex = DGVValues.SelectedRows.Count > 0 ? DGVValues.SelectedRows[0].Index : -1;
-
-            for (int i = DGVValues.RowCount - 1; i >= 0; i--)
-            {
-                var row = DGVValues.Rows[i];
-
-                if (row.Cells[1].Value as string == "Validation Error")
-                {
-                    DGVValues.Rows.RemoveAt(i);
-                    continue;
-                }
-
-                switch (row.Tag)
-                {
-                    case PropertyInfo property:
-                        var value = property.GetValue(chunk);
-                        if (value is byte[] byteArray)
-                            row.Cells[1].Value = $"{byteArray.Length:N0} bytes";
-                        else
-                            row.Cells[1].Value = value?.ToString() ?? "<NULL>";
-                        break;
-                    case (PropertyInfo listProperty, int index):
-                        DGVValues.Rows.RemoveAt(i);
-
-                        if (index == 0)
-                        {
-                            var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
-                            List<object> values = [.. enumerable.Cast<object>()];
-                            if (values.Count == 0)
-                            {
-                                DGVValues.Rows.Insert(i, $"{listProperty.Name}[<EMPTY>]", "<NULL>");
-                                DGVValues.Rows[i].Tag = (listProperty, 0);
-                            }
-                            else
-                            {
-                                for (int j = values.Count - 1; j >= 0; j--)
-                                {
-                                    DGVValues.Rows.Insert(i, $"{listProperty.Name}[{j}]", values[j]?.ToString() ?? "<NULL>");
-                                    DGVValues.Rows[i].Tag = (listProperty, j);
-                                }
-                            }
-                        }
-
-                        break;
-                }
-            }
-
-            var (backColour, foreColour) = Settings.GetErrorChunkColour();
-            foreach (var error in chunk.ValidateChunks())
-            {
-                DGVValues.Rows.Insert(0, "Validation Error", error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
-                var row = DGVValues.Rows[0];
-
-                row.DefaultCellStyle.BackColor = backColour;
-                row.DefaultCellStyle.ForeColor = foreColour;
-            }
-
-            if (selectedIndex >= 0)
-                DGVValues.Rows[Math.Min(selectedIndex, DGVValues.RowCount - 1)].Selected = true;
-            if (firstRowIndex >= 0 && DGVValues.RowCount > 0)
-                DGVValues.FirstDisplayedScrollingRowIndex = Math.Min(firstRowIndex, DGVValues.RowCount - 1);
-
-            AutoSizeSmart();
-
-            var chunkType = chunk.GetType();
-            if (_pluginChunkEditors.TryGetValue(chunkType, out var editors))
-                foreach (var editor in editors)
-                    if (!_editors.Any(x => x.Name == editor.Name))
-                        _editors.Add(new(editor.Name, editor.Editor));
-
-            CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
-
-            foreach (var editorControl in PnlEditors.Controls.OfType<EditorControl>().Where(x => x.Visible))
-                editorControl.LoadChunk(chunk);
-        }
-
-        if (beginUpdate)
-            TVChunks.EndUpdate();
-    }
-
-    private void UpdateErrors()
-    {
-        if (TVChunks.Nodes.Count < 1)
-            return;
-
-        TVChunks.BeginUpdate();
-
-        try
-        {
-            var errorColours = Settings.GetErrorChunkColour();
-            var chunkColours = new Dictionary<Type, (Color BackColour, Color ForeColour)>();
-            bool ValidateAndColour(TreeNode node)
-            {
-                if (node.Tag is not Chunk chunk)
-                    return false;
-                var chunkType = chunk.GetType();
-
-                bool childrenHaveErrors = false;
-                foreach (TreeNode child in node.Nodes)
-                    childrenHaveErrors |= ValidateAndColour(child);
-
-                bool selfHasErrors = chunk.ValidateChunk().Any();
-
-                bool branchHasErrors = selfHasErrors || childrenHaveErrors;
-
-                (Color BackColour, Color ForeColour) colours;
-                if (branchHasErrors)
-                {
-                    colours = errorColours;
-                }
-                else if (!chunkColours.TryGetValue(chunkType, out colours))
-                {
-                    colours = Settings.GetChunkColour(chunkType);
-                    chunkColours[chunkType] = colours;
-                }
-
-                if (node.BackColor != colours.BackColour)
-                    node.BackColor = colours.BackColour;
-
-                if (node.ForeColor != colours.ForeColour)
-                    node.ForeColor = colours.ForeColour;
-
-                return branchHasErrors;
-            }
-
-            var rootNode = TVChunks.Nodes[0];
-            bool globalErrorFound = false;
-            foreach (TreeNode node in rootNode.Nodes)
-                globalErrorFound |= ValidateAndColour(node);
-
-            var (back, fore) = globalErrorFound ? errorColours : (Color.Empty, Color.Empty);
-
-            if (rootNode.BackColor != back)
-                rootNode.BackColor = back;
-
-            if (rootNode.ForeColor != fore)
-                rootNode.ForeColor = fore;
-        }
-        finally
-        {
-            TVChunks.EndUpdate();
-        }
-    }
-
 
     private int? _SC1SplitterDistance = null;
     private void SC1_Resize(object sender, EventArgs e)
@@ -1936,13 +1758,7 @@ public partial class FrmMain : Form
         else
             TVChunks.SelectedNode = parentNode;
 
-        for (int i = 0; i < parentNode.Nodes.Count; i++)
-        {
-            var childNode = parentNode.Nodes[i];
-            if (childNode.Tag is Chunk nodeChunk)
-                childNode.Text = $"{childNode.Index}. {nodeChunk}";
-        }
-        UpdateErrors();
+        UpdateChunkIndices(parentNode, 0);
         TVChunks.EndUpdate();
     }
 
@@ -2003,14 +1819,14 @@ public partial class FrmMain : Form
             return;
 
         PreChange("Delete Children");
-        UnsavedChanges = true;
         if (node.Tag is Chunk parentChunk)
             parentChunk.Children.Clear();
         else if (node.Tag is P3DFile p3dFile)
             p3dFile.Chunks.Clear();
 
+        foreach (TreeNode childNode in node.Nodes)
+            UnsubscribeNode(childNode);
         node.Nodes.Clear();
-        UpdateErrors();
     }
 
     private void TSMIDuplicate_Click(object sender, EventArgs e)
@@ -2033,7 +1849,6 @@ public partial class FrmMain : Form
             p3dFile.Chunks.Insert(index, clone);
 
         TVChunks.SelectedNode = parentNode.Nodes[index];
-        UnsavedChanges = true;
     }
 
     private void TSMIRename_Click(object sender, EventArgs e)
@@ -2051,7 +1866,6 @@ public partial class FrmMain : Form
 
         PreChange("Rename Chunk");
         chunk.Name = stringEditor.Value;
-        UpdateChunk(node, chunk);
     }
 
     private void TSMILittleEndian_CheckedChanged(object sender, EventArgs e)
@@ -2165,7 +1979,7 @@ public partial class FrmMain : Form
     {
         using var options = new FrmOptions();
         options.ShowDialog();
-        UpdateErrors();
+        //TODO: Update chunk colours
     }
 
     private void CBEditor_SelectedIndexChanged(object sender, EventArgs e)
@@ -2347,6 +2161,8 @@ public partial class FrmMain : Form
         if (TVChunks.Nodes.Count > 0)
         {
             TVChunks.BeginUpdate();
+            foreach (TreeNode node in TVChunks.Nodes[0].Nodes)
+                UnsubscribeNode(node);
             TVChunks.Nodes[0].Nodes.Clear();
             TVChunks.EndUpdate();
         }
@@ -2558,14 +2374,167 @@ public partial class FrmMain : Form
     private readonly Dictionary<TreeNode, Action> _nodeCleanups = [];
     private void SubscribeNode(TreeNode node, Chunk chunk)
     {
-        void OnChildAdded(Chunk newChild) => InsertChunkNode(node, newChild);
-        void OnChildRemoved(Chunk removedChild, int oldIndex) => RemoveChunkNode(node, removedChild, oldIndex);
+        void OnPropertyChanged(string propertyName)
+        {
+            UnsavedChanges = true;
+            if (chunk is NamedChunk)
+            {
+                var text = $"{node.Index}. {chunk}";
+                if (node.Text != text)
+                    node.Text = text;
+            }
+
+            TVChunks.BeginUpdate();
+
+            if (node.IsSelected)
+            {
+                HBHex.ByteProvider = new DynamicByteProvider(chunk.DataLength > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : chunk.DataBytes);
+
+                var firstRowIndex = DGVValues.RowCount > 0 ? DGVValues.FirstDisplayedScrollingRowIndex : -1;
+                var selectedIndex = DGVValues.SelectedRows.Count > 0 ? DGVValues.SelectedRows[0].Index : -1;
+
+                for (int i = DGVValues.RowCount - 1; i >= 0; i--)
+                {
+                    var row = DGVValues.Rows[i];
+
+                    if (row.Cells[1].Value as string == "Validation Error")
+                    {
+                        DGVValues.Rows.RemoveAt(i);
+                        continue;
+                    }
+
+                    switch (row.Tag)
+                    {
+                        case PropertyInfo property:
+                            var value = property.GetValue(chunk);
+                            if (value is byte[] byteArray)
+                                row.Cells[1].Value = $"{byteArray.Length:N0} bytes";
+                            else
+                                row.Cells[1].Value = value?.ToString() ?? "<NULL>";
+                            break;
+                        case (PropertyInfo listProperty, int index):
+                            DGVValues.Rows.RemoveAt(i);
+
+                            if (index == 0)
+                            {
+                                var enumerable = (IEnumerable)listProperty.GetValue(chunk)!;
+                                List<object> values = [.. enumerable.Cast<object>()];
+                                if (values.Count == 0)
+                                {
+                                    DGVValues.Rows.Insert(i, $"{listProperty.Name}[<EMPTY>]", "<NULL>");
+                                    DGVValues.Rows[i].Tag = (listProperty, 0);
+                                }
+                                else
+                                {
+                                    for (int j = values.Count - 1; j >= 0; j--)
+                                    {
+                                        DGVValues.Rows.Insert(i, $"{listProperty.Name}[{j}]", values[j]?.ToString() ?? "<NULL>");
+                                        DGVValues.Rows[i].Tag = (listProperty, j);
+                                    }
+                                }
+                            }
+
+                            break;
+                    }
+                }
+
+                var (backColour, foreColour) = Settings.GetErrorChunkColour();
+                foreach (var error in chunk.ValidateChunks())
+                {
+                    DGVValues.Rows.Insert(0, "Validation Error", error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
+                    var row = DGVValues.Rows[0];
+
+                    row.DefaultCellStyle.BackColor = backColour;
+                    row.DefaultCellStyle.ForeColor = foreColour;
+                }
+
+                if (selectedIndex >= 0)
+                    DGVValues.Rows[Math.Min(selectedIndex, DGVValues.RowCount - 1)].Selected = true;
+                if (firstRowIndex >= 0 && DGVValues.RowCount > 0)
+                    DGVValues.FirstDisplayedScrollingRowIndex = Math.Min(firstRowIndex, DGVValues.RowCount - 1);
+
+                AutoSizeSmart();
+
+                var chunkType = chunk.GetType();
+                if (_pluginChunkEditors.TryGetValue(chunkType, out var editors))
+                    foreach (var editor in editors)
+                        if (!_editors.Any(x => x.Name == editor.Name))
+                            _editors.Add(new(editor.Name, editor.Editor));
+
+                CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
+
+                foreach (var editorControl in PnlEditors.Controls.OfType<EditorControl>().Where(x => x.Visible))
+                    editorControl.LoadChunk(chunk);
+            }
+
+            var errorColours = Settings.GetErrorChunkColour();
+            var chunkColours = new Dictionary<Type, (Color BackColour, Color ForeColour)>();
+            bool ValidateAndColour(TreeNode node)
+            {
+                if (node.Tag is not Chunk chunk)
+                    return false;
+                var chunkType = chunk.GetType();
+
+                bool childrenHaveErrors = false;
+                foreach (TreeNode child in node.Nodes)
+                    childrenHaveErrors |= ValidateAndColour(child);
+
+                bool selfHasErrors = chunk.ValidateChunk().Any();
+
+                bool branchHasErrors = selfHasErrors || childrenHaveErrors;
+
+                (Color BackColour, Color ForeColour) colours;
+                if (branchHasErrors)
+                {
+                    colours = errorColours;
+                }
+                else if (!chunkColours.TryGetValue(chunkType, out colours))
+                {
+                    colours = Settings.GetChunkColour(chunkType);
+                    chunkColours[chunkType] = colours;
+                }
+
+                if (node.BackColor != colours.BackColour)
+                    node.BackColor = colours.BackColour;
+
+                if (node.ForeColor != colours.ForeColour)
+                    node.ForeColor = colours.ForeColour;
+
+                return branchHasErrors;
+            }
+
+            var rootNode = TVChunks.Nodes[0];
+            bool globalErrorFound = false;
+            foreach (TreeNode node in rootNode.Nodes)
+                globalErrorFound |= ValidateAndColour(node);
+
+            var (back, fore) = globalErrorFound ? errorColours : (Color.Empty, Color.Empty);
+
+            if (rootNode.BackColor != back)
+                rootNode.BackColor = back;
+
+            if (rootNode.ForeColor != fore)
+                rootNode.ForeColor = fore;
+
+            TVChunks.EndUpdate();
+        }
+        void OnChildAdded(Chunk newChild)
+        {
+            InsertChunkNode(node, newChild);
+            OnPropertyChanged("Children");
+        }
+        void OnChildRemoved(Chunk removedChild, int oldIndex)
+        {
+            RemoveChunkNode(node, removedChild, oldIndex);
+            OnPropertyChanged("Children");
+        }
         void OnChildrenAdded(IReadOnlyList<Chunk> children)
         {
             TVChunks.BeginUpdate();
             foreach (var child in children)
                 InsertChunkNode(node, child, false);
             UpdateChunkIndices(node, children[0].IndexInParent);
+            OnPropertyChanged("Children");
             TVChunks.EndUpdate();
         }
         void OnChildrenRemoved(IReadOnlyList<(Chunk chunk, int oldIndex)> children)
@@ -2578,15 +2547,20 @@ public partial class FrmMain : Form
                 firstIndex = oldIndex;
             }
             UpdateChunkIndices(node, firstIndex);
+            OnPropertyChanged("Children");
             TVChunks.EndUpdate();
         }
         void OnChildrenCleared()
         {
             TVChunks.BeginUpdate();
+            foreach (TreeNode node in node.Nodes)
+                UnsubscribeNode(node);
             node.Nodes.Clear();
+            OnPropertyChanged("Children");
             TVChunks.EndUpdate();
         }
 
+        chunk.PropertyChanged += OnPropertyChanged;
         chunk.ChildAdded += OnChildAdded;
         chunk.ChildRemoved += OnChildRemoved;
         chunk.ChildrenAdded += OnChildrenAdded;
@@ -2595,6 +2569,7 @@ public partial class FrmMain : Form
 
         _nodeCleanups[node] = () =>
         {
+            chunk.PropertyChanged -= OnPropertyChanged;
             chunk.ChildAdded -= OnChildAdded;
             chunk.ChildRemoved -= OnChildRemoved;
             chunk.ChildrenAdded -= OnChildrenAdded;
