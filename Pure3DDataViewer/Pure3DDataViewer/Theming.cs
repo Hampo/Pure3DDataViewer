@@ -58,6 +58,12 @@ public static class Theming
                 break;
         }
 
+        if (control is NumericTextBox numericTextBox)
+        {
+            numericTextBox.ValidColor = numericTextBox.BackColor;
+            numericTextBox.InvalidColor = themeMode == ThemeMode.Dark ? Color.FromArgb(99, 34, 34) : Color.Pink;
+        }
+
         foreach (Control child in control.Controls)
             ApplyTheme(child, themeMode, fontMode);
 
