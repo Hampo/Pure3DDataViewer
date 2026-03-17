@@ -263,10 +263,10 @@ public partial class FrmMain : Form
 
         switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
         {
-            case NetP3DLib.IO.Endianness.Little:
+            case Endianness.Little:
                 TSMILittleEndian.Checked = true;
                 break;
-            case NetP3DLib.IO.Endianness.Big:
+            case Endianness.Big:
                 TSMIBigEndian.Checked = true;
                 break;
         }
