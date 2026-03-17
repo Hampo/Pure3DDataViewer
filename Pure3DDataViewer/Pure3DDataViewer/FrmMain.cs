@@ -338,16 +338,6 @@ public partial class FrmMain : Form
                             else if (parentNode.Tag is P3DFile parentFile)
                                 parentFile.Chunks.RemoveAt(node.Index);
                             PreChange($"{chunkHandler.Name}", clone);
-
-                            TVChunks.BeginUpdate();
-                            if (node.NextNode != null)
-                                TVChunks.SelectedNode = node.NextNode;
-                            else if (node.PrevNode != null)
-                                TVChunks.SelectedNode = node.PrevNode;
-                            else
-                                TVChunks.SelectedNode = parentNode;
-
-                            TVChunks.EndUpdate();
                             break;
                     }
                 }
@@ -1376,18 +1366,6 @@ public partial class FrmMain : Form
             parentChunk.Children.RemoveAt(index);
         else if (parentNode.Tag is P3DFile p3dFile)
             p3dFile.Chunks.RemoveAt(index);
-        UnsavedChanges = true;
-
-        TVChunks.BeginUpdate();
-        if (node.NextNode != null)
-            TVChunks.SelectedNode = node.NextNode;
-        else if (node.PrevNode != null)
-            TVChunks.SelectedNode = node.PrevNode;
-        else
-            TVChunks.SelectedNode = parentNode;
-
-        UpdateChunkIndices(parentNode, index);
-        TVChunks.EndUpdate();
     }
 
     private void TSMICopyThis_Click(object sender, EventArgs e)
@@ -1714,18 +1692,6 @@ public partial class FrmMain : Form
             parentChunk.Children.RemoveAt(node.Index);
         else if (parentNode.Tag is P3DFile p3dFile)
             p3dFile.Chunks.RemoveAt(node.Index);
-        UnsavedChanges = true;
-
-        TVChunks.BeginUpdate();
-        if (node.NextNode != null)
-            TVChunks.SelectedNode = node.NextNode;
-        else if (node.PrevNode != null)
-            TVChunks.SelectedNode = node.PrevNode;
-        else
-            TVChunks.SelectedNode = parentNode;
-
-        UpdateChunkIndices(parentNode, 0);
-        TVChunks.EndUpdate();
     }
 
     private void TSMIDeleteType_Click(object sender, EventArgs e)
@@ -1752,7 +1718,6 @@ public partial class FrmMain : Form
             return;
 
         PreChange("Delete Type");
-        UnsavedChanges = true;
         if (parentNode.Tag is Chunk parentChunk)
         {
             TVChunks.SelectedNode = parentNode;
@@ -2085,19 +2050,26 @@ public partial class FrmMain : Form
     private void P3DFile_ChunkAdded(Chunk newChunk)
     {
         if (TVChunks.Nodes.Count > 0)
+        {
+            UnsavedChanges = true;
             InsertChunkNode(TVChunks.Nodes[0], newChunk);
+        }
     }
 
     private void P3DFile_ChunkRemoved(Chunk removedChunk, int oldIndex)
     {
         if (TVChunks.Nodes.Count > 0)
+        {
+            UnsavedChanges = true;
             RemoveChunkNode(TVChunks.Nodes[0], removedChunk, oldIndex);
+        }
     }
 
     private void P3DFile_ChunksAdded(IReadOnlyList<Chunk> newChunks)
     {
         if (TVChunks.Nodes.Count > 0)
         {
+            UnsavedChanges = true;
             TVChunks.BeginUpdate();
             foreach (var newChunk in newChunks)
                 InsertChunkNode(TVChunks.Nodes[0], newChunk, false);
@@ -2110,6 +2082,7 @@ public partial class FrmMain : Form
     {
         if (TVChunks.Nodes.Count > 0)
         {
+            UnsavedChanges = true;
             TVChunks.BeginUpdate();
             var firstIndex = 0;
             foreach (var (removedChunk, oldIndex) in removedChunks.OrderByDescending(x => x.oldIndex))
@@ -2126,6 +2099,7 @@ public partial class FrmMain : Form
     {
         if (TVChunks.Nodes.Count > 0)
         {
+            UnsavedChanges = true;
             TVChunks.BeginUpdate();
             foreach (TreeNode node in TVChunks.Nodes[0].Nodes)
                 UnsubscribeNode(node);
@@ -2213,6 +2187,14 @@ public partial class FrmMain : Form
         {
             int removedIndex = removedNode.Index;
             UnsubscribeNode(removedNode);
+
+            if (removedNode.NextNode != null)
+                TVChunks.SelectedNode = removedNode.NextNode;
+            else if (removedNode.PrevNode != null)
+                TVChunks.SelectedNode = removedNode.PrevNode;
+            else
+                TVChunks.SelectedNode = parentNode;
+
             removedNode.Remove();
             if (updateChunkIndices)
                 UpdateChunkIndices(parentNode, removedIndex);
