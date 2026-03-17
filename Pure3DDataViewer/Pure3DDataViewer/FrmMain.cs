@@ -12,6 +12,7 @@ using Pure3DDataViewerPluginAPI.Helpers;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -1227,14 +1228,14 @@ public partial class FrmMain : Form
     private void TSMIFindNext_Click(object sender, EventArgs e) => Find(_searchQuery);
 
     private string _searchQuery = string.Empty;
-    public void Find(string searchQuery)
+    public async Task Find(string searchQuery)
     {
         if (string.IsNullOrEmpty(searchQuery))
             return;
 
         _searchQuery = searchQuery;
 
-        var found = FindNextNode(searchQuery);
+        var found = await FindNextNode(searchQuery);
         if (found == null)
         {
             MessageBox.Show("Reached end of file.", "Find", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1245,48 +1246,77 @@ public partial class FrmMain : Form
         found.EnsureVisible();
     }
 
-    private TreeNode? FindNextNode(string searchQuery)
+    private async Task<TreeNode?> FindNextNode(string searchQuery)
     {
-        if (TVChunks.Nodes.Count == 0) return null;
+        if (P3DFile == null || P3DFile.Chunks.Count == 0)
+            return null;
 
-        var allNodes = new List<TreeNode>();
-        foreach (TreeNode node in TVChunks.Nodes)
-            CollectNodes(node, allNodes);
+        IList<Chunk> allChunks = P3DFile.AllChunks;
 
         if (!Settings.FindDirection)
-            allNodes.Reverse();
+            allChunks = [..allChunks.Reverse()];
 
         var startIndex = 0;
-        if (TVChunks.SelectedNode != null)
+        if (TVChunks.SelectedNode?.Tag is Chunk selectedChunk)
         {
-            startIndex = allNodes.IndexOf(TVChunks.SelectedNode);
-            if (startIndex == -1) startIndex = 0;
+            startIndex = 1;
+
+            var currentChunk = selectedChunk;
+            while (currentChunk.ParentChunk != null)
+            {
+                for (var i = 0; i < currentChunk.IndexInParent; i++)
+                    startIndex += currentChunk.ParentChunk.Children[i].AllChildren.Count + 1;
+
+                currentChunk = currentChunk.ParentChunk;
+            }
+
+            for (var i = 0; i < currentChunk.IndexInParent; i++)
+                startIndex += currentChunk.ParentFile!.Chunks[i].AllChildren.Count + 1;
         }
 
         var comparison = Settings.FindMatchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
-        for (int i = startIndex + 1; i < allNodes.Count; i++)
-        {
-            if (allNodes[i].Text.Contains(searchQuery, comparison))
-                return allNodes[i];
+        Chunk? foundChunk = null;
 
-            if (Settings.FindIncludeProperties && allNodes[i].Tag is Chunk chunk && SearchChunkProperties(chunk, searchQuery, comparison))
-                return allNodes[i];
-        }
-
-        if (Settings.FindWrapAround)
+        for (int i = startIndex + 1; i < allChunks.Count; i++)
         {
-            for (int i = 0; i <= startIndex; i++)
+            var chunk = allChunks[i];
+            if (chunk.ToString().Contains(searchQuery, comparison))
             {
-                if (allNodes[i].Text.Contains(searchQuery, comparison))
-                    return allNodes[i];
+                foundChunk = chunk;
+                break;
+            }
 
-                if (Settings.FindIncludeProperties && allNodes[i].Tag is Chunk chunk && SearchChunkProperties(chunk, searchQuery, comparison))
-                    return allNodes[i];
+            if (Settings.FindIncludeProperties && SearchChunkProperties(chunk, searchQuery, comparison))
+            {
+                foundChunk = chunk;
+                break;
             }
         }
 
-        return null;
+        if (foundChunk == null && Settings.FindWrapAround)
+        {
+            for (int i = 0; i <= startIndex; i++)
+            {
+                var chunk = allChunks[i];
+                if (chunk.ToString().Contains(searchQuery, comparison))
+                {
+                    foundChunk = chunk;
+                    break;
+                }
+
+                if (Settings.FindIncludeProperties && SearchChunkProperties(chunk, searchQuery, comparison))
+                {
+                    foundChunk = chunk;
+                    break;
+                }
+            }
+        }
+
+        if (foundChunk == null)
+            return null;
+
+        return await GetTreeNodeFromChunk(foundChunk);
     }
 
     private static void CollectNodes(TreeNode node, List<TreeNode> list)
@@ -2542,7 +2572,7 @@ public partial class FrmMain : Form
         TVChunks.EndUpdate();
     }
 
-    private TreeNode? GetTreeNodeFromChunk(Chunk chunk)
+    private async Task<TreeNode?> GetTreeNodeFromChunk(Chunk chunk, int timeoutMs = 5000)
     {
         if (chunk == null)
             return null;
@@ -2566,8 +2596,18 @@ public partial class FrmMain : Form
         for (var i = indices.Count - 1; i >= 0; i--)
         {
             var idx = indices[i];
-            if (idx < 0 || idx >= node.Nodes.Count)
-                return null;
+
+            var startTime = DateTime.UtcNow;
+
+            node.Expand();
+            while (node.Nodes.Count <= idx)
+            {
+                if ((DateTime.UtcNow - startTime).TotalMilliseconds > timeoutMs)
+                    return null;
+
+                await Task.Delay(50);
+            }
+
             node = node.Nodes[idx];
         }
 

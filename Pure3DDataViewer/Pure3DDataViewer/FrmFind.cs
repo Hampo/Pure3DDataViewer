@@ -18,13 +18,13 @@ public partial class FrmFind : Form
 
     private void TxtFind_TextChanged(object sender, EventArgs e) => BtnFindNext.Enabled = !string.IsNullOrEmpty(TxtFind.Text);
 
-    private void BtnFindNext_Click(object sender, EventArgs e)
+    private async void BtnFindNext_Click(object sender, EventArgs e)
     {
         if (string.IsNullOrWhiteSpace(TxtFind.Text))
             return;
 
         Settings.FindQuery = TxtFind.Text;
-        _frmMain.Find(TxtFind.Text);
+        await _frmMain.Find(TxtFind.Text);
         BeginInvoke(new Action(Activate));
     }
 
