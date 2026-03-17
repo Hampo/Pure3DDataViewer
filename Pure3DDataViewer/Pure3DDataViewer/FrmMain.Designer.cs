@@ -119,6 +119,7 @@ partial class FrmMain
         // SC1
         // 
         SC1.Dock = DockStyle.Fill;
+        SC1.FixedPanel = FixedPanel.Panel1;
         SC1.Location = new Point(0, 24);
         SC1.Margin = new Padding(4, 3, 4, 3);
         SC1.Name = "SC1";
@@ -135,8 +136,6 @@ partial class FrmMain
         SC1.SplitterDistance = 464;
         SC1.SplitterWidth = 5;
         SC1.TabIndex = 0;
-        SC1.SplitterMoving += SC1_SplitterMoving;
-        SC1.Resize += SC1_Resize;
         // 
         // TVChunks
         // 

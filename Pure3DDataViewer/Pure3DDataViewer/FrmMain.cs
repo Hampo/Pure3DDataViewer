@@ -561,6 +561,7 @@ public partial class FrmMain : Form
     {
         _afterSelectUpdating = true;
         var prevFocus = SC1.ActiveControl;
+        DGVValues.SuspendLayout();
         DGVValues.Rows.Clear();
 
         var tag = e.Node?.Tag;
@@ -631,6 +632,9 @@ public partial class FrmMain : Form
                 }
 
                 DGVValues.Rows.Add("Size", $"{p3dFile.Size:N0} bytes");
+
+                if (HBHex.ByteProvider is ChunkByteProvider oldProvider)
+                    oldProvider.Dispose();
                 HBHex.ByteProvider = new DynamicByteProvider(p3dFile.Size > int.MaxValue ? Encoding.UTF8.GetBytes("Too large") : p3dFile.Bytes);
 
                 foreach (var (FileHandler, _, ContextMenu) in _pluginFileHandlers)
@@ -764,6 +768,8 @@ public partial class FrmMain : Form
             }
 
             AutoSizeSmart();
+
+            DGVValues.ResumeLayout();
 
             _afterSelectUpdating = false;
             if (prevFocus != null && prevFocus.CanFocus)
@@ -1698,21 +1704,6 @@ public partial class FrmMain : Form
         frmAbout.ShowDialog();
     }
 
-
-    private int? _SC1SplitterDistance = null;
-    private void SC1_Resize(object sender, EventArgs e)
-    {
-        if (!_SC1SplitterDistance.HasValue)
-            _SC1SplitterDistance = SC1.SplitterDistance;
-
-        SC1.SplitterDistance = _SC1SplitterDistance.Value;
-    }
-
-    private void SC1_SplitterMoving(object sender, SplitterCancelEventArgs e)
-    {
-        _SC1SplitterDistance = e.SplitX;
-    }
-
     private void TSMIDeleteThis_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
@@ -2374,6 +2365,8 @@ public partial class FrmMain : Form
                 var firstRowIndex = DGVValues.RowCount > 0 ? DGVValues.FirstDisplayedScrollingRowIndex : -1;
                 var selectedIndex = DGVValues.SelectedRows.Count > 0 ? DGVValues.SelectedRows[0].Index : -1;
 
+                DGVValues.SuspendLayout();
+
                 for (int i = DGVValues.RowCount - 1; i >= 0; i--)
                 {
                     var row = DGVValues.Rows[i];
@@ -2433,6 +2426,8 @@ public partial class FrmMain : Form
                     DGVValues.Rows[Math.Min(selectedIndex, DGVValues.RowCount - 1)].Selected = true;
                 if (firstRowIndex >= 0 && DGVValues.RowCount > 0)
                     DGVValues.FirstDisplayedScrollingRowIndex = Math.Min(firstRowIndex, DGVValues.RowCount - 1);
+
+                DGVValues.ResumeLayout();
 
                 AutoSizeSmart();
 
