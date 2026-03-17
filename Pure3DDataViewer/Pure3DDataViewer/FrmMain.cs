@@ -1225,7 +1225,7 @@ public partial class FrmMain : Form
         }
     }
 
-    private void TSMIFindNext_Click(object sender, EventArgs e) => Find(_searchQuery);
+    private async void TSMIFindNext_Click(object sender, EventArgs e) => await Find(_searchQuery);
 
     private string _searchQuery = string.Empty;
     public async Task Find(string searchQuery)
