@@ -87,7 +87,6 @@ public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBible
             }
         }
 
-        OnUpdatedChunk(_frontendTextBibleChunk);
         BtnUpdate.Enabled = false;
     }
 

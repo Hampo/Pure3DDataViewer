@@ -244,7 +244,6 @@ public partial class FrmMain : Form
                     var types = chunkEditor.ChunkTypes;
 
                     var editor = chunkEditor.Editor;
-                    editor.UpdatedChunk += IChunkEditor_UpdatedChunk;
                     editor.Dock = DockStyle.Fill;
                     editor.Visible = false;
                     editor.Name = chunkEditor.GetType().FullName;
@@ -277,18 +276,11 @@ public partial class FrmMain : Form
         if (args.Length > 1)
         {
             string file = args[1];
-            if (File.Exists(file))
-            {
-                LoadP3DFile(file);
-            }
+            if (File.Exists(file) && LoadP3DFile(file))
+                return;
         }
 
         PopulateData();
-    }
-
-    private void IChunkEditor_UpdatedChunk(object? sender, UpdatedChunkEventArgs e)
-    {
-        return;
     }
 
     private void TSMIPlugin_Click(object? sender, EventArgs e)
@@ -315,8 +307,6 @@ public partial class FrmMain : Form
                     {
                         case Pure3DDataViewerPluginAPI.Enums.FileCallbackResult.Modified:
                             PreChange($"{fileHandler.Name}", clone);
-                            UnsavedChanges = true;
-                            //PopulateData();
                             break;
                     }
                 }
@@ -348,7 +338,6 @@ public partial class FrmMain : Form
                             else if (parentNode.Tag is P3DFile parentFile)
                                 parentFile.Chunks.RemoveAt(node.Index);
                             PreChange($"{chunkHandler.Name}", clone);
-                            UnsavedChanges = true;
 
                             TVChunks.BeginUpdate();
                             if (node.NextNode != null)
@@ -415,10 +404,10 @@ public partial class FrmMain : Form
         TSMICompressed.Checked = false;
         switch (NetP3DLib.P3D.Extensions.BinaryExtensions.DefaultEndian)
         {
-            case NetP3DLib.IO.Endianness.Little:
+            case Endianness.Little:
                 TSMILittleEndian.Checked = true;
                 break;
-            case NetP3DLib.IO.Endianness.Big:
+            case Endianness.Big:
                 TSMIBigEndian.Checked = true;
                 break;
         }
