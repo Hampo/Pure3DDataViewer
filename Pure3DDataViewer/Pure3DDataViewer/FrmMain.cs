@@ -2362,14 +2362,12 @@ public partial class FrmMain : Form
         void OnPropertyChanged(string propertyName)
         {
             UnsavedChanges = true;
-            if (chunk is NamedChunk)
-            {
-                var text = $"{node.Index}. {chunk}";
-                if (node.Text != text)
-                    node.Text = text;
-            }
 
             TVChunks.BeginUpdate();
+
+            var text = $"{node.Index}. {chunk}";
+            if (node.Text != text)
+                node.Text = text;
 
             if (node.IsSelected)
             {
@@ -2503,23 +2501,14 @@ public partial class FrmMain : Form
 
             TVChunks.EndUpdate();
         }
-        void OnChildAdded(Chunk newChild)
-        {
-            InsertChunkNode(node, newChild);
-            OnPropertyChanged("Children");
-        }
-        void OnChildRemoved(Chunk removedChild, int oldIndex)
-        {
-            RemoveChunkNode(node, removedChild, oldIndex);
-            OnPropertyChanged("Children");
-        }
+        void OnChildAdded(Chunk newChild) => InsertChunkNode(node, newChild);
+        void OnChildRemoved(Chunk removedChild, int oldIndex) => RemoveChunkNode(node, removedChild, oldIndex);
         void OnChildrenAdded(IReadOnlyList<Chunk> children)
         {
             TVChunks.BeginUpdate();
             foreach (var child in children)
                 InsertChunkNode(node, child, false);
             UpdateChunkIndices(node, children[0].IndexInParent);
-            OnPropertyChanged("Children");
             TVChunks.EndUpdate();
         }
         void OnChildrenRemoved(IReadOnlyList<(Chunk chunk, int oldIndex)> children)
@@ -2532,7 +2521,6 @@ public partial class FrmMain : Form
                 firstIndex = oldIndex;
             }
             UpdateChunkIndices(node, firstIndex);
-            OnPropertyChanged("Children");
             TVChunks.EndUpdate();
         }
         void OnChildrenCleared()
@@ -2541,7 +2529,6 @@ public partial class FrmMain : Form
             foreach (TreeNode node in node.Nodes)
                 UnsubscribeNode(node);
             node.Nodes.Clear();
-            OnPropertyChanged("Children");
             TVChunks.EndUpdate();
         }
 
