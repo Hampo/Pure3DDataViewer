@@ -2284,7 +2284,7 @@ internal static class ChunkMap
             uint ui => ui.ToString(CultureInfo.InvariantCulture),
             long l => l.ToString(CultureInfo.InvariantCulture),
             ulong ul => ul.ToString(CultureInfo.InvariantCulture),
-            float f => f.ToString(CultureInfo.InvariantCulture),
+            float f => ToLuaFloat(f),,
             double d => d.ToString(CultureInfo.InvariantCulture),
             Vector2 v => FormattableString.Invariant($"P3D.Vector2({v.X}, {v.Y})"),
             Vector3 v => FormattableString.Invariant($"P3D.Vector3({v.X}, {v.Y}, {v.Z})"),
@@ -2301,6 +2301,20 @@ internal static class ChunkMap
             TextureGlyphListChunk.Glyph glyph => FormattableString.Invariant($"{{TextureNum = {glyph.TextureNum}, BottomLeft = {FormatLuaValue(glyph.BottomLeft)}, TopRight = {FormatLuaValue(glyph.TopRight)}, LeftBearing = {glyph.LeftBearing}, RightBearing = {glyph.RightBearing}, Width = {glyph.Width}, Advance = {glyph.Advance}, Code = {glyph.Code}}}"),
             _ => throw new NotSupportedException($"Lua serialization not supported for {value.GetType().Name}")
         };
+    }
+
+    private static string ToLuaFloat(float f)
+    {
+        if (float.IsNaN(f))
+            return "0/0";
+
+        if (float.IsPositiveInfinity(f))
+            return "math.huge";
+
+        if (float.IsNegativeInfinity(f))
+            return "-math.huge";
+
+        return f.ToString(CultureInfo.InvariantCulture);
     }
 
     private static string EscapeLuaString(string s)
