@@ -2284,7 +2284,7 @@ internal static class ChunkMap
             uint ui => ui.ToString(CultureInfo.InvariantCulture),
             long l => l.ToString(CultureInfo.InvariantCulture),
             ulong ul => ul.ToString(CultureInfo.InvariantCulture),
-            float f => ToLuaFloat(f),,
+            float f => ToLuaFloat(f),
             double d => d.ToString(CultureInfo.InvariantCulture),
             Vector2 v => FormattableString.Invariant($"P3D.Vector2({v.X}, {v.Y})"),
             Vector3 v => FormattableString.Invariant($"P3D.Vector3({v.X}, {v.Y}, {v.Z})"),
