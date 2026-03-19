@@ -1085,8 +1085,7 @@ internal static class ChunkMap
                         break;
                     case LocatorChunk.CarStartLocatorData carStartData:
                         sb.Append($", {FormatLuaValue(carStartData.Rotation)}");
-                        if (carStartData.ParkedCar.HasValue)
-                            sb.Append($", {FormatLuaValue(carStartData.ParkedCar.Value)}");
+                        sb.Append($", {FormatLuaValue(carStartData.ParkedCar)}");
                         if (carStartData.FreeCar != null)
                             sb.Append($", {FormatLuaValue(carStartData.FreeCar)}");
                         break;
