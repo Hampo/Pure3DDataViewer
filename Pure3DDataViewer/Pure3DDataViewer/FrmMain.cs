@@ -2126,7 +2126,7 @@ public partial class FrmMain : Form
         }
     }
 
-    private void P3DFile_ChunksCleared()
+    private void P3DFile_ChunksCleared(IReadOnlyList<(Chunk chunk, int oldIndex)> children)
     {
         if (TVChunks.Nodes.Count > 0)
         {
@@ -2521,7 +2521,7 @@ public partial class FrmMain : Form
             UpdateChunkIndices(node, firstIndex);
             TVChunks.EndUpdate();
         }
-        void OnChildrenCleared()
+        void OnChildrenCleared(IReadOnlyList<(Chunk chunk, int oldIndex)> children)
         {
             TVChunks.BeginUpdate();
             foreach (TreeNode node in node.Nodes)
