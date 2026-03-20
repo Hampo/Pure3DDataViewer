@@ -27,7 +27,7 @@ public class ImportImage : IChunkHandler<ImageChunk>
                 case TextureChunk textureChunk:
                     parentTexture = textureChunk;
                     break;
-                case SpriteChunk spriteChunk:
+                case SpriteChunk:
                     MessageBox.Show("To import an image for a sprite, please use the `Import Sprint` option on the parent chunk.", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return ChunkCallbackResult.Unchanged;
                 default:

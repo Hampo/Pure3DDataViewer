@@ -1,5 +1,7 @@
 ﻿using ImportExportImages.Extensions;
+using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
+using NetP3DLib.P3D.Enums;
 using System.Drawing.Imaging;
 
 namespace ImportExportImages.Helpers;
@@ -31,5 +33,31 @@ internal static class Importer
         imageChunk.Children.Add(imageDataChunk);
 
         return textureChunk;
+    }
+
+    internal static SpriteChunk ImportSprite(string imagePath)
+    {
+        using var fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var img = Image.FromStream(fs);
+
+        var width = (uint)img.Width;
+        var height = (uint)img.Height;
+        var bpp = (uint)Image.GetPixelFormatSize(img.PixelFormat);
+        bool hasAlpha = (img.PixelFormat & PixelFormat.Alpha) != 0 || (img.PixelFormat & PixelFormat.PAlpha) != 0;
+        bool isPalettized = (img.PixelFormat & PixelFormat.Indexed) != 0;
+
+        using var ms = new MemoryStream();
+        img.Save(ms, ImageFormat.Png);
+        var pngBytes = ms.ToArray();
+
+        var spriteChunk = new SpriteChunk(Path.GetFileName(imagePath), 640, 480, string.Empty, width, height, 0);
+
+        var imageChunk = new ImageChunk(spriteChunk.Name, 14000, width, height, bpp, isPalettized, hasAlpha, ImageChunk.Formats.PNG);
+        spriteChunk.Children.Add(imageChunk);
+
+        var imageDataChunk = new ImageDataChunk(pngBytes);
+        imageChunk.Children.Add(imageDataChunk);
+
+        return spriteChunk;
     }
 }

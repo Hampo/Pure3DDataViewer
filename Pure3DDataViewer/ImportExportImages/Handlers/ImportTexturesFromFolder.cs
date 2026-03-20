@@ -8,9 +8,9 @@ using Pure3DDataViewerPluginAPI.Utils;
 using System.Reflection;
 
 namespace ImportExportImages.Handlers;
-public class ImportImageFolder : IFileHandler
+public class ImportTexturesFromFolder : IFileHandler
 {
-    public string Name => "Import Image Folder";
+    public string Name => "Import Textures From Folder";
 
     public Image? Image => ImportExportImagesPlugin.ImportImage;
 
@@ -97,35 +97,15 @@ public class ImportImageFolder : IFileHandler
                 return FileCallbackResult.Unchanged;
             }
 
-            var (cancelled2, imported2) = ProgressHelper.Run("Adding textures", (reportProgress, isCancellationRequested) =>
+            try
             {
-                int imported = 0;
-
-                try
-                {
-                    foreach (var textureChunk in textureChunks)
-                    {
-                        imported++;
-                        p3dFile.Chunks.Insert(0, textureChunk);
-
-                        reportProgress((int)((double)imported / textureChunks.Count * 100));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"There was an error importing textures from folder: \"{fbd.SelectedPath}\": {ex.Message}", "Error Importing Textures", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-                return imported;
-            });
-
-            if (cancelled2)
-            {
-                MessageBox.Show($"Imported {imported2} textures from folder: \"{fbd.SelectedPath}\".", "Import Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return imported2 == 0 ? FileCallbackResult.Unchanged : FileCallbackResult.Modified;
+                p3dFile.Chunks.InsertRange(0, textureChunks);
+                imported = textureChunks.Count;
             }
-
-            imported = imported2;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"There was an error importing textures from folder: \"{fbd.SelectedPath}\": {ex.Message}", "Error Importing Textures", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         catch (TargetInvocationException)
         {

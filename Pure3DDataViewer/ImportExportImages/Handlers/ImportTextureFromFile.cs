@@ -4,9 +4,9 @@ using Pure3DDataViewerPluginAPI.Enums;
 using Pure3DDataViewerPluginAPI.Interfaces;
 
 namespace ImportExportImages.Handlers;
-public class ImportImageFile : IFileHandler
+public class ImportTextureFromFile : IFileHandler
 {
-    public string Name => "Import Image File";
+    public string Name => "Import Texture From File";
 
     public Image? Image => ImportExportImagesPlugin.ImportImage;
 
