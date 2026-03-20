@@ -2084,6 +2084,9 @@ public partial class FrmMain : Form
         {
             UnsavedChanges = true;
             InsertChunkNode(TVChunks.Nodes[0], newChunk);
+
+            if (!TVChunks.Nodes[0].IsExpanded)
+                TVChunks.Nodes[0].Expand();
         }
     }
 
@@ -2105,6 +2108,9 @@ public partial class FrmMain : Form
             foreach (var newChunk in newChunks)
                 InsertChunkNode(TVChunks.Nodes[0], newChunk, false);
             UpdateChunkIndices(TVChunks.Nodes[0], newChunks[0].IndexInParent);
+
+            if (!TVChunks.Nodes[0].IsExpanded)
+                TVChunks.Nodes[0].Expand();
             TVChunks.EndUpdate();
         }
     }

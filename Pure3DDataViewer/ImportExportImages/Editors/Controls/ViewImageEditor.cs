@@ -5,8 +5,11 @@ using NetP3DLib.P3D;
 using Pure3DDataViewerPluginAPI.Utils;
 
 namespace ImportExportImages.Editors.Controls;
+
 public partial class ViewImageEditor : EditorControl
 {
+    public override bool NoTheming => true;
+
     private static Color BackgroundColor
     {
         get => Color.FromArgb(RegistryUtils.GetInt32("ViewImageBackgroundColour", Color.FromKnownColor(KnownColor.Control).ToArgb())!.Value);
@@ -15,18 +18,19 @@ public partial class ViewImageEditor : EditorControl
 
     private static PictureBoxSizeMode SizeMode
     {
-        get => (PictureBoxSizeMode)RegistryUtils.GetInt32("ViewImageSizeMode", (int)PictureBoxSizeMode.Normal)!;
+        get => (PictureBoxSizeMode)RegistryUtils.GetInt32("ViewImageSizeMode", (int)PictureBoxSizeMode.AutoSize)!;
         set => RegistryUtils.SetInt32("ViewImageSizeMode", (int)value);
     }
 
     public ViewImageEditor()
     {
         InitializeComponent();
+        PnlPB.BackColor = BackgroundColor;
         PBImage.BackColor = BackgroundColor;
         PBImage.SizeMode = SizeMode;
         switch (PBImage.SizeMode)
         {
-            case PictureBoxSizeMode.Normal:
+            case PictureBoxSizeMode.AutoSize:
                 TSMISizeModeNormal.Checked = true;
                 break;
             case PictureBoxSizeMode.Zoom:
@@ -70,6 +74,7 @@ public partial class ViewImageEditor : EditorControl
             return;
 
         BackgroundColor = colorPicker.Color;
+        PnlPB.BackColor = colorPicker.Color;
         PBImage.BackColor = colorPicker.Color;
     }
 
@@ -82,7 +87,7 @@ public partial class ViewImageEditor : EditorControl
         TSMISizeModeCenterImage.Checked = false;
         TSMISizeModeStretchImage.Checked = false;
 
-        PBImage.SizeMode = PictureBoxSizeMode.Normal;
+        PBImage.SizeMode = PictureBoxSizeMode.AutoSize;
         SizeMode = PBImage.SizeMode;
     }
 
@@ -123,5 +128,52 @@ public partial class ViewImageEditor : EditorControl
 
         PBImage.SizeMode = PictureBoxSizeMode.StretchImage;
         SizeMode = PBImage.SizeMode;
+    }
+
+    private void PBImage_SizeModeChanged(object sender, EventArgs e)
+    {
+        if (PBImage.SizeMode != PictureBoxSizeMode.AutoSize)
+            PBImage.Size = PnlPB.Size;
+    }
+
+    private void PnlPB_Resize(object sender, EventArgs e)
+    {
+        if (PBImage.SizeMode != PictureBoxSizeMode.AutoSize)
+            PBImage.Size = PnlPB.Size;
+    }
+
+    private bool _dragging;
+    private Point _dragStart;
+    private void PBImage_MouseDown(object sender, MouseEventArgs e)
+    {
+        if (PBImage.SizeMode != PictureBoxSizeMode.Normal && PBImage.SizeMode != PictureBoxSizeMode.AutoSize)
+            return;
+
+        if (e.Button == MouseButtons.Left)
+        {
+            _dragging = true;
+            _dragStart = e.Location;
+            PBImage.Cursor = Cursors.SizeAll;
+        }
+    }
+
+    private void PBImage_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_dragging)
+            return;
+
+        if (PBImage.Parent is not Panel panel)
+            return;
+
+        int dx = e.X - _dragStart.X;
+        int dy = e.Y - _dragStart.Y;
+
+        panel.AutoScrollPosition = new Point(-panel.AutoScrollPosition.X - dx, -panel.AutoScrollPosition.Y - dy);
+    }
+
+    private void PBImage_MouseUp(object sender, MouseEventArgs e)
+    {
+        _dragging = false;
+        PBImage.Cursor = Cursors.Default;
     }
 }

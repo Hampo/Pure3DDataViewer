@@ -37,19 +37,25 @@ partial class ViewImageEditor
         TSMISizeModeZoom = new ToolStripMenuItem();
         TSMISizeModeCenterImage = new ToolStripMenuItem();
         TSMISizeModeStretchImage = new ToolStripMenuItem();
+        PnlPB = new Panel();
         ((System.ComponentModel.ISupportInitialize)PBImage).BeginInit();
         CMSPBImage.SuspendLayout();
+        PnlPB.SuspendLayout();
         SuspendLayout();
         // 
         // PBImage
         // 
         PBImage.ContextMenuStrip = CMSPBImage;
-        PBImage.Dock = DockStyle.Fill;
         PBImage.Location = new Point(0, 0);
         PBImage.Name = "PBImage";
         PBImage.Size = new Size(150, 150);
+        PBImage.SizeMode = PictureBoxSizeMode.AutoSize;
         PBImage.TabIndex = 0;
         PBImage.TabStop = false;
+        PBImage.SizeModeChanged += PBImage_SizeModeChanged;
+        PBImage.MouseDown += PBImage_MouseDown;
+        PBImage.MouseMove += PBImage_MouseMove;
+        PBImage.MouseUp += PBImage_MouseUp;
         // 
         // CMSPBImage
         // 
@@ -107,15 +113,29 @@ partial class ViewImageEditor
         TSMISizeModeStretchImage.Text = "Stretch Image";
         TSMISizeModeStretchImage.CheckedChanged += TSMISizeModeStretchImage_CheckedChanged;
         // 
+        // PnlPB
+        // 
+        PnlPB.AutoScroll = true;
+        PnlPB.ContextMenuStrip = CMSPBImage;
+        PnlPB.Controls.Add(PBImage);
+        PnlPB.Dock = DockStyle.Fill;
+        PnlPB.Location = new Point(0, 0);
+        PnlPB.Name = "PnlPB";
+        PnlPB.Size = new Size(150, 150);
+        PnlPB.TabIndex = 1;
+        PnlPB.Resize += PnlPB_Resize;
+        // 
         // ViewImageEditor
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         BackgroundImage = Properties.Resources.Transparent_16x;
-        Controls.Add(PBImage);
+        Controls.Add(PnlPB);
         Name = "ViewImageEditor";
         ((System.ComponentModel.ISupportInitialize)PBImage).EndInit();
         CMSPBImage.ResumeLayout(false);
+        PnlPB.ResumeLayout(false);
+        PnlPB.PerformLayout();
         ResumeLayout(false);
     }
 
@@ -129,4 +149,5 @@ partial class ViewImageEditor
     private ToolStripMenuItem TSMISizeModeZoom;
     private ToolStripMenuItem TSMISizeModeCenterImage;
     private ToolStripMenuItem TSMISizeModeStretchImage;
+    private Panel PnlPB;
 }

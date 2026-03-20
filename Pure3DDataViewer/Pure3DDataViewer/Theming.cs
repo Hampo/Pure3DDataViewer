@@ -21,6 +21,9 @@ public static class Theming
 
     public static void ApplyTheme(Control control, ThemeMode themeMode, FontMode fontMode)
     {
+        if (control is EditorControl editorControl && editorControl.NoTheming)
+            return;
+
         control.SuspendLayout();
         Color backColor = themeMode == ThemeMode.Dark ? Color.FromArgb(30, 30, 30) : Color.White;
         Color foreColor = themeMode == ThemeMode.Dark ? Color.LightGray : Color.Black;
