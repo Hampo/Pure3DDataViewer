@@ -33,6 +33,28 @@ jobs:
           Remove-Item -Recurse -Force Publish, Pure3DDataViewer.zip -ErrorAction Ignore
           New-Item -ItemType Directory -Force Publish\Plugins | Out-Null
 
+      - name: Inject commit hash into FrmMain.cs
+        run: |
+          $file = "Pure3DDataViewer/Pure3DDataViewer/FrmMain.cs"
+          $commit = "${{ github.sha }}".Substring(0,7)
+          
+          $content = Get-Content $file -Raw
+          
+          $pattern = '\{Text\}\s+v\{version\}'
+          $replacement = "{Text} v{version}-$commit"
+          
+          $newContent = [regex]::Replace($content, $pattern, $replacement)
+          
+          if ($content -eq $newContent) {
+            Write-Host "Pattern did not match. Dumping nearby lines for debugging:"
+            Get-Content $file | Select-String "_Text"
+            exit 1
+          } else {
+            Write-Host "Commit hash injected: -$commit"
+          }
+          
+          Set-Content $file $newContent
+
       - name: Publish main app
         run: |
           dotnet publish Pure3DDataViewer/Pure3DDataViewer/Pure3DDataViewer.csproj -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false -o Pure3DDataViewer/Pure3DDataViewer/bin/publish
