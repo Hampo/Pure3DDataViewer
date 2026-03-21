@@ -162,6 +162,9 @@ public partial class FrmMain : Form
         while (version.EndsWith(".0"))
             version = version[..^2];
         _Text = $"{Text} v{version}";
+#if DEBUG
+        _Text += "-Debug";
+#endif
         UpdateText();
 
         Theming.ApplyTheme(this, Settings.DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, Settings.LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
