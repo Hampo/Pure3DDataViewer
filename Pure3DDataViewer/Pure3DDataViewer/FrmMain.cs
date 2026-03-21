@@ -586,7 +586,7 @@ public partial class FrmMain : Form
             {
                 var (cancelled, errors) = ProgressHelper.Run("Validating chunks", (reportProgress, isCancellationRequested) =>
                 {
-                    var errors = new List<string>();
+                    var errors = new List<InvalidP3DException>();
 
                     double index = 0;
                     foreach (var child in p3dFile.Chunks)
@@ -594,7 +594,7 @@ public partial class FrmMain : Form
                         if (isCancellationRequested())
                             break;
 
-                        errors.AddRange(child.ValidateChunks().Select(e => $"Error in chunk \"{e.Chunk!.IndexInParent}. {e.Chunk}\": {e.Message}"));
+                        errors.AddRange(child.ValidateChunks());
 
                         reportProgress((int)(index++ / p3dFile.Chunks.Count * 100));
                     }
@@ -607,8 +607,9 @@ public partial class FrmMain : Form
                     var (backColour, foreColour) = Settings.GetErrorChunkColour();
                     foreach (var error in errors)
                     {
-                        var rowIndex = DGVValues.Rows.Add("Validation Error", error);
+                        var rowIndex = DGVValues.Rows.Add("Validation Error", $"Error in chunk \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
                         var row = DGVValues.Rows[rowIndex];
+                        row.Tag = error.Chunk;
 
                         row.DefaultCellStyle.BackColor = backColour;
                         row.DefaultCellStyle.ForeColor = foreColour;
@@ -679,13 +680,25 @@ public partial class FrmMain : Form
                 CBEditor.SelectedIndex = Settings.GetLastEditor(_editors, chunkType);
 
                 var (backColour, foreColour) = Settings.GetErrorChunkColour();
-                foreach (var error in chunk.ValidateChunks())
+                foreach (var error in chunk.ValidateChunk())
                 {
-                    var rowIndex = DGVValues.Rows.Add("Validation Error", error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
+                    var rowIndex = DGVValues.Rows.Add("Validation Error", error.Message);
                     var row = DGVValues.Rows[rowIndex];
 
                     row.DefaultCellStyle.BackColor = backColour;
                     row.DefaultCellStyle.ForeColor = foreColour;
+                }
+                foreach (var child in chunk.Children)
+                {
+                    foreach (var error in child.ValidateChunks())
+                    {
+                        var rowIndex = DGVValues.Rows.Add("Validation Error", $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
+                        var row = DGVValues.Rows[rowIndex];
+                        row.Tag = error.Chunk;
+
+                        row.DefaultCellStyle.BackColor = backColour;
+                        row.DefaultCellStyle.ForeColor = foreColour;
+                    }
                 }
 
                 var properties = PropertyHelper.GetProperties(chunkType);
@@ -805,7 +818,7 @@ public partial class FrmMain : Form
         DGVValues.ResumeLayout();
     }
 
-    private void DGVValues_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+    private async void DGVValues_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
     {
         if (e.RowIndex == -1)
             return;
@@ -813,10 +826,17 @@ public partial class FrmMain : Form
         if (e.Button != MouseButtons.Left)
             return;
 
+        var row = DGVValues.Rows[e.RowIndex];
+        if (row.Tag is Chunk errorChunk)
+        {
+            var chunkNode = await GetTreeNodeFromChunk(errorChunk);
+            TVChunks.SelectedNode = chunkNode;
+            return;
+        }
+
         if (TVChunks.SelectedNode?.Tag is not Chunk chunk)
             return;
 
-        var row = DGVValues.Rows[e.RowIndex];
 
         var Updated = false;
         var clone = P3DFile.Clone();
@@ -2425,13 +2445,25 @@ public partial class FrmMain : Form
                 }
 
                 var (backColour, foreColour) = Settings.GetErrorChunkColour();
-                foreach (var error in chunk.ValidateChunks())
+                foreach (var error in chunk.ValidateChunk())
                 {
-                    DGVValues.Rows.Insert(0, "Validation Error", error.Chunk == chunk ? error.Message : $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
-                    var row = DGVValues.Rows[0];
+                    var rowIndex = DGVValues.Rows.Add("Validation Error", error.Message);
+                    var row = DGVValues.Rows[rowIndex];
 
                     row.DefaultCellStyle.BackColor = backColour;
                     row.DefaultCellStyle.ForeColor = foreColour;
+                }
+                foreach (var child in chunk.Children)
+                {
+                    foreach (var error in child.ValidateChunks())
+                    {
+                        var rowIndex = DGVValues.Rows.Add("Validation Error", $"Error in child \"{error.Chunk!.IndexInParent}. {error.Chunk}\": {error.Message}");
+                        var row = DGVValues.Rows[rowIndex];
+                        row.Tag = error.Chunk;
+
+                        row.DefaultCellStyle.BackColor = backColour;
+                        row.DefaultCellStyle.ForeColor = foreColour;
+                    }
                 }
 
                 if (selectedIndex >= 0)
