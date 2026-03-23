@@ -5,6 +5,7 @@ using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Enums;
 using NetP3DLib.P3D.Exceptions;
 using Pure3DDataViewer.UndoRedo;
+using Pure3DDataViewer.UndoRedo.Commands;
 using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 using Pure3DDataViewerPluginAPI.Extensions;
