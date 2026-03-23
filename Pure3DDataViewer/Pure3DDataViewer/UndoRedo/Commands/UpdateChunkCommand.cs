@@ -20,12 +20,12 @@ internal class UpdateChunkCommand(string change, IList<int> hierarchy, Chunk bef
         if (_hierarchy.Count == 1)
             return file.Chunks;
 
-        var chunk = file.Chunks[_hierarchy[0]];
+        var chunk = file.Chunks[_hierarchy[^1]];
         for (int i = 1; i < _hierarchy.Count - 1; i++)
             chunk = chunk.Children[_hierarchy[i]];
 
         return chunk.Children;
     }
 
-    private int GetIndex() => _hierarchy[^1];
+    private int GetIndex() => _hierarchy[0];
 }
