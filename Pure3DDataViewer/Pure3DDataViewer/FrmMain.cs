@@ -4,6 +4,8 @@ using NetP3DLib.P3D;
 using NetP3DLib.P3D.Attributes;
 using NetP3DLib.P3D.Enums;
 using NetP3DLib.P3D.Exceptions;
+using Pure3DDataViewer.UndoRedo;
+using Pure3DDataViewer.UndoRedo.Commands;
 using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
 using Pure3DDataViewerPluginAPI.Extensions;
@@ -66,10 +68,7 @@ public partial class FrmMain : Form
     }
 
     private FileSystemWatcher? _watcher = null;
-
-    private record UndoEntry(string Change, P3DFile OldFile);
-    private readonly Stack<UndoEntry> UndoStack = [];
-    private readonly Stack<UndoEntry> RedoStack = [];
+    private readonly CommandManager _undoRedoManager = new();
 
     private string _Text = string.Empty;
     private string _lastPath = string.Empty;
@@ -298,16 +297,16 @@ public partial class FrmMain : Form
             return;
 
         var handler = tsmi.Tag;
-        var clone = P3DFile.Clone();
         switch (handler)
         {
             case IFileHandler fileHandler:
                 try
                 {
+                    var beforeFile = P3DFile.Clone();
                     switch (fileHandler.Handle(P3DFile))
                     {
                         case Pure3DDataViewerPluginAPI.Enums.FileCallbackResult.Modified:
-                            PreChange($"{fileHandler.Name}", clone);
+                            _undoRedoManager.Execute(new FileCommand(fileHandler.Name, beforeFile, P3DFile));
                             break;
                     }
                 }
@@ -323,13 +322,16 @@ public partial class FrmMain : Form
 
                 if (chunkHandler.ChunkType != null && chunkHandler.ChunkType != chunk.GetType())
                     return;
+
+                var hierarchy = GetChunkHierarchy(chunk)!;
+                var beforeChunk = chunk.Clone();
                 try
                 {
                     switch (chunkHandler.Handle(chunk))
                     {
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedData:
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.ModifiedChildren:
-                            PreChange($"{chunkHandler.Name}", clone);
+                            _undoRedoManager.Execute(new UpdateChunkCommand(chunkHandler.Name, hierarchy, beforeChunk, chunk));
                             break;
                         case Pure3DDataViewerPluginAPI.Enums.ChunkCallbackResult.Deleted:
                             var parentNode = node.Parent;
@@ -338,7 +340,7 @@ public partial class FrmMain : Form
                                 parentChunk.Children.RemoveAt(node.Index);
                             else if (parentNode.Tag is P3DFile parentFile)
                                 parentFile.Chunks.RemoveAt(node.Index);
-                            PreChange($"{chunkHandler.Name}", clone);
+                            _undoRedoManager.Execute(new DeleteChunkCommand(chunkHandler.Name, hierarchy, chunk));
                             break;
                     }
                 }
@@ -384,8 +386,7 @@ public partial class FrmMain : Form
         }
 
         UnsavedChanges = false;
-        UndoStack.Clear();
-        RedoStack.Clear();
+        _undoRedoManager.Clear();
         P3DFile = new P3DFile();
         LastPath = string.Empty;
         PopulateData();
@@ -836,7 +837,7 @@ public partial class FrmMain : Form
 
 
         var Updated = false;
-        var clone = P3DFile.Clone();
+        var beforeChunk = chunk.Clone();
         switch (row.Tag)
         {
             case PropertyInfo property:
@@ -848,7 +849,7 @@ public partial class FrmMain : Form
         }
 
         if (Updated)
-            PreChange("Update Value", clone);
+            _undoRedoManager.Execute(new UpdateChunkCommand("Update Value", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
     }
 
     public static bool EditProperty(PropertyInfo property, object obj, int? index = null)
@@ -1167,9 +1168,9 @@ public partial class FrmMain : Form
                 newIndex = targetNode.Nodes.Count;
             }
 
-            PreChange("Move Chunk");
-            UnsavedChanges = true;
+            var beforeFile = P3DFile.Clone();
             MoveChunkData(draggedChunk, newParentNode.Tag, newIndex);
+            _undoRedoManager.Execute(new FileCommand("Move Chunk", beforeFile, P3DFile));
             TVChunks.SelectedNode = draggedNode;
             newParentNode.Expand();
 
@@ -1274,7 +1275,7 @@ public partial class FrmMain : Form
         IList<Chunk> allChunks = P3DFile.AllChunks;
 
         if (!Settings.FindDirection)
-            allChunks = [..allChunks.Reverse()];
+            allChunks = [.. allChunks.Reverse()];
 
         var startIndex = 0;
         if (TVChunks.SelectedNode?.Tag is Chunk selectedChunk)
@@ -1412,11 +1413,12 @@ public partial class FrmMain : Form
         var parentNode = node.Parent;
         var index = node.Index;
 
-        PreChange("Chunk Cut");
+        var hierarchy = GetChunkHierarchy(chunk)!;
         if (parentNode.Tag is Chunk parentChunk)
             parentChunk.Children.RemoveAt(index);
         else if (parentNode.Tag is P3DFile p3dFile)
             p3dFile.Chunks.RemoveAt(index);
+        _undoRedoManager.Execute(new DeleteChunkCommand("Cut Chunk", hierarchy, chunk));
     }
 
     private void TSMICopyThis_Click(object sender, EventArgs e)
@@ -1480,110 +1482,192 @@ public partial class FrmMain : Form
         }
     }
 
-    private void TSMIPasteBefore_Click(object sender, EventArgs e)
+    private async void TSMIPasteBefore_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
-        if (node?.Tag is not Chunk)
+        if (node?.Tag is not Chunk chunk)
             return;
-
-        IList<Chunk> parentChunks;
-        var parentNode = node.Parent;
-        switch (parentNode.Tag)
-        {
-            case P3DFile p3dFile:
-                parentChunks = p3dFile.Chunks;
-                break;
-            case Chunk chunk:
-                parentChunks = chunk.Children;
-                break;
-            default:
-                return;
-        }
 
         var chunks = GetChunksFromClipboard();
         if (chunks == null || chunks.Count == 0)
             return;
 
-        PreChange("Paste Before");
-        UnsavedChanges = true;
+        TreeNode? chunkNode;
         var index = node.Index;
-        for (var i = chunks.Count - 1; i >= 0; i--)
+
+        if (chunk.ParentFile != null)
         {
-            parentChunks.Insert(index, chunks[i]);
-            parentNode.Expand();
-            parentNode.Nodes[index].EnsureVisible();
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentFile.Chunks.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeFile = chunk.ParentFile.Clone();
+                chunk.ParentFile.Chunks.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new FileCommand("Paste Before", beforeFile, chunk.ParentFile));
+            }
         }
+        else if (chunk.ParentChunk != null)
+        {
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentChunk.Children.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeChunk = chunk.Clone();
+                chunk.ParentChunk.Children.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new UpdateChunkCommand("Paste Before", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        TVChunks.SelectedNode = chunkNode;
     }
 
-    private void TSMIPasteAfter_Click(object sender, EventArgs e)
+    private async void TSMIPasteAfter_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
-        if (node?.Tag is not Chunk)
+        if (node?.Tag is not Chunk chunk)
             return;
-
-        IList<Chunk> parentChunks;
-        var parentNode = node.Parent;
-        switch (parentNode.Tag)
-        {
-            case P3DFile p3dFile:
-                parentChunks = p3dFile.Chunks;
-                break;
-            case Chunk chunk:
-                parentChunks = chunk.Children;
-                break;
-            default:
-                return;
-        }
 
         var chunks = GetChunksFromClipboard();
         if (chunks == null || chunks.Count == 0)
             return;
 
-        PreChange("Paste After");
-        UnsavedChanges = true;
+        TreeNode? chunkNode;
         var index = node.Index + 1;
-        for (var i = chunks.Count - 1; i >= 0; i--)
+
+        if (chunk.ParentFile != null)
         {
-            parentChunks.Insert(index, chunks[i]);
-            parentNode.Expand();
-            parentNode.Nodes[index].EnsureVisible();
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentFile.Chunks.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeFile = chunk.ParentFile.Clone();
+                chunk.ParentFile.Chunks.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new FileCommand("Paste After", beforeFile, chunk.ParentFile));
+            }
         }
+        else if (chunk.ParentChunk != null)
+        {
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentChunk.Children.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeChunk = chunk.Clone();
+                chunk.ParentChunk.Children.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new UpdateChunkCommand("Paste After", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        node.Expand();
+        TVChunks.SelectedNode = chunkNode;
     }
 
-    private void TSMIPasteInside_Click(object sender, EventArgs e)
+    private async void TSMIPasteInside_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
         if (node == null)
             return;
 
-        IList<Chunk> parentChunks;
+        var chunks = GetChunksFromClipboard();
+        if (chunks == null || chunks.Count == 0)
+            return;
+
+        TreeNode? chunkNode;
+        node.Expand();
         switch (node.Tag)
         {
             case P3DFile p3dFile:
-                parentChunks = p3dFile.Chunks;
+                while (node.Nodes.Count != p3dFile.Chunks.Count)
+                    await Task.Delay(100);
+
+                if (chunks.Count == 1)
+                {
+                    var newChunk = chunks[0];
+                    p3dFile.Chunks.Add(newChunk);
+                    _undoRedoManager.Execute(new AddChunkCommand("Paste Inside", GetChunkHierarchy(newChunk)!, newChunk));
+                    chunkNode = node.Nodes[^1];
+                    chunkNode.EnsureVisible();
+                }
+                else
+                {
+                    var beforeFile = p3dFile.Clone();
+                    p3dFile.Chunks.AddRange(chunks);
+                    chunkNode = node.Nodes[^1];
+                    chunkNode.EnsureVisible();
+                    _undoRedoManager.Execute(new FileCommand("Paste Inside", beforeFile, p3dFile));
+                }
+
                 break;
             case Chunk chunk:
-                parentChunks = chunk.Children;
+                while (node.Nodes.Count != chunk.Children.Count)
+                    await Task.Delay(100);
+
+                if (chunks.Count == 1)
+                {
+                    var newChunk = chunks[0];
+                    chunk.Children.Add(newChunk);
+                    _undoRedoManager.Execute(new AddChunkCommand("Paste Inside", GetChunkHierarchy(newChunk)!, newChunk));
+                    chunkNode = node.Nodes[newChunk.IndexInParent];
+                    chunkNode.EnsureVisible();
+                }
+                else
+                {
+                    var beforeChunk = chunk.Clone();
+                    chunk.Children.AddRange(chunks);
+                    chunkNode = node.Nodes[^1];
+                    chunkNode.EnsureVisible();
+                    _undoRedoManager.Execute(new UpdateChunkCommand("Paste Inside", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
+                }
+
                 break;
             default:
                 return;
         }
 
-        var chunks = GetChunksFromClipboard();
-        if (chunks == null || chunks.Count == 0)
-            return;
-
-        PreChange("Paste Inside");
-        UnsavedChanges = true;
-        foreach (var chunk in chunks)
-        {
-            parentChunks.Add(chunk);
-            node.Expand();
-            node.Nodes[chunk.IndexInParent].EnsureVisible();
-        }
+        node.Expand();
+        TVChunks.SelectedNode = chunkNode;
     }
 
-    private void TSMINewChunk_Click(object sender, EventArgs e)
+    private async void TSMINewChunk_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
         if (node == null)
@@ -1602,29 +1686,60 @@ public partial class FrmMain : Form
             if (newChunks == null || newChunks.Count == 0)
                 return;
 
-            PreChange("New Chunk");
-            UnsavedChanges = true;
-
-            IList<Chunk> parentChunks;
+            TreeNode? chunkNode = null;
+            node.Expand();
             switch (node.Tag)
             {
                 case P3DFile p3dFile:
-                    parentChunks = p3dFile.Chunks;
+                    while (node.Nodes.Count != p3dFile.Chunks.Count)
+                        await Task.Delay(100);
+
+                    if (newChunks.Count == 1)
+                    {
+                        var newChunk = newChunks[0];
+                        p3dFile.Chunks.Add(newChunk);
+                        _undoRedoManager.Execute(new AddChunkCommand("New Chunk", GetChunkHierarchy(newChunk)!, newChunk));
+                        chunkNode = node.Nodes[newChunk.IndexInParent];
+                        chunkNode.EnsureVisible();
+                    }
+                    else
+                    {
+
+                        var beforeFile = p3dFile.Clone();
+                        p3dFile.Chunks.AddRange(newChunks);
+                        chunkNode = node.Nodes[^1];
+                        chunkNode.EnsureVisible();
+                        _undoRedoManager.Execute(new FileCommand("New Chunk", beforeFile, p3dFile));
+                    }
+
                     break;
                 case Chunk chunk:
-                    parentChunks = chunk.Children;
+                    while (node.Nodes.Count != chunk.Children.Count)
+                        await Task.Delay(100);
+
+                    if (newChunks.Count == 1)
+                    {
+                        var newChunk = newChunks[0];
+                        chunk.Children.Add(newChunk);
+                        _undoRedoManager.Execute(new AddChunkCommand("New Chunk", GetChunkHierarchy(newChunk)!, newChunk));
+                        chunkNode = node.Nodes[newChunk.IndexInParent];
+                        chunkNode.EnsureVisible();
+                    }
+                    else
+                    {
+                        var beforeChunk = chunk.Clone();
+                        chunk.Children.AddRange(newChunks);
+                        chunkNode = node.Nodes[^1];
+                        chunkNode.EnsureVisible();
+                        _undoRedoManager.Execute(new UpdateChunkCommand("New Chunk", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
+                    }
+
                     break;
                 default:
                     return;
             }
 
-            TreeNode? chunkNode = null;
-            foreach (var newChunk in newChunks)
-            {
-                parentChunks.Add(newChunk);
-                node.Expand();
-                node.Nodes[newChunk.IndexInParent].EnsureVisible();
-            }
+            node.Expand();
             TVChunks.SelectedNode = chunkNode;
         }
         catch (Exception ex)
@@ -1729,7 +1844,7 @@ public partial class FrmMain : Form
         if (node == null)
             return;
 
-        if (node.Tag is not Chunk)
+        if (node.Tag is not Chunk chunk)
             return;
 
         bool isShiftDown = (ModifierKeys & Keys.Shift) == Keys.Shift;
@@ -1737,12 +1852,14 @@ public partial class FrmMain : Form
             return;
 
         var parentNode = node.Parent;
+        var index = node.Index;
 
-        PreChange("Delete Chunk");
+        var hierarchy = GetChunkHierarchy(chunk)!;
         if (parentNode.Tag is Chunk parentChunk)
-            parentChunk.Children.RemoveAt(node.Index);
+            parentChunk.Children.RemoveAt(index);
         else if (parentNode.Tag is P3DFile p3dFile)
-            p3dFile.Chunks.RemoveAt(node.Index);
+            p3dFile.Chunks.RemoveAt(index);
+        _undoRedoManager.Execute(new DeleteChunkCommand("Delete Chunk", hierarchy, chunk));
     }
 
     private void TSMIDeleteType_Click(object sender, EventArgs e)
@@ -1768,7 +1885,6 @@ public partial class FrmMain : Form
         if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete all chunks of type \"{chunkTypeName}\" in:\n{parentNode.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return;
 
-        PreChange("Delete Type");
         if (parentNode.Tag is Chunk parentChunk)
         {
             TVChunks.SelectedNode = parentNode;
@@ -1777,7 +1893,9 @@ public partial class FrmMain : Form
                 if (parentChunk.Children[i].GetType() == chunkType)
                     indices.Add(i);
 
+            var beforeChunk = chunk.Clone();
             parentChunk.Children.RemoveAtIndices(indices);
+            _undoRedoManager.Execute(new UpdateChunkCommand("Delete Type", GetChunkHierarchy(parentChunk)!, beforeChunk, parentChunk));
         }
         else if (parentNode.Tag is P3DFile p3dFile)
         {
@@ -1786,7 +1904,9 @@ public partial class FrmMain : Form
                 if (p3dFile.Chunks[i].GetType() == chunkType)
                     indices.Add(i);
 
+            var beforeFile = p3dFile.Clone();
             p3dFile.Chunks.RemoveAtIndices(indices);
+            _undoRedoManager.Execute(new FileCommand("Delete Type", beforeFile, p3dFile));
         }
     }
 
@@ -1800,11 +1920,18 @@ public partial class FrmMain : Form
         if (!isShiftDown && MessageBox.Show($"Are you sure you want to delete all children of:\n{node.Text}?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return;
 
-        PreChange("Delete Children");
         if (node.Tag is Chunk parentChunk)
+        {
+            var beforeChunk = parentChunk.Clone();
             parentChunk.Children.Clear();
+            _undoRedoManager.Execute(new UpdateChunkCommand("Delete Children", GetChunkHierarchy(parentChunk)!, beforeChunk, parentChunk));
+        }
         else if (node.Tag is P3DFile p3dFile)
+        {
+            var beforeFile = p3dFile.Clone();
             p3dFile.Chunks.Clear();
+            _undoRedoManager.Execute(new FileCommand("Delete Children", beforeFile, p3dFile));
+        }
 
         foreach (TreeNode childNode in node.Nodes)
             UnsubscribeNode(childNode);
@@ -1823,12 +1950,13 @@ public partial class FrmMain : Form
         var clone = chunk.Clone();
         var index = node.Index + 1;
 
-        PreChange("Duplicate Chunk");
         var parentNode = node.Parent;
         if (parentNode.Tag is Chunk parentChunk)
             parentChunk.Children.Insert(index, clone);
         else if (parentNode.Tag is P3DFile p3dFile)
             p3dFile.Chunks.Insert(index, clone);
+
+        _undoRedoManager.Execute(new AddChunkCommand("Duplicate Chunk", GetChunkHierarchy(clone)!, clone));
 
         TVChunks.SelectedNode = parentNode.Nodes[index];
     }
@@ -1846,8 +1974,9 @@ public partial class FrmMain : Form
         if (stringEditor.ShowDialog() != DialogResult.OK)
             return;
 
-        PreChange("Rename Chunk");
+        var beforeChunk = chunk.Clone();
         chunk.Name = stringEditor.Value;
+        _undoRedoManager.Execute(new UpdateChunkCommand("Rename Chunk", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
     }
 
     private void TSMILittleEndian_CheckedChanged(object sender, EventArgs e)
@@ -1867,76 +1996,125 @@ public partial class FrmMain : Form
         TSMIEndianness.Enabled = !TSMICompressed.Checked;
     }
 
-    private void PreChange(string change, P3DFile? clone = null)
+    private async void TSMIUndo_Click(object sender, EventArgs e)
     {
-        UndoStack.Push(new(change, clone ?? P3DFile.Clone()));
-        RedoStack.Clear();
+        var currentState = CaptureState(TVChunks);
+        _undoRedoManager.Undo(P3DFile);
+        await RestoreState(TVChunks, currentState);
     }
 
-    private void TSMIUndo_Click(object sender, EventArgs e) => PerformUndoRedo(UndoStack, RedoStack, true);
-
-    private void TSMIRedo_Click(object sender, EventArgs e) => PerformUndoRedo(RedoStack, UndoStack, false);
-
-    private void PerformUndoRedo(Stack<UndoEntry> fromStack, Stack<UndoEntry> toStack, bool isUndo)
+    private async void TSMIRedo_Click(object sender, EventArgs e)
     {
-        if (!fromStack.TryPop(out var entry))
+        var currentState = CaptureState(TVChunks);
+        _undoRedoManager.Redo(P3DFile);
+        await RestoreState(TVChunks, currentState);
+    }
+
+    private static TreeState CaptureState(TreeView treeView)
+    {
+        var state = new TreeState();
+
+        foreach (TreeNode node in treeView.Nodes)
+            CaptureNode(node, [], state);
+
+        var selectedNode = treeView.SelectedNode;
+        while (selectedNode != null)
+        {
+            state.SelectedPath.Insert(0, selectedNode.Index);
+            selectedNode = selectedNode.Parent;
+        }
+
+        return state;
+    }
+
+    private static void CaptureNode(TreeNode node, List<string> path, TreeState state)
+    {
+        var currentPath = new List<string>(path) { node.Text };
+
+        if (node.IsExpanded)
+            state.ExpandedPaths.Add(currentPath);
+
+        foreach (TreeNode child in node.Nodes)
+            CaptureNode(child, currentPath, state);
+    }
+
+    private static async Task RestoreState(TreeView treeView, TreeState state)
+    {
+        foreach (var expandedPath in state.ExpandedPaths)
+            await ExpandPath(treeView, expandedPath);
+
+        if (state.SelectedPath.Count == 0)
             return;
 
-        try
-        {
-            var currentFile = P3DFile.Clone();
-            P3DFile = entry.OldFile;
-            toStack.Push(new UndoEntry(entry.Change, currentFile));
-            UnsavedChanges = true;
+        var selectedNode = FindNodeByIndexPath(treeView, state.SelectedPath);
+        if (selectedNode == null)
+            return;
 
-            var allNodes = new List<TreeNode>();
-            foreach (TreeNode node in TVChunks.Nodes)
-                CollectNodes(node, allNodes);
-
-            var expandedPaths = new HashSet<string>(allNodes.Where(n => n.IsExpanded).Select(n => n.GetPathText()).Where(text => !string.IsNullOrWhiteSpace(text)));
-
-            var selectedPath = TVChunks.SelectedNode?.GetPathText();
-
-            PopulateData();
-
-            RestoreTreeState(expandedPaths, selectedPath);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Failed to {(isUndo ? "undo" : "redo")}: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+        treeView.SelectedNode = selectedNode;
+        selectedNode.EnsureVisible();
     }
 
-    private void RestoreTreeState(HashSet<string> expandedPaths, string? selectedPath)
+    private static async Task ExpandPath(TreeView treeView, List<string> path)
     {
-        TVChunks.BeginUpdate();
+        var nodes = treeView.Nodes;
+        TreeNode? current;
 
-        var allNodes = new List<TreeNode>();
-        foreach (TreeNode node in TVChunks.Nodes)
-            CollectNodes(node, allNodes);
-
-        foreach (var node in allNodes)
+        foreach (var part in path)
         {
-            var pathText = node.GetPathText();
-            if (string.IsNullOrWhiteSpace(pathText))
-                continue;
+            current = FindChild(nodes, part);
+            if (current == null)
+                return;
 
-            if (expandedPaths.Contains(pathText))
-                node.Expand();
+            if (!current.IsExpanded)
+            {
+                current.Expand();
+                var childCount = current.Tag switch
+                {
+                    P3DFile p3dFile => p3dFile.Chunks.Count,
+                    Chunk chunk => chunk.Children.Count,
+                    _ => 0
+                };
+                if (childCount > 0)
+                    while (current.Nodes.Count != childCount)
+                        await Task.Delay(100);
+            }
 
-            if (pathText == selectedPath)
-                TVChunks.SelectedNode = node;
+            nodes = current.Nodes;
         }
-
-        TVChunks.EndUpdate();
     }
 
+    private static TreeNode? FindChild(TreeNodeCollection nodes, string text)
+    {
+        foreach (TreeNode node in nodes)
+            if (node.Text == text)
+                return node;
+
+        return null;
+    }
+
+    private static TreeNode? FindNodeByIndexPath(TreeView treeView, List<int> path)
+    {
+        TreeNodeCollection nodes = treeView.Nodes;
+        TreeNode? current = null;
+
+        foreach (var index in path)
+        {
+            if (index < 0 || index >= nodes.Count)
+                return null;
+
+            current = nodes[index];
+            nodes = current.Nodes;
+        }
+
+        return current;
+    }
 
     private void TSMIEdit_DropDownOpening(object sender, EventArgs e)
     {
-        if (UndoStack.TryPeek(out var undo))
+        var undoChange = _undoRedoManager.UndoChange;
+        if (!string.IsNullOrEmpty(undoChange))
         {
-            TSMIUndo.Text = $"Undo {undo.Change}";
+            TSMIUndo.Text = $"Undo {undoChange}";
             TSMIUndo.Enabled = true;
         }
         else
@@ -1945,9 +2123,10 @@ public partial class FrmMain : Form
             TSMIUndo.Enabled = false;
         }
 
-        if (RedoStack.TryPeek(out var redo))
+        var redoChange = _undoRedoManager.RedoChange;
+        if (!string.IsNullOrEmpty(redoChange))
         {
-            TSMIRedo.Text = $"Redo {redo.Change}";
+            TSMIRedo.Text = $"Redo {redoChange}";
             TSMIRedo.Enabled = true;
         }
         else
@@ -2000,8 +2179,7 @@ public partial class FrmMain : Form
         {
             var p3dFile = new P3DFile(filePath);
 
-            UndoStack.Clear();
-            RedoStack.Clear();
+            _undoRedoManager.Clear();
             UnsavedChanges = false;
 
             LastPath = filePath;
@@ -2643,7 +2821,7 @@ public partial class FrmMain : Form
         TVChunks.EndUpdate();
     }
 
-    private async Task<TreeNode?> GetTreeNodeFromChunk(Chunk chunk, int timeoutMs = 5000)
+    private List<int>? GetChunkHierarchy(Chunk chunk)
     {
         if (chunk == null)
             return null;
@@ -2662,6 +2840,15 @@ public partial class FrmMain : Form
         if (current?.ParentFile == null)
             return null;
         indices.Add(current.IndexInParent);
+
+        return indices;
+    }
+
+    private async Task<TreeNode?> GetTreeNodeFromChunk(Chunk chunk, int timeoutMs = 5000)
+    {
+        var indices = GetChunkHierarchy(chunk);
+        if (indices == null)
+            return null;
 
         var node = TVChunks.Nodes[0];
         for (var i = indices.Count - 1; i >= 0; i--)
@@ -2687,6 +2874,12 @@ public partial class FrmMain : Form
 
     private void SC1_SplitterMoved(object sender, SplitterEventArgs e) => Settings.SplitterDistance = SC1.SplitterDistance;
 
+    private void TSMIEdit_DropDownClosed(object sender, EventArgs e)
+    {
+        TSMIUndo.Enabled = true;
+        TSMIRedo.Enabled = true;
+    }
+
     public readonly struct Editor
     {
         public string Name { get; }
@@ -2701,5 +2894,17 @@ public partial class FrmMain : Form
         }
 
         public override readonly string ToString() => Name;
+    }
+
+    public readonly struct TreeState
+    {
+        public List<List<string>> ExpandedPaths { get; }
+        public List<int> SelectedPath { get; }
+
+        public TreeState()
+        {
+            ExpandedPaths = [];
+            SelectedPath = [];
+        }
     }
 }
