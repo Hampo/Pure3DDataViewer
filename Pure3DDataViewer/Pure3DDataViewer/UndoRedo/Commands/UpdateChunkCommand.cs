@@ -7,7 +7,7 @@ internal class UpdateChunkCommand(string change, IList<int> hierarchy, Chunk bef
 {
     public string Change { get; } = change;
 
-    private readonly IReadOnlyList<int> _hierarchy = hierarchy.AsReadOnly();
+    private readonly ReadOnlyCollection<int> _hierarchy = hierarchy.AsReadOnly();
     private readonly Chunk _beforeChunk = beforeChunk.Clone();
     private readonly Chunk _afterChunk = afterChunk.Clone();
 

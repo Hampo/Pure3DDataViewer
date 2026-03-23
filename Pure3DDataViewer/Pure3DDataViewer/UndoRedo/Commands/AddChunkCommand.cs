@@ -7,7 +7,7 @@ internal class AddChunkCommand(string change, IList<int> hierarchy, Chunk chunk)
 {
     public string Change { get; } = change;
 
-    private readonly IReadOnlyList<int> _hierarchy = hierarchy.AsReadOnly();
+    private readonly ReadOnlyCollection<int> _hierarchy = hierarchy.AsReadOnly();
     private readonly Chunk _chunk = chunk.Clone();
 
     public void Redo(P3DFile p3dFile) => GetParent(p3dFile).Insert(GetIndex(), _chunk.Clone());
