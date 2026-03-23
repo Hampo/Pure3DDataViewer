@@ -1,9 +1,11 @@
 ﻿using NetP3DLib.P3D;
 
-namespace Pure3DDataViewer.UndoRedo;
+namespace Pure3DDataViewerPluginAPI.UndoRedo;
 
-internal class CommandManager
+public class UndoRedoManager
 {
+    public static UndoRedoManager Instance { get; } = new();
+
     private readonly Stack<ICommand> _undoStack = new();
     private readonly Stack<ICommand> _redoStack = new();
 

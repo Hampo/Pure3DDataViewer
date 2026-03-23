@@ -2,6 +2,8 @@
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
+using Pure3DDataViewerPluginAPI.UndoRedo;
+using Pure3DDataViewerPluginAPI.UndoRedo.Commands;
 
 namespace FrontendTextBibleEditor.Editors.Controls;
 public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBibleChunk>
@@ -77,6 +79,7 @@ public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBible
         if (_values == null)
             return;
 
+        var beforeChunk = _frontendTextBibleChunk.Clone();
         foreach (var languageChunk in _languageChunks)
         {
             foreach (var value in _values)
@@ -86,6 +89,7 @@ public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBible
                 languageChunk.SetValue(value.Key, valueStr);
             }
         }
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Frontend Text Bible", _frontendTextBibleChunk.GetChunkHierarchy()!, beforeChunk, _frontendTextBibleChunk));
 
         BtnUpdate.Enabled = false;
     }
@@ -157,15 +161,9 @@ public partial class FrontendTextBibleEditor : EditorControl//<FrontendTextBible
         LVValues.EndUpdate();
     }
 
-    private readonly struct Entry
+    private readonly struct Entry(uint hash, string displayName)
     {
-        public uint Hash { get; }
-        public string DisplayName { get; }
-
-        public Entry(uint hash, string displayName)
-        {
-            Hash = hash;
-            DisplayName = displayName;
-        }
+        public uint Hash { get; } = hash;
+        public string DisplayName { get; } = displayName;
     }
 }

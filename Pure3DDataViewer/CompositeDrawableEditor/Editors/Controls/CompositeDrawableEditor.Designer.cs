@@ -50,7 +50,7 @@ partial class CompositeDrawableEditor
         ColumnTranslucent = new DataGridViewCheckBoxColumn();
         ColumnSortOrder = new DataGridViewTextBoxColumn();
         PnlSkeletonName = new Panel();
-        TxtSkeletonName = new TextBox();
+        CBSkeletonName = new ComboBox();
         LblSkeletonName = new Label();
         PnlName = new Panel();
         TxtName = new TextBox();
@@ -286,7 +286,7 @@ partial class CompositeDrawableEditor
         // 
         // PnlSkeletonName
         // 
-        PnlSkeletonName.Controls.Add(TxtSkeletonName);
+        PnlSkeletonName.Controls.Add(CBSkeletonName);
         PnlSkeletonName.Controls.Add(LblSkeletonName);
         PnlSkeletonName.Dock = DockStyle.Fill;
         PnlSkeletonName.Location = new Point(3, 33);
@@ -294,15 +294,15 @@ partial class CompositeDrawableEditor
         PnlSkeletonName.Size = new Size(442, 24);
         PnlSkeletonName.TabIndex = 4;
         // 
-        // TxtSkeletonName
+        // CBSkeletonName
         // 
-        TxtSkeletonName.Dock = DockStyle.Fill;
-        TxtSkeletonName.Location = new Point(92, 0);
-        TxtSkeletonName.MaxLength = 255;
-        TxtSkeletonName.Name = "TxtSkeletonName";
-        TxtSkeletonName.Size = new Size(350, 23);
-        TxtSkeletonName.TabIndex = 3;
-        TxtSkeletonName.TextChanged += TxtSkeletonName_TextChanged;
+        CBSkeletonName.Dock = DockStyle.Fill;
+        CBSkeletonName.FormattingEnabled = true;
+        CBSkeletonName.Location = new Point(92, 0);
+        CBSkeletonName.Name = "CBSkeletonName";
+        CBSkeletonName.Size = new Size(350, 23);
+        CBSkeletonName.TabIndex = 3;
+        CBSkeletonName.Leave += CBSkeletonName_Leave;
         // 
         // LblSkeletonName
         // 
@@ -332,7 +332,7 @@ partial class CompositeDrawableEditor
         TxtName.Name = "TxtName";
         TxtName.Size = new Size(350, 23);
         TxtName.TabIndex = 1;
-        TxtName.TextChanged += TxtName_TextChanged;
+        TxtName.Leave += TxtName_Leave;
         // 
         // LblName
         // 
@@ -359,7 +359,6 @@ partial class CompositeDrawableEditor
         GBSkinList.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)DGVSkinList).EndInit();
         PnlSkeletonName.ResumeLayout(false);
-        PnlSkeletonName.PerformLayout();
         PnlName.ResumeLayout(false);
         PnlName.PerformLayout();
         ResumeLayout(false);
@@ -376,7 +375,6 @@ partial class CompositeDrawableEditor
     private DataGridView DGVPropList;
     private Panel PnlName;
     private Panel PnlSkeletonName;
-    private TextBox TxtSkeletonName;
     private Label LblSkeletonName;
     private TextBox TxtName;
     private Label LblName;
@@ -394,4 +392,5 @@ partial class CompositeDrawableEditor
     private DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn2;
     private DataGridViewTextBoxColumn ColumnSkeletonJointIndex;
     private DataGridViewTextBoxColumn ColumnSortOrder2;
+    private ComboBox CBSkeletonName;
 }

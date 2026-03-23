@@ -1,7 +1,8 @@
 ﻿using NetP3DLib.P3D;
 using NetP3DLib.P3D.Chunks;
 using Pure3DDataViewerPluginAPI.Controls;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using Pure3DDataViewerPluginAPI.UndoRedo;
+using Pure3DDataViewerPluginAPI.UndoRedo.Commands;
 
 namespace CompositeDrawableEditor.Editors.Controls;
 
@@ -20,6 +21,10 @@ public partial class CompositeDrawableEditor : EditorControl
         DGVSkinList.SuspendLayout();
         DGVPropList.SuspendLayout();
         DGVEffectList.SuspendLayout();
+        CBSkeletonName.BeginUpdate();
+
+        var currentSkeletonName = CBSkeletonName.Text;
+        var selectionStart = CBSkeletonName.SelectionStart;
 
         try
         {
@@ -27,13 +32,14 @@ public partial class CompositeDrawableEditor : EditorControl
             DGVSkinList.Rows.Clear();
             DGVPropList.Rows.Clear();
             DGVEffectList.Rows.Clear();
+            CBSkeletonName.Items.Clear();
 
             if (chunk is not CompositeDrawableChunk compositeDrawableChunk)
                 throw new NotSupportedException($"{nameof(CompositeDrawableEditor)} does not support chunks of type {chunk.GetType()}");
             _compositeDrawableChunk = compositeDrawableChunk;
 
             TxtName.Text = compositeDrawableChunk.Name;
-            TxtSkeletonName.Text = compositeDrawableChunk.SkeletonName;
+            CBSkeletonName.Text = compositeDrawableChunk.SkeletonName;
 
             var skinList = compositeDrawableChunk.GetLastChunkOfType<CompositeDrawableSkinListChunk>();
             var propList = compositeDrawableChunk.GetLastChunkOfType<CompositeDrawablePropListChunk>();
@@ -65,8 +71,11 @@ public partial class CompositeDrawableEditor : EditorControl
             DGVSkinList.ResumeLayout();
             DGVPropList.ResumeLayout();
             DGVEffectList.ResumeLayout();
+            CBSkeletonName.EndUpdate();
             _updating = false;
         }
+
+        CBSkeletonName.SelectionStart = CBSkeletonName.Text == currentSkeletonName ? selectionStart : CBSkeletonName.Text.Length;
     }
 
     private static bool RowExists(DataGridView dataGridView, object targetValue)
@@ -114,6 +123,10 @@ public partial class CompositeDrawableEditor : EditorControl
                     break;
                 case ParticleSystemChunk particleSystem:
                     AddEffect(effectList, particleSystem.Name);
+                    break;
+                case SkeletonChunk skeleton:
+                    if (!CBSkeletonName.Items.Contains(skeleton.Name))
+                        CBSkeletonName.Items.Add(skeleton.Name);
                     break;
             }
         }
@@ -251,6 +264,7 @@ public partial class CompositeDrawableEditor : EditorControl
         var skinList = _compositeDrawableChunk!.GetLastChunkOfType<CompositeDrawableSkinListChunk>();
         var skinChunk = skinList?.GetFirstChunkOfType<CompositeDrawableSkinChunk>(skinName);
 
+        var beforeChunk = _compositeDrawableChunk.Clone();
         switch (e.ColumnIndex)
         {
             case 1: // Included
@@ -294,6 +308,7 @@ public partial class CompositeDrawableEditor : EditorControl
 
                 break;
         }
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Composite Drawable Skin List", _compositeDrawableChunk!.GetChunkHierarchy()!, beforeChunk, _compositeDrawableChunk));
     }
 
     private void DGVPropList_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -312,6 +327,7 @@ public partial class CompositeDrawableEditor : EditorControl
         var propList = _compositeDrawableChunk!.GetLastChunkOfType<CompositeDrawablePropListChunk>();
         var propChunk = propList?.GetFirstChunkOfType<CompositeDrawablePropChunk>(propName);
 
+        var beforeChunk = _compositeDrawableChunk.Clone();
         switch (e.ColumnIndex)
         {
             case 1: // Included
@@ -362,6 +378,7 @@ public partial class CompositeDrawableEditor : EditorControl
 
                 break;
         }
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Composite Drawable Prop List", _compositeDrawableChunk!.GetChunkHierarchy()!, beforeChunk, _compositeDrawableChunk));
     }
 
     private void DGVEffectList_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -380,6 +397,7 @@ public partial class CompositeDrawableEditor : EditorControl
         var effectList = _compositeDrawableChunk!.GetLastChunkOfType<CompositeDrawableEffectListChunk>();
         var effectChunk = effectList?.GetFirstChunkOfType<CompositeDrawableEffectChunk>(effectName);
 
+        var beforeChunk = _compositeDrawableChunk.Clone();
         switch (e.ColumnIndex)
         {
             case 1: // Included
@@ -430,21 +448,26 @@ public partial class CompositeDrawableEditor : EditorControl
 
                 break;
         }
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Composite Drawable Effect List", _compositeDrawableChunk!.GetChunkHierarchy()!, beforeChunk, _compositeDrawableChunk));
     }
 
-    private void TxtName_TextChanged(object sender, EventArgs e)
+    private void TxtName_Leave(object sender, EventArgs e)
     {
-        if (_updating || _compositeDrawableChunk == null)
+        if (_updating || _compositeDrawableChunk == null || _compositeDrawableChunk.Name == TxtName.Text)
             return;
 
+        var beforeChunk = _compositeDrawableChunk.Clone();
         _compositeDrawableChunk.Name = TxtName.Text;
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Composite Drawable Name", _compositeDrawableChunk!.GetChunkHierarchy()!, beforeChunk, _compositeDrawableChunk));
     }
 
-    private void TxtSkeletonName_TextChanged(object sender, EventArgs e)
+    private void CBSkeletonName_Leave(object sender, EventArgs e)
     {
-        if (_updating || _compositeDrawableChunk == null)
+        if (_updating || _compositeDrawableChunk == null || _compositeDrawableChunk.SkeletonName == CBSkeletonName.Text)
             return;
 
-        _compositeDrawableChunk.SkeletonName = TxtSkeletonName.Text;
+        var beforeChunk = _compositeDrawableChunk.Clone();
+        _compositeDrawableChunk.SkeletonName = CBSkeletonName.Text;
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Composite Drawable Skeleton Name", _compositeDrawableChunk!.GetChunkHierarchy()!, beforeChunk, _compositeDrawableChunk));
     }
 }

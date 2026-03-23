@@ -1,8 +1,8 @@
 ﻿using NetP3DLib.P3D;
 
-namespace Pure3DDataViewer.UndoRedo;
+namespace Pure3DDataViewerPluginAPI.UndoRedo;
 
-internal interface ICommand
+public interface ICommand
 {
     public abstract string Change { get; }
 
