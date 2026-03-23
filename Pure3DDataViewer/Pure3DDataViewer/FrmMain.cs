@@ -6,17 +6,14 @@ using NetP3DLib.P3D.Enums;
 using NetP3DLib.P3D.Exceptions;
 using Pure3DDataViewerPluginAPI.Controls;
 using Pure3DDataViewerPluginAPI.Editors;
-using Pure3DDataViewerPluginAPI.Events;
 using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Helpers;
 using Pure3DDataViewerPluginAPI.Interfaces;
 using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Xml.Linq;
 
 namespace Pure3DDataViewer;
 
