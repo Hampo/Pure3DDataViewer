@@ -512,6 +512,7 @@ partial class FrmMain
         TSMIEdit.Name = "TSMIEdit";
         TSMIEdit.Size = new Size(39, 20);
         TSMIEdit.Text = "Edit";
+        TSMIEdit.DropDownClosed += TSMIEdit_DropDownClosed;
         TSMIEdit.DropDownOpening += TSMIEdit_DropDownOpening;
         // 
         // TSMIUndo
@@ -718,14 +719,14 @@ partial class FrmMain
         // 
         TSMIOptions.Image = Properties.Resources.Settings_16x;
         TSMIOptions.Name = "TSMIOptions";
-        TSMIOptions.Size = new Size(116, 22);
+        TSMIOptions.Size = new Size(180, 22);
         TSMIOptions.Text = "Options";
         TSMIOptions.Click += TSMIOptions_Click;
         // 
         // TSS11
         // 
         TSS11.Name = "TSS11";
-        TSS11.Size = new Size(113, 6);
+        TSS11.Size = new Size(177, 6);
         // 
         // TSMIHelp
         // 

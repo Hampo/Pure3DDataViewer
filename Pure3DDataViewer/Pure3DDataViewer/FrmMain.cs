@@ -1275,7 +1275,7 @@ public partial class FrmMain : Form
         IList<Chunk> allChunks = P3DFile.AllChunks;
 
         if (!Settings.FindDirection)
-            allChunks = [..allChunks.Reverse()];
+            allChunks = [.. allChunks.Reverse()];
 
         var startIndex = 0;
         if (TVChunks.SelectedNode?.Tag is Chunk selectedChunk)
@@ -2052,7 +2052,7 @@ public partial class FrmMain : Form
         foreach (TreeNode child in node.Nodes)
             CaptureNode(child, currentPath, state);
     }
-    
+
     private static async Task RestoreState(TreeView treeView, TreeState state)
     {
         foreach (var expandedPath in state.ExpandedPaths)
@@ -2060,7 +2060,7 @@ public partial class FrmMain : Form
 
         if (state.SelectedPath.Count == 0)
             return;
-        
+
         var selectedNode = FindNodeByIndexPath(treeView, state.SelectedPath);
         if (selectedNode == null)
             return;
@@ -2888,6 +2888,12 @@ public partial class FrmMain : Form
     }
 
     private void SC1_SplitterMoved(object sender, SplitterEventArgs e) => Settings.SplitterDistance = SC1.SplitterDistance;
+
+    private void TSMIEdit_DropDownClosed(object sender, EventArgs e)
+    {
+        TSMIUndo.Enabled = true;
+        TSMIRedo.Enabled = true;
+    }
 
     public readonly struct Editor
     {
