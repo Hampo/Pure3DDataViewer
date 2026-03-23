@@ -35,6 +35,9 @@ copy Pure3DDataViewer\TimeOfDayTint\bin\publish\TimeOfDayTint.dll Publish\Plugin
 dotnet publish Pure3DDataViewer\ConvertToLua\ConvertToLua.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\ConvertToLua\bin\publish
 copy Pure3DDataViewer\ConvertToLua\bin\publish\ConvertToLua.dll Publish\Plugins\ConvertToLua.dll
 
+dotnet publish Pure3DDataViewer\CompositeDrawableEditor\CompositeDrawableEditor.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\CompositeDrawableEditor\bin\publish
+copy Pure3DDataViewer\CompositeDrawableEditor\bin\publish\CompositeDrawableEditor.dll Publish\Plugins\CompositeDrawableEditor.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE

@@ -72,7 +72,8 @@ jobs:
             "Validate",
             "CarPhysicsObjectGenerator",
             "TimeOfDayTint",
-            "ConvertToLua"
+            "ConvertToLua",
+            "CompositeDrawableEditor"
           )
 
           foreach ($plugin in $plugins) {

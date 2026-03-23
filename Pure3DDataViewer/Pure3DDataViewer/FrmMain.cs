@@ -2425,14 +2425,18 @@ public partial class FrmMain : Form
         try
         {
             int removedIndex = removedNode.Index;
+            var selected = removedNode.IsSelected;
             UnsubscribeNode(removedNode);
 
-            if (removedNode.NextNode != null)
-                TVChunks.SelectedNode = removedNode.NextNode;
-            else if (removedNode.PrevNode != null)
-                TVChunks.SelectedNode = removedNode.PrevNode;
-            else
-                TVChunks.SelectedNode = parentNode;
+            if (selected)
+            {
+                if (removedNode.NextNode != null)
+                    TVChunks.SelectedNode = removedNode.NextNode;
+                else if (removedNode.PrevNode != null)
+                    TVChunks.SelectedNode = removedNode.PrevNode;
+                else
+                    TVChunks.SelectedNode = parentNode;
+            }
 
             removedNode.Remove();
             if (updateChunkIndices)

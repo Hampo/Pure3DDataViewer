@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/Plugins/">
     <Project Path="CarPhysicsObjectGenerator/CarPhysicsObjectGenerator.csproj" />
+    <Project Path="CompositeDrawableEditor/CompositeDrawableEditor.csproj" Id="859d4f47-c508-4210-8e6d-c4459687c377" />
     <Project Path="ConvertToLua/ConvertToLua.csproj" Id="f02d3c6a-cfe9-409f-8644-d1edd6451fc5" />
     <Project Path="CustomChunkTest/CustomChunkTest.csproj" />
     <Project Path="Deduplicate/Deduplicate.csproj" />
@@ -22,6 +23,7 @@
   </Folder>
   <Project Path="Pure3DDataViewer/Pure3DDataViewer.csproj">
     <BuildDependency Project="CarPhysicsObjectGenerator/CarPhysicsObjectGenerator.csproj" />
+    <BuildDependency Project="CompositeDrawableEditor/CompositeDrawableEditor.csproj" />
     <BuildDependency Project="ConvertToLua/ConvertToLua.csproj" />
     <BuildDependency Project="CustomChunkTest/CustomChunkTest.csproj" />
     <BuildDependency Project="Deduplicate/Deduplicate.csproj" />
