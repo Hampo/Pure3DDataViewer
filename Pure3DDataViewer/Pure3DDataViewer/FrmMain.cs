@@ -1964,7 +1964,7 @@ public partial class FrmMain : Form
     {
         using var options = new FrmOptions();
         options.ShowDialog();
-        //TODO: Update chunk colours
+        UpdateChunkColours();
     }
 
     private void CBEditor_SelectedIndexChanged(object sender, EventArgs e)
@@ -2379,6 +2379,62 @@ public partial class FrmMain : Form
         node.ForeColor = fore;
     }
 
+    private void UpdateChunkColours()
+    {
+        TVChunks.BeginUpdate();
+
+        var errorColours = Settings.GetErrorChunkColour();
+        var chunkColours = new Dictionary<Type, (Color BackColour, Color ForeColour)>();
+        bool ValidateAndColour(TreeNode node)
+        {
+            if (node.Tag is not Chunk chunk)
+                return false;
+            var chunkType = chunk.GetType();
+
+            bool childrenHaveErrors = false;
+            foreach (TreeNode child in node.Nodes)
+                childrenHaveErrors |= ValidateAndColour(child);
+
+            bool selfHasErrors = (node.Nodes.Count == 1 && node.Nodes[0].Text == "<<DUMMY>>") ? chunk.ValidateChunks().Any() : chunk.ValidateChunk().Any();
+
+            bool branchHasErrors = selfHasErrors || childrenHaveErrors;
+
+            (Color BackColour, Color ForeColour) colours;
+            if (branchHasErrors)
+            {
+                colours = errorColours;
+            }
+            else if (!chunkColours.TryGetValue(chunkType, out colours))
+            {
+                colours = Settings.GetChunkColour(chunkType);
+                chunkColours[chunkType] = colours;
+            }
+
+            if (node.BackColor != colours.BackColour)
+                node.BackColor = colours.BackColour;
+
+            if (node.ForeColor != colours.ForeColour)
+                node.ForeColor = colours.ForeColour;
+
+            return branchHasErrors;
+        }
+
+        var rootNode = TVChunks.Nodes[0];
+        bool globalErrorFound = false;
+        foreach (TreeNode node in rootNode.Nodes)
+            globalErrorFound |= ValidateAndColour(node);
+
+        var (back, fore) = globalErrorFound ? errorColours : (Color.Empty, Color.Empty);
+
+        if (rootNode.BackColor != back)
+            rootNode.BackColor = back;
+
+        if (rootNode.ForeColor != fore)
+            rootNode.ForeColor = fore;
+
+        TVChunks.EndUpdate();
+    }
+
     private readonly Dictionary<TreeNode, Action> _nodeCleanups = [];
     private void SubscribeNode(TreeNode node, Chunk chunk)
     {
@@ -2489,54 +2545,7 @@ public partial class FrmMain : Form
                     editorControl.LoadChunk(chunk);
             }
 
-            var errorColours = Settings.GetErrorChunkColour();
-            var chunkColours = new Dictionary<Type, (Color BackColour, Color ForeColour)>();
-            bool ValidateAndColour(TreeNode node)
-            {
-                if (node.Tag is not Chunk chunk)
-                    return false;
-                var chunkType = chunk.GetType();
-
-                bool childrenHaveErrors = false;
-                foreach (TreeNode child in node.Nodes)
-                    childrenHaveErrors |= ValidateAndColour(child);
-
-                bool selfHasErrors = chunk.ValidateChunk().Any();
-
-                bool branchHasErrors = selfHasErrors || childrenHaveErrors;
-
-                (Color BackColour, Color ForeColour) colours;
-                if (branchHasErrors)
-                {
-                    colours = errorColours;
-                }
-                else if (!chunkColours.TryGetValue(chunkType, out colours))
-                {
-                    colours = Settings.GetChunkColour(chunkType);
-                    chunkColours[chunkType] = colours;
-                }
-
-                if (node.BackColor != colours.BackColour)
-                    node.BackColor = colours.BackColour;
-
-                if (node.ForeColor != colours.ForeColour)
-                    node.ForeColor = colours.ForeColour;
-
-                return branchHasErrors;
-            }
-
-            var rootNode = TVChunks.Nodes[0];
-            bool globalErrorFound = false;
-            foreach (TreeNode node in rootNode.Nodes)
-                globalErrorFound |= ValidateAndColour(node);
-
-            var (back, fore) = globalErrorFound ? errorColours : (Color.Empty, Color.Empty);
-
-            if (rootNode.BackColor != back)
-                rootNode.BackColor = back;
-
-            if (rootNode.ForeColor != fore)
-                rootNode.ForeColor = fore;
+            UpdateChunkColours();
 
             TVChunks.EndUpdate();
         }
