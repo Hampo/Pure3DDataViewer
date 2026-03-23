@@ -1,6 +1,6 @@
 ﻿using NetP3DLib.P3D;
 
-namespace Pure3DDataViewer.UndoRedo;
+namespace Pure3DDataViewer.UndoRedo.Commands;
 
 internal class FileCommand(string change, P3DFile fileBefore, P3DFile fileAfter) : ICommand
 {

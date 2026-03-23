@@ -2042,7 +2042,7 @@ public partial class FrmMain : Form
 
     private static void CaptureNode(TreeNode node, List<string> path, TreeState state)
     {
-        var currentPath = new List<string> { node.Text };
+        var currentPath = new List<string>(path) { node.Text };
 
         if (node.IsExpanded)
             state.ExpandedPaths.Add(currentPath);

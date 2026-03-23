@@ -1,18 +1,18 @@
 ﻿using NetP3DLib.P3D;
 using System.Collections.ObjectModel;
 
-namespace Pure3DDataViewer.UndoRedo;
+namespace Pure3DDataViewer.UndoRedo.Commands;
 
 internal class DeleteChunkCommand(string change, IList<int> hierarchy, Chunk chunk) : ICommand
 {
     public string Change { get; } = change;
 
-    private readonly IReadOnlyList<int> _hierarchy = hierarchy.AsReadOnly();
+    private readonly ReadOnlyCollection<int> _hierarchy = hierarchy.AsReadOnly();
     private readonly Chunk _chunk = chunk.Clone();
 
-    public void Redo(P3DFile p3dFile) => GetParent(p3dFile).Insert(GetIndex(), _chunk.Clone());
+    public void Redo(P3DFile p3dFile) => GetParent(p3dFile).RemoveAt(GetIndex());
 
-    public void Undo(P3DFile p3dFile) => GetParent(p3dFile).RemoveAt(GetIndex());
+    public void Undo(P3DFile p3dFile) => GetParent(p3dFile).Insert(GetIndex(), _chunk.Clone());
 
     private Collection<Chunk> GetParent(P3DFile file)
     {
