@@ -1485,7 +1485,7 @@ public partial class FrmMain : Form
     private async void TSMIPasteBefore_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
-        if (node?.Tag is not Chunk)
+        if (node?.Tag is not Chunk chunk)
             return;
 
         var chunks = GetChunksFromClipboard();
@@ -1493,56 +1493,49 @@ public partial class FrmMain : Form
             return;
 
         TreeNode? chunkNode;
-        node.Expand();
         var index = node.Index;
-        switch (node.Tag)
+
+        if (chunk.ParentFile != null)
         {
-            case P3DFile p3dFile:
-                while (node.Nodes.Count != p3dFile.Chunks.Count)
-                    await Task.Delay(100);
-
-                if (chunks.Count == 1)
-                {
-                    var newChunk = chunks[0];
-                    p3dFile.Chunks.Insert(index, newChunk);
-                    _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[index];
-                    chunkNode.EnsureVisible();
-                }
-                else
-                {
-                    var beforeFile = p3dFile.Clone();
-                    p3dFile.Chunks.InsertRange(index, chunks);
-                    chunkNode = node.Nodes[index + chunks.Count];
-                    chunkNode.EnsureVisible();
-                    _undoRedoManager.Execute(new FileCommand("Paste Before", beforeFile, p3dFile));
-                }
-
-                break;
-            case Chunk chunk:
-                while (node.Nodes.Count != chunk.Children.Count)
-                    await Task.Delay(100);
-
-                if (chunks.Count == 1)
-                {
-                    var newChunk = chunks[0];
-                    chunk.Children.Insert(index, newChunk);
-                    _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[index];
-                    chunkNode.EnsureVisible();
-                }
-                else
-                {
-                    var beforeChunk = chunk.Clone();
-                    chunk.Children.InsertRange(index, chunks);
-                    chunkNode = node.Nodes[index + chunks.Count];
-                    chunkNode.EnsureVisible();
-                    _undoRedoManager.Execute(new UpdateChunkCommand("Paste Before", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
-                }
-
-                break;
-            default:
-                return;
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentFile.Chunks.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeFile = chunk.ParentFile.Clone();
+                chunk.ParentFile.Chunks.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new FileCommand("Paste Before", beforeFile, chunk.ParentFile));
+            }
+        }
+        else if (chunk.ParentChunk != null)
+        {
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentChunk.Children.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeChunk = chunk.Clone();
+                chunk.ParentChunk.Children.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new UpdateChunkCommand("Paste Before", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
+            }
+        }
+        else
+        {
+            return;
         }
 
         TVChunks.SelectedNode = chunkNode;
@@ -1551,7 +1544,7 @@ public partial class FrmMain : Form
     private async void TSMIPasteAfter_Click(object sender, EventArgs e)
     {
         var node = TVChunks.SelectedNode;
-        if (node?.Tag is not Chunk)
+        if (node?.Tag is not Chunk chunk)
             return;
 
         var chunks = GetChunksFromClipboard();
@@ -1559,57 +1552,49 @@ public partial class FrmMain : Form
             return;
 
         TreeNode? chunkNode;
-        node.Expand();
         var index = node.Index + 1;
-        switch (node.Tag)
+
+        if (chunk.ParentFile != null)
         {
-            case P3DFile p3dFile:
-                while (node.Nodes.Count != p3dFile.Chunks.Count)
-                    await Task.Delay(100);
-
-                if (chunks.Count == 1)
-                {
-                    var newChunk = chunks[0];
-                    p3dFile.Chunks.Insert(index, newChunk);
-                    _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[index];
-                    chunkNode.EnsureVisible();
-                }
-                else
-                {
-
-                    var beforeFile = p3dFile.Clone();
-                    p3dFile.Chunks.InsertRange(index, chunks);
-                    chunkNode = node.Nodes[index + chunks.Count];
-                    chunkNode.EnsureVisible();
-                    _undoRedoManager.Execute(new FileCommand("Paste After", beforeFile, p3dFile));
-                }
-
-                break;
-            case Chunk chunk:
-                while (node.Nodes.Count != chunk.Children.Count)
-                    await Task.Delay(100);
-
-                if (chunks.Count == 1)
-                {
-                    var newChunk = chunks[0];
-                    chunk.Children.Insert(index, newChunk);
-                    _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[index];
-                    chunkNode.EnsureVisible();
-                }
-                else
-                {
-                    var beforeChunk = chunk.Clone();
-                    chunk.Children.InsertRange(index, chunks);
-                    chunkNode = node.Nodes[index + chunks.Count];
-                    chunkNode.EnsureVisible();
-                    _undoRedoManager.Execute(new UpdateChunkCommand("Paste After", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
-                }
-
-                break;
-            default:
-                return;
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentFile.Chunks.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeFile = chunk.ParentFile.Clone();
+                chunk.ParentFile.Chunks.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new FileCommand("Paste After", beforeFile, chunk.ParentFile));
+            }
+        }
+        else if (chunk.ParentChunk != null)
+        {
+            if (chunks.Count == 1)
+            {
+                var newChunk = chunks[0];
+                chunk.ParentChunk.Children.Insert(index, newChunk);
+                _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
+                chunkNode = node.Parent.Nodes[index];
+                chunkNode.EnsureVisible();
+            }
+            else
+            {
+                var beforeChunk = chunk.Clone();
+                chunk.ParentChunk.Children.InsertRange(index, chunks);
+                chunkNode = node.Parent.Nodes[index + chunks.Count];
+                chunkNode.EnsureVisible();
+                _undoRedoManager.Execute(new UpdateChunkCommand("Paste After", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
+            }
+        }
+        else
+        {
+            return;
         }
 
         node.Expand();
@@ -1626,7 +1611,7 @@ public partial class FrmMain : Form
         if (chunks == null || chunks.Count == 0)
             return;
 
-        TreeNode? chunkNode = null;
+        TreeNode? chunkNode;
         node.Expand();
         switch (node.Tag)
         {
