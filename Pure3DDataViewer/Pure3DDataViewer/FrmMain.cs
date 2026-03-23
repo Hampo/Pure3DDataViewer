@@ -2104,6 +2104,7 @@ public partial class FrmMain : Form
         {
             UnsavedChanges = true;
             InsertChunkNode(TVChunks.Nodes[0], newChunk);
+            UpdateChunkColours();
 
             if (!TVChunks.Nodes[0].IsExpanded)
                 TVChunks.Nodes[0].Expand();
@@ -2116,6 +2117,7 @@ public partial class FrmMain : Form
         {
             UnsavedChanges = true;
             RemoveChunkNode(TVChunks.Nodes[0], removedChunk, oldIndex);
+            UpdateChunkColours();
         }
     }
 
@@ -2128,6 +2130,7 @@ public partial class FrmMain : Form
             foreach (var newChunk in newChunks)
                 InsertChunkNode(TVChunks.Nodes[0], newChunk, false);
             UpdateChunkIndices(TVChunks.Nodes[0], newChunks[0].IndexInParent);
+            UpdateChunkColours();
 
             if (!TVChunks.Nodes[0].IsExpanded)
                 TVChunks.Nodes[0].Expand();
@@ -2148,6 +2151,7 @@ public partial class FrmMain : Form
                 firstIndex = oldIndex;
             }
             UpdateChunkIndices(TVChunks.Nodes[0], firstIndex);
+            UpdateChunkColours();
             TVChunks.EndUpdate();
         }
     }
