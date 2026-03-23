@@ -2331,6 +2331,8 @@ public partial class FrmMain : Form
                 var currentBatchSize = Math.Min(batchSize, childChunks.Count - i);
 
                 var newNodes = new List<TreeNode>(currentBatchSize);
+                var errorColours = Settings.GetErrorChunkColour();
+                var chunkColours = new Dictionary<Type, (Color BackColour, Color ForeColour)>();
                 for (var j = 0; j < currentBatchSize; j++)
                 {
                     token.ThrowIfCancellationRequested();
@@ -2343,8 +2345,25 @@ public partial class FrmMain : Form
                     {
                         Tag = child
                     };
+                    var childType = child.GetType();
 
-                    ApplyNodeStyling(childNode, child, child.ValidateChunks().Any());
+                    (Color BackColour, Color ForeColour) colours;
+                    if (child.ValidateChunks().Any())
+                    {
+                        colours = errorColours;
+                    }
+                    else if (!chunkColours.TryGetValue(childType, out colours))
+                    {
+                        colours = Settings.GetChunkColour(childType);
+                        chunkColours[childType] = colours;
+                    }
+
+                    if (childNode.BackColor != colours.BackColour)
+                        childNode.BackColor = colours.BackColour;
+
+                    if (childNode.ForeColor != colours.ForeColour)
+                        childNode.ForeColor = colours.ForeColour;
+
                     SubscribeNode(childNode, child);
 
                     if (child.Children.Count > 0)
