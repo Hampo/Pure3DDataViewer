@@ -11,7 +11,6 @@ using Pure3DDataViewerPluginAPI.Editors;
 using Pure3DDataViewerPluginAPI.Extensions;
 using Pure3DDataViewerPluginAPI.Helpers;
 using Pure3DDataViewerPluginAPI.Interfaces;
-using SHARMemory.Memory;
 using System.Collections;
 using System.ComponentModel;
 using System.Reflection;
@@ -1493,7 +1492,7 @@ public partial class FrmMain : Form
         if (chunks == null || chunks.Count == 0)
             return;
 
-        TreeNode? chunkNode = null;
+        TreeNode? chunkNode;
         node.Expand();
         var index = node.Index;
         switch (node.Tag)
@@ -1507,26 +1506,15 @@ public partial class FrmMain : Form
                     var newChunk = chunks[0];
                     p3dFile.Chunks.Insert(index, newChunk);
                     _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[newChunk.IndexInParent];
+                    chunkNode = node.Nodes[index];
                     chunkNode.EnsureVisible();
                 }
                 else
                 {
                     var beforeFile = p3dFile.Clone();
-                    for (var i = chunks.Count - 1; i >= 0; i--)
-                    {
-                        p3dFile.Chunks.Insert(index, chunks[i]);
-
-                        if (!node.IsExpanded)
-                        {
-                            node.Expand();
-                            while (node.Nodes.Count != p3dFile.Chunks.Count)
-                                await Task.Delay(100);
-                        }
-
-                        chunkNode = node.Nodes[index];
-                        chunkNode.EnsureVisible();
-                    }
+                    p3dFile.Chunks.InsertRange(index, chunks);
+                    chunkNode = node.Nodes[index + chunks.Count];
+                    chunkNode.EnsureVisible();
                     _undoRedoManager.Execute(new FileCommand("Paste Before", beforeFile, p3dFile));
                 }
 
@@ -1540,26 +1528,15 @@ public partial class FrmMain : Form
                     var newChunk = chunks[0];
                     chunk.Children.Insert(index, newChunk);
                     _undoRedoManager.Execute(new AddChunkCommand("Paste Before", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[newChunk.IndexInParent];
+                    chunkNode = node.Nodes[index];
                     chunkNode.EnsureVisible();
                 }
                 else
                 {
                     var beforeChunk = chunk.Clone();
-                    for (var i = chunks.Count - 1; i >= 0; i--)
-                    {
-                        chunk.Children.Insert(index, chunks[i]);
-
-                        if (!node.IsExpanded)
-                        {
-                            node.Expand();
-                            while (node.Nodes.Count != chunk.Children.Count)
-                                await Task.Delay(100);
-                        }
-
-                        chunkNode = node.Nodes[index];
-                        chunkNode.EnsureVisible();
-                    }
+                    chunk.Children.InsertRange(index, chunks);
+                    chunkNode = node.Nodes[index + chunks.Count];
+                    chunkNode.EnsureVisible();
                     _undoRedoManager.Execute(new UpdateChunkCommand("Paste Before", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
                 }
 
@@ -1568,7 +1545,6 @@ public partial class FrmMain : Form
                 return;
         }
 
-        node.Expand();
         TVChunks.SelectedNode = chunkNode;
     }
 
@@ -1582,7 +1558,7 @@ public partial class FrmMain : Form
         if (chunks == null || chunks.Count == 0)
             return;
 
-        TreeNode? chunkNode = null;
+        TreeNode? chunkNode;
         node.Expand();
         var index = node.Index + 1;
         switch (node.Tag)
@@ -1596,27 +1572,16 @@ public partial class FrmMain : Form
                     var newChunk = chunks[0];
                     p3dFile.Chunks.Insert(index, newChunk);
                     _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[newChunk.IndexInParent];
+                    chunkNode = node.Nodes[index];
                     chunkNode.EnsureVisible();
                 }
                 else
                 {
 
                     var beforeFile = p3dFile.Clone();
-                    for (var i = chunks.Count - 1; i >= 0; i--)
-                    {
-                        p3dFile.Chunks.Insert(index, chunks[i]);
-
-                        if (!node.IsExpanded)
-                        {
-                            node.Expand();
-                            while (node.Nodes.Count != p3dFile.Chunks.Count)
-                                await Task.Delay(100);
-                        }
-
-                        chunkNode = node.Nodes[index];
-                        chunkNode.EnsureVisible();
-                    }
+                    p3dFile.Chunks.InsertRange(index, chunks);
+                    chunkNode = node.Nodes[index + chunks.Count];
+                    chunkNode.EnsureVisible();
                     _undoRedoManager.Execute(new FileCommand("Paste After", beforeFile, p3dFile));
                 }
 
@@ -1630,26 +1595,15 @@ public partial class FrmMain : Form
                     var newChunk = chunks[0];
                     chunk.Children.Insert(index, newChunk);
                     _undoRedoManager.Execute(new AddChunkCommand("Paste After", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[newChunk.IndexInParent];
+                    chunkNode = node.Nodes[index];
                     chunkNode.EnsureVisible();
                 }
                 else
                 {
                     var beforeChunk = chunk.Clone();
-                    for (var i = chunks.Count - 1; i >= 0; i--)
-                    {
-                        chunk.Children.Insert(index, chunks[i]);
-
-                        if (!node.IsExpanded)
-                        {
-                            node.Expand();
-                            while (node.Nodes.Count != chunk.Children.Count)
-                                await Task.Delay(100);
-                        }
-
-                        chunkNode = node.Nodes[index];
-                        chunkNode.EnsureVisible();
-                    }
+                    chunk.Children.InsertRange(index, chunks);
+                    chunkNode = node.Nodes[index + chunks.Count];
+                    chunkNode.EnsureVisible();
                     _undoRedoManager.Execute(new UpdateChunkCommand("Paste After", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
                 }
 
@@ -1685,27 +1639,15 @@ public partial class FrmMain : Form
                     var newChunk = chunks[0];
                     p3dFile.Chunks.Add(newChunk);
                     _undoRedoManager.Execute(new AddChunkCommand("Paste Inside", GetChunkHierarchy(newChunk)!, newChunk));
-                    chunkNode = node.Nodes[newChunk.IndexInParent];
+                    chunkNode = node.Nodes[^1];
                     chunkNode.EnsureVisible();
                 }
                 else
                 {
-
                     var beforeFile = p3dFile.Clone();
-                    foreach (var newChunk in chunks)
-                    {
-                        p3dFile.Chunks.Add(newChunk);
-
-                        if (!node.IsExpanded)
-                        {
-                            node.Expand();
-                            while (node.Nodes.Count != p3dFile.Chunks.Count)
-                                await Task.Delay(100);
-                        }
-
-                        chunkNode = node.Nodes[newChunk.IndexInParent];
-                        chunkNode.EnsureVisible();
-                    }
+                    p3dFile.Chunks.AddRange(chunks);
+                    chunkNode = node.Nodes[^1];
+                    chunkNode.EnsureVisible();
                     _undoRedoManager.Execute(new FileCommand("Paste Inside", beforeFile, p3dFile));
                 }
 
@@ -1725,20 +1667,9 @@ public partial class FrmMain : Form
                 else
                 {
                     var beforeChunk = chunk.Clone();
-                    foreach (var newChunk in chunks)
-                    {
-                        chunk.Children.Add(newChunk);
-
-                        if (!node.IsExpanded)
-                        {
-                            node.Expand();
-                            while (node.Nodes.Count != chunk.Children.Count)
-                                await Task.Delay(100);
-                        }
-
-                        chunkNode = node.Nodes[newChunk.IndexInParent];
-                        chunkNode.EnsureVisible();
-                    }
+                    chunk.Children.AddRange(chunks);
+                    chunkNode = node.Nodes[^1];
+                    chunkNode.EnsureVisible();
                     _undoRedoManager.Execute(new UpdateChunkCommand("Paste Inside", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
                 }
 
@@ -1790,20 +1721,9 @@ public partial class FrmMain : Form
                     {
 
                         var beforeFile = p3dFile.Clone();
-                        foreach (var newChunk in newChunks)
-                        {
-                            p3dFile.Chunks.Add(newChunk);
-
-                            if (!node.IsExpanded)
-                            {
-                                node.Expand();
-                                while (node.Nodes.Count != p3dFile.Chunks.Count)
-                                    await Task.Delay(100);
-                            }
-
-                            chunkNode = node.Nodes[newChunk.IndexInParent];
-                            chunkNode.EnsureVisible();
-                        }
+                        p3dFile.Chunks.AddRange(newChunks);
+                        chunkNode = node.Nodes[^1];
+                        chunkNode.EnsureVisible();
                         _undoRedoManager.Execute(new FileCommand("New Chunk", beforeFile, p3dFile));
                     }
 
@@ -1823,20 +1743,9 @@ public partial class FrmMain : Form
                     else
                     {
                         var beforeChunk = chunk.Clone();
-                        foreach (var newChunk in newChunks)
-                        {
-                            chunk.Children.Add(newChunk);
-
-                            if (!node.IsExpanded)
-                            {
-                                node.Expand();
-                                while (node.Nodes.Count != chunk.Children.Count)
-                                    await Task.Delay(100);
-                            }
-
-                            chunkNode = node.Nodes[newChunk.IndexInParent];
-                            chunkNode.EnsureVisible();
-                        }
+                        chunk.Children.AddRange(newChunks);
+                        chunkNode = node.Nodes[^1];
+                        chunkNode.EnsureVisible();
                         _undoRedoManager.Execute(new UpdateChunkCommand("New Chunk", GetChunkHierarchy(chunk)!, beforeChunk, chunk));
                     }
 
