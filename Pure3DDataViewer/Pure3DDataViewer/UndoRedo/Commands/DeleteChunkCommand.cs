@@ -20,7 +20,7 @@ internal class DeleteChunkCommand(string change, IList<int> hierarchy, Chunk chu
             return file.Chunks;
 
         var chunk = file.Chunks[_hierarchy[^1]];
-        for (int i = 1; i < _hierarchy.Count - 1; i++)
+        for (int i = _hierarchy.Count - 2; i > 0; i--)
             chunk = chunk.Children[_hierarchy[i]];
 
         return chunk.Children;
