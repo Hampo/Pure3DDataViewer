@@ -1018,6 +1018,10 @@ internal static class ChunkMap
 
         // TODO: LightConeParam - Missing matching Lua file
 
+        // TODO: LightDecayRange - Missing matching Lua file
+
+        // TODO: LightDecayRangeRotationY - Missing matching Lua file
+
         Register<LightDirectionChunk>(new()
         {
             LuaClassName = "LightDirection",
