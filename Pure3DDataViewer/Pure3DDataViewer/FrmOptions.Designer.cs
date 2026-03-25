@@ -43,12 +43,17 @@ partial class FrmOptions
         TPTheme = new TabPage();
         CBLargeFont = new CheckBox();
         CBDarkMode = new CheckBox();
+        TPMiscellaneous = new TabPage();
+        LblChunkBatchSize = new Label();
+        NUDChunkBatchSize = new NumericUpDown();
         PnlButtons = new Panel();
         BtnOK = new Button();
         TCOptions.SuspendLayout();
         TPChunkColours.SuspendLayout();
         CMSChunkColours.SuspendLayout();
         TPTheme.SuspendLayout();
+        TPMiscellaneous.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)NUDChunkBatchSize).BeginInit();
         PnlButtons.SuspendLayout();
         SuspendLayout();
         // 
@@ -56,6 +61,7 @@ partial class FrmOptions
         // 
         TCOptions.Controls.Add(TPChunkColours);
         TCOptions.Controls.Add(TPTheme);
+        TCOptions.Controls.Add(TPMiscellaneous);
         TCOptions.Dock = DockStyle.Fill;
         TCOptions.Location = new Point(0, 0);
         TCOptions.Name = "TCOptions";
@@ -172,6 +178,38 @@ partial class FrmOptions
         CBDarkMode.UseVisualStyleBackColor = true;
         CBDarkMode.CheckedChanged += CBDarkMode_CheckedChanged;
         // 
+        // TPMiscellaneous
+        // 
+        TPMiscellaneous.Controls.Add(LblChunkBatchSize);
+        TPMiscellaneous.Controls.Add(NUDChunkBatchSize);
+        TPMiscellaneous.Location = new Point(4, 24);
+        TPMiscellaneous.Name = "TPMiscellaneous";
+        TPMiscellaneous.Padding = new Padding(3);
+        TPMiscellaneous.Size = new Size(792, 381);
+        TPMiscellaneous.TabIndex = 2;
+        TPMiscellaneous.Text = "Miscellaneous";
+        TPMiscellaneous.UseVisualStyleBackColor = true;
+        // 
+        // LblChunkBatchSize
+        // 
+        LblChunkBatchSize.AutoSize = true;
+        LblChunkBatchSize.Location = new Point(8, 8);
+        LblChunkBatchSize.Name = "LblChunkBatchSize";
+        LblChunkBatchSize.Size = new Size(101, 15);
+        LblChunkBatchSize.TabIndex = 1;
+        LblChunkBatchSize.Text = "Chunk Batch Size:";
+        // 
+        // NUDChunkBatchSize
+        // 
+        NUDChunkBatchSize.Location = new Point(115, 6);
+        NUDChunkBatchSize.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+        NUDChunkBatchSize.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+        NUDChunkBatchSize.Name = "NUDChunkBatchSize";
+        NUDChunkBatchSize.Size = new Size(120, 23);
+        NUDChunkBatchSize.TabIndex = 0;
+        NUDChunkBatchSize.Value = new decimal(new int[] { 1, 0, 0, 0 });
+        NUDChunkBatchSize.ValueChanged += NUDChunkBatchSize_ValueChanged;
+        // 
         // PnlButtons
         // 
         PnlButtons.Controls.Add(BtnOK);
@@ -211,6 +249,9 @@ partial class FrmOptions
         CMSChunkColours.ResumeLayout(false);
         TPTheme.ResumeLayout(false);
         TPTheme.PerformLayout();
+        TPMiscellaneous.ResumeLayout(false);
+        TPMiscellaneous.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)NUDChunkBatchSize).EndInit();
         PnlButtons.ResumeLayout(false);
         ResumeLayout(false);
     }
@@ -233,4 +274,7 @@ partial class FrmOptions
     private TabPage TPTheme;
     private CheckBox CBLargeFont;
     private CheckBox CBDarkMode;
+    private TabPage TPMiscellaneous;
+    private Label LblChunkBatchSize;
+    private NumericUpDown NUDChunkBatchSize;
 }

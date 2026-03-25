@@ -233,4 +233,10 @@ public static class Settings
         get => RegistryUtils.GetInt32("SplitterDistance", 464)!.Value;
         set => RegistryUtils.SetInt32("SplitterDistance", value);
     }
+
+    public static int ChunkBatchSize
+    {
+        get => RegistryUtils.GetInt32("ChunkBatchSize", 50)!.Value;
+        set => RegistryUtils.SetInt32("ChunkBatchSize", value);
+    }
 }

@@ -2490,6 +2490,14 @@ public partial class FrmMain : Form
         if (node == null || !(node.Nodes.Count == 1 && node.Nodes[0].Text == "<<DUMMY>>"))
             return;
 
+        IList<Chunk> childChunks;
+        if (node.Tag is P3DFile p3dFile)
+            childChunks = p3dFile.Chunks;
+        else if (node.Tag is Chunk chunk)
+            childChunks = chunk.Children;
+        else
+            return;
+
         _loadingChunks++;
         node.Nodes.Clear();
 
@@ -2497,15 +2505,7 @@ public partial class FrmMain : Form
 
         try
         {
-            IList<Chunk> childChunks;
-            if (node.Tag is P3DFile p3dFile)
-                childChunks = p3dFile.Chunks;
-            else if (node.Tag is Chunk chunk)
-                childChunks = chunk.Children;
-            else
-                return;
-
-            const int batchSize = 50;
+            var batchSize = Settings.ChunkBatchSize;
             for (var i = 0; i < childChunks.Count; i += batchSize)
             {
                 token.ThrowIfCancellationRequested();
@@ -2522,13 +2522,12 @@ public partial class FrmMain : Form
                     var index = i + j;
                     var child = childChunks[index];
                     if (child.IndexInParent == -1)
-                        continue;
-                    var childNode = new TreeNode($"{index}. {child}")
                     {
-                        Tag = child
-                    };
-                    var childType = child.GetType();
+                        newNodes.Add(new("<ORPHANED CHUNK NODE>"));
+                        continue;
+                    }
 
+                    var childType = child.GetType();
                     (Color BackColour, Color ForeColour) colours;
                     if (child.ValidateChunks().Any())
                     {
@@ -2540,11 +2539,12 @@ public partial class FrmMain : Form
                         chunkColours[childType] = colours;
                     }
 
-                    if (childNode.BackColor != colours.BackColour)
-                        childNode.BackColor = colours.BackColour;
-
-                    if (childNode.ForeColor != colours.ForeColour)
-                        childNode.ForeColor = colours.ForeColour;
+                    var childNode = new TreeNode($"{child.IndexInParent}. {child}")
+                    {
+                        BackColor = colours.BackColour,
+                        ForeColor = colours.ForeColour,
+                        Tag = child
+                    };
 
                     SubscribeNode(childNode, child);
 
@@ -2562,8 +2562,13 @@ public partial class FrmMain : Form
         }
         catch (OperationCanceledException)
         { }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"There was an error loading chunk nodes: {ex}", "Error loading chunk nodes", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         finally
         {
+            TVChunks.Invalidate();
             _loadingChunks--;
             if (_loadingChunks == 0)
             {
@@ -2645,7 +2650,7 @@ public partial class FrmMain : Form
 
             TVChunks.BeginUpdate();
 
-            var text = $"{node.Index}. {chunk}";
+            var text = $"{chunk.IndexInParent}. {chunk}";
             if (node.Text != text)
                 node.Text = text;
 
@@ -2816,7 +2821,7 @@ public partial class FrmMain : Form
             var node = parentNode.Nodes[i];
             if (node.Tag is Chunk chunk)
             {
-                var text = $"{i}. {chunk}";
+                var text = $"{chunk.IndexInParent}. {chunk}";
                 if (node.Text != text)
                     node.Text = text;
             }
