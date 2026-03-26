@@ -45,14 +45,14 @@ public partial class CompositeDrawableEditor : EditorControl
             var propList = compositeDrawableChunk.GetLastChunkOfType<CompositeDrawablePropListChunk>();
             var effectList = compositeDrawableChunk.GetLastChunkOfType<CompositeDrawableEffectListChunk>();
 
-            Chunk? current = compositeDrawableChunk;
+            Chunk current = compositeDrawableChunk;
             while (current.ParentChunk != null)
             {
-                LoadChildren(skinList, propList, effectList, current.ParentChunk.Children);
+                LoadChildren(skinList, propList, effectList, current.ParentChunk.Children, current.IndexInParent);
                 current = current.ParentChunk;
             }
             if (current.ParentFile != null)
-                LoadChildren(skinList, propList, effectList, current.ParentFile.Chunks);
+                LoadChildren(skinList, propList, effectList, current.ParentFile.Chunks, current.IndexInParent);
 
             if (skinList != null)
                 foreach (var skin in skinList.GetChunksOfType<CompositeDrawableSkinChunk>())
@@ -91,10 +91,12 @@ public partial class CompositeDrawableEditor : EditorControl
         return false;
     }
 
-    private void LoadChildren(CompositeDrawableSkinListChunk? skinList, CompositeDrawablePropListChunk? propList, CompositeDrawableEffectListChunk? effectList, IList<Chunk> chunks)
+    private void LoadChildren(CompositeDrawableSkinListChunk? skinList, CompositeDrawablePropListChunk? propList, CompositeDrawableEffectListChunk? effectList, IList<Chunk> chunks, int indexInParent)
     {
-        foreach (var child in chunks)
+        for (var i = 0; i < indexInParent; i++)
         {
+            var child = chunks[i];
+
             switch (child)
             {
                 case SkinChunk skin:
