@@ -39,7 +39,7 @@ public static class MemoryUtils
             while (rot < 0)
                 rot += Math.PI * 2;
 
-            return (new(mat.M41, mat.M42 - wheelRadius - suspensionRestPoint.Y, mat.M43), rot);
+            return (new(mat.M41, mat.M42 - wheelRadius + suspensionRestPoint.Y, mat.M43), rot);
         }
         else
         {
