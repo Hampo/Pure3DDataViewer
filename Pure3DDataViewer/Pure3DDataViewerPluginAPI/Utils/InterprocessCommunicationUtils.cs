@@ -35,7 +35,7 @@ public static class InterprocessCommunicationUtils
             {
                 var wheelRadius = car.Wheels[0].Radius;
                 var suspensionRestPoint = car.SuspensionRestPoints[0];
-                pos.Y += wheelRadius + suspensionRestPoint.Y;
+                pos.Y += wheelRadius - suspensionRestPoint.Y;
             }
             var mat = Matrix4x4.CreateRotationY(rotationY) * Matrix4x4.CreateTranslation(pos);
             interprocessCommunication.Writer.Write(mat);
