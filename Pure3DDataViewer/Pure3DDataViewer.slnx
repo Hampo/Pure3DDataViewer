@@ -16,6 +16,7 @@
     <Project Path="FrontendTextBibleEditor/FrontendTextBibleEditor.csproj" />
     <Project Path="ImportExportImages/ImportExportImages.csproj" />
     <Project Path="LocationFromGame/LocationFromGame.csproj" />
+    <Project Path="LocatorEditor/LocatorEditor.csproj" Id="e35ac092-88b3-459a-9b60-bcae446434ad" />
     <Project Path="Sort/Sort.csproj" />
     <Project Path="Test/Test.csproj" />
     <Project Path="TimeOfDayTint/TimeOfDayTint.csproj" />
@@ -30,6 +31,7 @@
     <BuildDependency Project="FrontendTextBibleEditor/FrontendTextBibleEditor.csproj" />
     <BuildDependency Project="ImportExportImages/ImportExportImages.csproj" />
     <BuildDependency Project="LocationFromGame/LocationFromGame.csproj" />
+    <BuildDependency Project="LocatorEditor/LocatorEditor.csproj" />
     <BuildDependency Project="Sort/Sort.csproj" />
     <BuildDependency Project="Test/Test.csproj" />
     <BuildDependency Project="TimeOfDayTint/TimeOfDayTint.csproj" />

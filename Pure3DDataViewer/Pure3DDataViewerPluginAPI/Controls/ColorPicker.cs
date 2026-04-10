@@ -3,6 +3,9 @@
 namespace Pure3DDataViewerPluginAPI.Controls;
 public partial class ColorPicker : UserControl
 {
+    public event EventHandler? ValueChanged;
+    protected virtual void OnValueChanged() => ValueChanged?.Invoke(this, EventArgs.Empty);
+
     public static int[]? CustomColours
     {
         get
@@ -36,12 +39,14 @@ public partial class ColorPicker : UserControl
         {
             PnlColour.BackColor = Color.FromArgb(255, value);
             NUDAlpha.Value = value.A;
+            OnValueChanged();
         }
     }
 
     public ColorPicker()
     {
         InitializeComponent();
+        NUDAlpha.ValueChanged += (s, e) => OnValueChanged();
     }
 
     private void PnlColour_Click(object sender, EventArgs e)
@@ -57,7 +62,10 @@ public partial class ColorPicker : UserControl
         };
 
         if (colourDialog.ShowDialog() == DialogResult.OK)
+        {
             PnlColour.BackColor = colourDialog.Color;
+            OnValueChanged();
+        }
 
         CustomColours = colourDialog.CustomColors;
     }

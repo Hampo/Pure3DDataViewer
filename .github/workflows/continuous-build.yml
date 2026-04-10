@@ -73,7 +73,8 @@ jobs:
             "CarPhysicsObjectGenerator",
             "TimeOfDayTint",
             "ConvertToLua",
-            "CompositeDrawableEditor"
+            "CompositeDrawableEditor",
+            "LocatorEditor"
           )
 
           foreach ($plugin in $plugins) {

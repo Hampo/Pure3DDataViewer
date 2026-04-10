@@ -38,6 +38,9 @@ copy Pure3DDataViewer\ConvertToLua\bin\publish\ConvertToLua.dll Publish\Plugins\
 dotnet publish Pure3DDataViewer\CompositeDrawableEditor\CompositeDrawableEditor.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\CompositeDrawableEditor\bin\publish
 copy Pure3DDataViewer\CompositeDrawableEditor\bin\publish\CompositeDrawableEditor.dll Publish\Plugins\CompositeDrawableEditor.dll
 
+dotnet publish Pure3DDataViewer\LocatorEditor\LocatorEditor.csproj -c release -r win-x64 --self-contained false -o Pure3DDataViewer\LocatorEditor\bin\publish
+copy Pure3DDataViewer\LocatorEditor\bin\publish\LocatorEditor.dll Publish\Plugins\LocatorEditor.dll
+
 "C:\Program Files\7-Zip\7z.exe" a -tzip Pure3DDataViewer.zip .\Publish\*
 
 PAUSE
