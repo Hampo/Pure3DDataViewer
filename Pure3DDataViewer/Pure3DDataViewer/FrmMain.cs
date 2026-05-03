@@ -1273,26 +1273,27 @@ public partial class FrmMain : Form
 
         IList<Chunk> allChunks = P3DFile.AllChunks;
 
-        if (!Settings.FindDirection)
-            allChunks = [.. allChunks.Reverse()];
-
         var startIndex = 0;
         if (TVChunks.SelectedNode?.Tag is Chunk selectedChunk)
         {
-            startIndex = 1;
-
             var currentChunk = selectedChunk;
             while (currentChunk.ParentChunk != null)
             {
-                startIndex++;
                 for (var i = 0; i < currentChunk.IndexInParent; i++)
-                    startIndex += currentChunk.ParentChunk.Children[i].AllChildren.Count;
+                    startIndex += currentChunk.ParentChunk.Children[i].AllChildren.Count + 1;
 
+                startIndex++;
                 currentChunk = currentChunk.ParentChunk;
             }
 
             for (var i = 0; i < currentChunk.IndexInParent; i++)
                 startIndex += currentChunk.ParentFile!.Chunks[i].AllChildren.Count + 1;
+        }
+
+        if (!Settings.FindDirection)
+        {
+            allChunks = [.. allChunks.Reverse()];
+            startIndex = allChunks.Count - 1 - startIndex;
         }
 
         var comparison = Settings.FindMatchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -1302,13 +1303,8 @@ public partial class FrmMain : Form
         for (int i = startIndex + 1; i < allChunks.Count; i++)
         {
             var chunk = allChunks[i];
-            if (chunk.ToString().Contains(searchQuery, comparison))
-            {
-                foundChunk = chunk;
-                break;
-            }
 
-            if (Settings.FindIncludeProperties && SearchChunkProperties(chunk, searchQuery, comparison))
+            if (chunk.ToString().Contains(searchQuery, comparison) || Settings.FindIncludeProperties && SearchChunkProperties(chunk, searchQuery, comparison))
             {
                 foundChunk = chunk;
                 break;
@@ -1320,13 +1316,8 @@ public partial class FrmMain : Form
             for (int i = 0; i <= startIndex; i++)
             {
                 var chunk = allChunks[i];
-                if (chunk.ToString().Contains(searchQuery, comparison))
-                {
-                    foundChunk = chunk;
-                    break;
-                }
 
-                if (Settings.FindIncludeProperties && SearchChunkProperties(chunk, searchQuery, comparison))
+                if (chunk.ToString().Contains(searchQuery, comparison) || Settings.FindIncludeProperties && SearchChunkProperties(chunk, searchQuery, comparison))
                 {
                     foundChunk = chunk;
                     break;
