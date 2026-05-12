@@ -778,7 +778,10 @@ public partial class FrmMain : Form
     private bool _autosizePending = false;
     private void DGVValues_Resize(object sender, EventArgs e)
     {
-        if (!DGVValues.IsHandleCreated || _autosizePending)
+        if (!DGVValues.IsHandleCreated || DGVValues.Columns.Count == 0 || DGVValues.IsDisposed)
+            return;
+
+        if (_autosizePending)
             return;
 
         _autosizePending = true;
