@@ -47,7 +47,7 @@ partial class ScriptEditor
         TxtKey.Name = "TxtKey";
         TxtKey.Size = new Size(409, 23);
         TxtKey.TabIndex = 1;
-        TxtKey.Leave += TxtKey_Leave;
+        TxtKey.TextChanged += TxtKey_TextChanged;
         // 
         // ScriptEditor
         // 

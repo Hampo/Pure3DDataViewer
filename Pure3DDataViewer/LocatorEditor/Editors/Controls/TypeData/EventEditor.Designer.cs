@@ -82,7 +82,6 @@ partial class EventEditor
         NTBParameterUint.ValidColor = Color.White;
         NTBParameterUint.Value = null;
         NTBParameterUint.TextChanged += NTBParameterUint_TextChanged;
-        NTBParameterUint.Leave += NTBParameter_Leave;
         // 
         // LblNoParameter
         // 
@@ -104,7 +103,6 @@ partial class EventEditor
         NTBParameterInt.ValidColor = Color.White;
         NTBParameterInt.Value = null;
         NTBParameterInt.TextChanged += NTBParameterInt_TextChanged;
-        NTBParameterInt.Leave += NTBParameter_Leave;
         // 
         // NTBParameterFloat
         // 
@@ -118,7 +116,6 @@ partial class EventEditor
         NTBParameterFloat.ValidColor = Color.White;
         NTBParameterFloat.Value = null;
         NTBParameterFloat.TextChanged += NTBParameterFloat_TextChanged;
-        NTBParameterFloat.Leave += NTBParameter_Leave;
         // 
         // CPParameter
         // 

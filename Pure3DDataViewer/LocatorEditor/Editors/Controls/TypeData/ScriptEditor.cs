@@ -7,6 +7,7 @@ namespace LocatorEditor.Editors.Controls.TypeData;
 public partial class ScriptEditor : UserControl
 {
     private readonly LocatorChunk _locatorChunk;
+    public LocatorChunk LocatorChunk => _locatorChunk;
     private bool _updating = false;
 
     public ScriptEditor(LocatorChunk locatorChunk)
@@ -17,14 +18,19 @@ public partial class ScriptEditor : UserControl
             throw new NotSupportedException($"{typeof(ScriptEditor)} only supports Script (Type 1) locators.");
 
         _locatorChunk = locatorChunk;
+    }
+
+    internal void UpdateValues()
+    {
         _updating = true;
 
+        var eventData = (LocatorChunk.ScriptLocatorData)_locatorChunk.TypeData;
         TxtKey.Text = eventData.Key;
 
         _updating = false;
     }
 
-    private void TxtKey_Leave(object sender, EventArgs e)
+    private void TxtKey_TextChanged(object sender, EventArgs e)
     {
         var eventData = (LocatorChunk.ScriptLocatorData)_locatorChunk.TypeData;
         if (_updating || eventData.Key == TxtKey.Text)

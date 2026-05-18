@@ -7,6 +7,7 @@ namespace LocatorEditor.Editors.Controls.TypeData;
 public partial class EventEditor : UserControl
 {
     private readonly LocatorChunk _locatorChunk;
+    public LocatorChunk LocatorChunk => _locatorChunk;
     private bool _updating = false;
 
     public EventEditor(LocatorChunk locatorChunk)
@@ -17,19 +18,51 @@ public partial class EventEditor : UserControl
             throw new NotSupportedException($"{typeof(EventEditor)} only supports Event (Type 0) locators.");
 
         _locatorChunk = locatorChunk;
+        UpdateValues();
+    }
+
+    internal void UpdateValues()
+    {
         _updating = true;
 
-        CBEvent.DataSource = Enum.GetValues(typeof(LocatorChunk.EventLocatorData.Events));
-        CBEvent.SelectedItem = eventData.Event;
+        var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
 
-        CBParameter.Checked = eventData.HasParameter;
-        NTBParameterUint.Value = eventData.Parameter;
+        if (CBEvent.DataSource == null)
+            CBEvent.DataSource = Enum.GetValues(typeof(LocatorChunk.EventLocatorData.Events));
+        if ((LocatorChunk.EventLocatorData.Events?)CBEvent.SelectedItem != eventData.Event)
+            CBEvent.SelectedItem = eventData.Event;
+
+        if (CBParameter.Checked != eventData.HasParameter)
+            CBParameter.Checked = eventData.HasParameter;
+
+        var uintSelectionStart = NTBParameterUint.SelectionStart;
+        var intSelectionStart = NTBParameterInt.SelectionStart;
+        var floatSelectionStart = NTBParameterFloat.SelectionStart;
+
+        var uintSelectionLength = NTBParameterUint.SelectionLength;
+        var intSelectionLength = NTBParameterInt.SelectionLength;
+        var floatSelectionLength = NTBParameterFloat.SelectionLength;
+
+        if ((uint?)NTBParameterUint.Value != eventData.Parameter)
+            NTBParameterUint.Value = eventData.Parameter;
 
         NTBParameterUint.Enabled = eventData.HasParameter;
         NTBParameterInt.Enabled = eventData.HasParameter;
         NTBParameterFloat.Enabled = eventData.HasParameter;
         CPParameter.Enabled = eventData.HasParameter;
         CBParameterValue.Enabled = eventData.HasParameter;
+
+        var uintTextLength = NTBParameterUint.Text.Length;
+        NTBParameterUint.SelectionStart = Math.Min(uintSelectionStart, uintTextLength);
+        NTBParameterUint.SelectionLength = NTBParameterUint.SelectionStart + uintSelectionLength > uintTextLength ? uintTextLength - NTBParameterUint.SelectionStart : uintSelectionLength;
+
+        var intTextLength = NTBParameterInt.Text.Length;
+        NTBParameterInt.SelectionStart = Math.Min(intSelectionStart, intTextLength);
+        NTBParameterInt.SelectionLength = NTBParameterInt.SelectionStart + intSelectionLength > intTextLength ? intTextLength - NTBParameterInt.SelectionStart : intSelectionLength;
+
+        var floatTextLength = NTBParameterFloat.Text.Length;
+        NTBParameterFloat.SelectionStart = Math.Min(floatSelectionStart, floatTextLength);
+        NTBParameterFloat.SelectionLength = NTBParameterFloat.SelectionStart + floatSelectionLength > floatTextLength ? floatTextLength - NTBParameterFloat.SelectionStart : floatSelectionLength;
 
         _updating = false;
     }
@@ -118,21 +151,6 @@ public partial class EventEditor : UserControl
         UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Toggle Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
     }
 
-    private void UpdateParameterValue()
-    {
-        var value = NTBParameterUint.Value;
-        if (value is not uint uintValue)
-            return;
-
-        var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
-        if (_updating || eventData.Parameter == uintValue)
-            return;
-
-        var beforeChunk = _locatorChunk.Clone();
-        eventData.Parameter = uintValue;
-        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
-    }
-
     private void NTBParameterUint_TextChanged(object sender, EventArgs e)
     {
         var value = NTBParameterUint.Value;
@@ -145,6 +163,14 @@ public partial class EventEditor : UserControl
         NTBParameterFloat.Value = BitConverter.UInt32BitsToSingle(uintValue);
         CPParameter.Value = Color.FromArgb(intValue);
         CBParameterValue.Checked = uintValue != 0;
+
+        var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
+        if (_updating || eventData.Parameter == uintValue)
+            return;
+
+        var beforeChunk = _locatorChunk.Clone();
+        eventData.Parameter = uintValue;
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
     }
 
     private void NTBParameterFloat_TextChanged(object sender, EventArgs e)
@@ -171,9 +197,6 @@ public partial class EventEditor : UserControl
             return;
 
         NTBParameterUint.Value = CBParameterValue.Checked ? 1u : 0u;
-
-        if (CBParameterValue.Focused)
-            UpdateParameterValue();
     }
 
     private void CPParameter_ValueChanged(object sender, EventArgs e)
@@ -182,10 +205,5 @@ public partial class EventEditor : UserControl
             return;
 
         NTBParameterUint.Value = (uint)CPParameter.Value.ToArgb();
-
-        if (CPParameter.Focused)
-            UpdateParameterValue();
     }
-
-    private void NTBParameter_Leave(object sender, EventArgs e) => UpdateParameterValue();
 }

@@ -33,22 +33,44 @@ public partial class LocatorEditor : EditorControl
             NTBPositionY.Value = locatorChunk.Position.Y;
             NTBPositionZ.Value = locatorChunk.Position.Z;
 
-            GBTypeDataEditor.Controls.Clear();
+            var control = GBTypeDataEditor.Controls.Count > 0 ? GBTypeDataEditor.Controls[0] : null;
             switch (locatorChunk.TypeData)
             {
                 case LocatorChunk.EventLocatorData:
+                    if (control is EventEditor eventEditor && eventEditor.LocatorChunk.IndexInParent == locatorChunk.IndexInParent && eventEditor.LocatorChunk.Equals(locatorChunk))
+                    {
+                        eventEditor.UpdateValues();
+                        break;
+                    }
+                    if (control != null)
+                        GBTypeDataEditor.Controls.RemoveAt(0);
                     GBTypeDataEditor.Controls.Add(new EventEditor(locatorChunk)
                     {
                         Dock = DockStyle.Fill,
                     });
                     break;
                 case LocatorChunk.ScriptLocatorData:
+                    if (control is ScriptEditor scriptEditor && scriptEditor.LocatorChunk.IndexInParent == locatorChunk.IndexInParent && scriptEditor.LocatorChunk.Equals(locatorChunk))
+                    {
+                        scriptEditor.UpdateValues();
+                        break;
+                    }
+                    if (control != null)
+                        GBTypeDataEditor.Controls.RemoveAt(0);
                     GBTypeDataEditor.Controls.Add(new ScriptEditor(locatorChunk)
                     {
                         Dock = DockStyle.Fill,
                     });
                     break;
                 case LocatorChunk.GenericLocatorData:
+                    if (control is Label genericLabel)
+                    {
+                        if (genericLabel.Text != "Generic type locators have no data")
+                            genericLabel.Text = "Generic type locators have no data";
+                        break;
+                    }
+                    if (control != null)
+                        GBTypeDataEditor.Controls.RemoveAt(0);
                     GBTypeDataEditor.Controls.Add(new Label()
                     {
                         Text = "Generic type locators have no data",
@@ -56,6 +78,14 @@ public partial class LocatorEditor : EditorControl
                     });
                     break;
                 default:
+                    if (control is Label unsupportedLabel)
+                    {
+                        if (unsupportedLabel.Text != "Unsupported type data")
+                            unsupportedLabel.Text = "Unsupported type data";
+                        break;
+                    }
+                    if (control != null)
+                        GBTypeDataEditor.Controls.RemoveAt(0);
                     GBTypeDataEditor.Controls.Add(new Label()
                     {
                         Text = "Unsupported type data",
