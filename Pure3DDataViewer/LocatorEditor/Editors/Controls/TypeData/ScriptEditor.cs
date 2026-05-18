@@ -24,7 +24,7 @@ public partial class ScriptEditor : UserControl
         _updating = false;
     }
 
-    private void TxtKey_TextChanged(object sender, EventArgs e)
+    private void TxtKey_Leave(object sender, EventArgs e)
     {
         var eventData = (LocatorChunk.ScriptLocatorData)_locatorChunk.TypeData;
         if (_updating || eventData.Key == TxtKey.Text)

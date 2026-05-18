@@ -104,28 +104,6 @@ public partial class EventEditor : UserControl
         UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Locator Event", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
     }
 
-    private void NTBParameterUint_TextChanged(object sender, EventArgs e)
-    {
-        var value = NTBParameterUint.Value;
-        if (value is not uint uintValue)
-            return;
-
-        var intValue = (int)uintValue;
-
-        NTBParameterInt.Value = intValue;
-        NTBParameterFloat.Value = BitConverter.UInt32BitsToSingle(uintValue);
-        CPParameter.Value = Color.FromArgb(intValue);
-        CBParameterValue.Checked = uintValue != 0;
-
-        var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
-        if (_updating || eventData.Parameter == uintValue)
-            return;
-
-        var beforeChunk = _locatorChunk.Clone();
-        eventData.Parameter = uintValue;
-        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
-    }
-
     private void CBParameter_CheckedChanged(object sender, EventArgs e)
     {
         if (_updating)
@@ -140,20 +118,33 @@ public partial class EventEditor : UserControl
         UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Toggle Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
     }
 
-    private void CBParameterValue_CheckedChanged(object sender, EventArgs e)
+    private void UpdateParameterValue()
     {
-        if (_updating)
+        var value = NTBParameterUint.Value;
+        if (value is not uint uintValue)
             return;
 
-        NTBParameterUint.Value = CBParameterValue.Checked ? 1u : 0u;
+        var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
+        if (_updating || eventData.Parameter == uintValue)
+            return;
+
+        var beforeChunk = _locatorChunk.Clone();
+        eventData.Parameter = uintValue;
+        UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Update Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
     }
 
-    private void CPParameter_ValueChanged(object sender, EventArgs e)
+    private void NTBParameterUint_TextChanged(object sender, EventArgs e)
     {
-        if (_updating)
+        var value = NTBParameterUint.Value;
+        if (value is not uint uintValue)
             return;
 
-        NTBParameterUint.Value = (uint)CPParameter.Value.ToArgb();
+        var intValue = (int)uintValue;
+
+        NTBParameterInt.Value = intValue;
+        NTBParameterFloat.Value = BitConverter.UInt32BitsToSingle(uintValue);
+        CPParameter.Value = Color.FromArgb(intValue);
+        CBParameterValue.Checked = uintValue != 0;
     }
 
     private void NTBParameterFloat_TextChanged(object sender, EventArgs e)
@@ -173,4 +164,28 @@ public partial class EventEditor : UserControl
         var value = (int?)NTBParameterInt.Value ?? 0;
         NTBParameterUint.Value = (uint)value;
     }
+
+    private void CBParameterValue_CheckedChanged(object sender, EventArgs e)
+    {
+        if (_updating)
+            return;
+
+        NTBParameterUint.Value = CBParameterValue.Checked ? 1u : 0u;
+
+        if (CBParameterValue.Focused)
+            UpdateParameterValue();
+    }
+
+    private void CPParameter_ValueChanged(object sender, EventArgs e)
+    {
+        if (_updating)
+            return;
+
+        NTBParameterUint.Value = (uint)CPParameter.Value.ToArgb();
+
+        if (CPParameter.Focused)
+            UpdateParameterValue();
+    }
+
+    private void NTBParameter_Leave(object sender, EventArgs e) => UpdateParameterValue();
 }
