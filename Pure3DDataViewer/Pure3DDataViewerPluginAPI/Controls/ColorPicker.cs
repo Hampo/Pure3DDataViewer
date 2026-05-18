@@ -51,7 +51,7 @@ public partial class ColorPicker : UserControl
 
     private void PnlColour_Click(object sender, EventArgs e)
     {
-        using var colourDialog = new ColorDialog()
+        /*using var colourDialog = new ColorDialog()
         {
             AllowFullOpen = true,
             AnyColor = true,
@@ -67,6 +67,19 @@ public partial class ColorPicker : UserControl
             OnValueChanged();
         }
 
-        CustomColours = colourDialog.CustomColors;
+        CustomColours = colourDialog.CustomColors;*/
+
+        using var colorPicker = new Cyotek.Windows.Forms.ColorPickerDialog()
+        {
+            Color = Color.FromArgb((int)NUDAlpha.Value, PnlColour.BackColor),
+            ShowAlphaChannel = true,
+            Text = "Edit Value",
+        };
+        if (colorPicker.ShowDialog() != DialogResult.OK)
+            return;
+
+        PnlColour.BackColor = Color.FromArgb(255, colorPicker.Color);
+        NUDAlpha.Value = colorPicker.Color.A;
+        OnValueChanged();
     }
 }
