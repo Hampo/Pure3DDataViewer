@@ -1078,8 +1078,8 @@ internal static class ChunkMap
                 {
                     case LocatorChunk.EventLocatorData eventData:
                         sb.Append($", {FormatLuaValue(eventData.Event)}");
-                        if (eventData.Parameter.HasValue)
-                            sb.Append($", {FormatLuaValue(eventData.Parameter.Value)}");
+                        if (eventData.HasParameter)
+                            sb.Append($", {FormatLuaValue(eventData.Parameter)}");
                         break;
                     case LocatorChunk.ScriptLocatorData scriptData:
                         sb.Append($", {FormatLuaValue(scriptData.Key)}");
@@ -1100,7 +1100,7 @@ internal static class ChunkMap
                         sb.Append($", {FormatLuaValue(dynamicZoneData.DynaLoadData)}");
                         break;
                     case LocatorChunk.OcclusionLocatorData occlusionData:
-                        if (occlusionData.Occlusions.HasValue)
+                        if (occlusionData.HasOcclusions)
                             sb.Append($", {FormatLuaValue(occlusionData.Occlusions)}");
                         break;
                     case LocatorChunk.InteriorEntranceLocatorData interiorEntranceData:
@@ -1134,24 +1134,24 @@ internal static class ChunkMap
                         sb.Append($", {FormatLuaValue(staticCameraData.FOV)}");
                         sb.Append($", {FormatLuaValue(staticCameraData.TargetLag)}");
                         sb.Append($", {FormatLuaValue(staticCameraData.FollowPlayer)}");
-                        if (!staticCameraData.TransitionTargetRate.HasValue)
+                        if (!staticCameraData.HasTransitionTargetRate)
                             break;
-                        sb.Append($", {FormatLuaValue(staticCameraData.TransitionTargetRate.Value)}");
-                        if (!staticCameraData.OneShot.HasValue)
+                        sb.Append($", {FormatLuaValue(staticCameraData.TransitionTargetRate)}");
+                        if (!staticCameraData.HasFlags)
                             break;
                         var flags = 0u;
-                        if (staticCameraData.OneShot.Value)
+                        if (staticCameraData.OneShot)
                             flags |= 1u;
-                        if (staticCameraData.DisableFOV!.Value)
+                        if (staticCameraData.DisableFOV)
                             flags |= (1u << 1);
                         sb.Append($", {FormatLuaValue(flags)}");
-                        if (!staticCameraData.CutInOut.HasValue || !staticCameraData.CarOnly.HasValue)
+                        if (!staticCameraData.HasFlags2)
                             break;
-                        sb.Append($", {FormatLuaValue(staticCameraData.CutInOut.Value ? 1u : 0u)}");
+                        sb.Append($", {FormatLuaValue(staticCameraData.CutInOut ? 1u : 0u)}");
                         var flags2 = 0u;
-                        if (staticCameraData.CarOnly.Value)
+                        if (staticCameraData.CarOnly)
                             flags2 |= 1u;
-                        if (staticCameraData.OnFootOnly!.Value)
+                        if (staticCameraData.OnFootOnly)
                             flags2 |= (1u << 1);
                         sb.Append($", {FormatLuaValue(flags2)}");
                         break;

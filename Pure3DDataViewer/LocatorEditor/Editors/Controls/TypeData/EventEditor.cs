@@ -22,8 +22,8 @@ public partial class EventEditor : UserControl
         CBEvent.DataSource = Enum.GetValues(typeof(LocatorChunk.EventLocatorData.Events));
         CBEvent.SelectedItem = eventData.Event;
 
-        CBParameter.Checked = eventData.Parameter.HasValue;
-        NTBParameterUint.Value = eventData.Parameter ?? 0;
+        CBParameter.Checked = eventData.HasParameter;
+        NTBParameterUint.Value = eventData.Parameter;
 
         _updating = false;
     }
@@ -112,7 +112,7 @@ public partial class EventEditor : UserControl
         CBParameterValue.Checked = uintValue != 0;
 
         var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
-        if (_updating || !CBParameter.Checked || eventData.Parameter == uintValue)
+        if (_updating || eventData.Parameter == uintValue)
             return;
 
         var beforeChunk = _locatorChunk.Clone();
@@ -125,14 +125,12 @@ public partial class EventEditor : UserControl
         if (_updating)
             return;
 
-        var newValue = CBParameter.Checked ? (uint?)NTBParameterUint.Value : null;
-
         var eventData = (LocatorChunk.EventLocatorData)_locatorChunk.TypeData;
-        if (eventData.Parameter == newValue)
+        if (eventData.HasParameter == CBParameter.Checked)
             return;
 
         var beforeChunk = _locatorChunk.Clone();
-        eventData.Parameter = newValue;
+        eventData.HasParameter = CBParameter.Checked;
         UndoRedoManager.Instance.Execute(new UpdateChunkCommand("Toggle Locator Parameter", _locatorChunk.GetChunkHierarchy()!, beforeChunk, _locatorChunk));
     }
 
