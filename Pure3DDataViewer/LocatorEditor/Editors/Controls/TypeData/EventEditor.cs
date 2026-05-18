@@ -25,6 +25,12 @@ public partial class EventEditor : UserControl
         CBParameter.Checked = eventData.HasParameter;
         NTBParameterUint.Value = eventData.Parameter;
 
+        NTBParameterUint.Enabled = eventData.HasParameter;
+        NTBParameterInt.Enabled = eventData.HasParameter;
+        NTBParameterFloat.Enabled = eventData.HasParameter;
+        CPParameter.Enabled = eventData.HasParameter;
+        CBParameterValue.Enabled = eventData.HasParameter;
+
         _updating = false;
     }
 
