@@ -25,7 +25,7 @@ public static class MemoryUtils
         if (characterManager.Player is not Character player)
             return null;
 
-        if (player.Car is Vehicle car)
+        if (player.TargetVehicle is Vehicle car)
         {
             var mat = car.Transform;
 
@@ -44,7 +44,7 @@ public static class MemoryUtils
         else
         {
             var pos = player.Position;
-            var rot = player.Rotation;
+            var rot = player.FacingDir;
 
             return (new(pos.X, pos.Y, pos.Z), rot);
         }

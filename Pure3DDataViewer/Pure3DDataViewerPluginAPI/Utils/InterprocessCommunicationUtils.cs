@@ -27,7 +27,7 @@ public static class InterprocessCommunicationUtils
         interprocessCommunication.CheckVersionAndHack("1.17.1", "DebugCommunication");
         interprocessCommunication.Send("DebugCommunication");
 
-        if (player.Car is Vehicle car)
+        if (player.TargetVehicle is Vehicle car)
         {
             interprocessCommunication.Writer.Write((uint)InterprocessCommunication.DebugCommunicationType.CarTeleport);
             interprocessCommunication.Writer.Write(car.Address);
