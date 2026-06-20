@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: continuous-build
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -26,7 +26,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.420' # adjust to your SDK
+          dotnet-version: '8.0.x'
 
       - name: Prepare publish folders
         run: |

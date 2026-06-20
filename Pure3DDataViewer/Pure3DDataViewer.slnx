@@ -17,6 +17,7 @@
     <Project Path="ImportExportImages/ImportExportImages.csproj" />
     <Project Path="LocationFromGame/LocationFromGame.csproj" />
     <Project Path="LocatorEditor/LocatorEditor.csproj" Id="e35ac092-88b3-459a-9b60-bcae446434ad" />
+    <Project Path="MonstersIncScreamArenaChunks/MonstersIncScreamArenaChunks.csproj" Id="992939c7-f4f9-44b4-93a0-78c97275a415" />
     <Project Path="Sort/Sort.csproj" />
     <Project Path="Test/Test.csproj" />
     <Project Path="TimeOfDayTint/TimeOfDayTint.csproj" />
