@@ -58,11 +58,6 @@ public class MatrixPaletteOverrideChunk : Chunk
 
     private void Unknown_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => OnPropertyChanged(nameof(Unknown));
 
-    private void OnPropertyChanged(string v)
-    {
-        //throw new NotImplementedException();
-    }
-
     protected override void WriteData(EndianAwareBinaryWriter bw)
     {
         bw.Write([.. Unknown]);
