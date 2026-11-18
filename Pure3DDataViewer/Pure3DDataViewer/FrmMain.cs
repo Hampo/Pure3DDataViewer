@@ -21,7 +21,9 @@ namespace Pure3DDataViewer;
 
 public partial class FrmMain : Form
 {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public static FrmMain Instance { get; private set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
     private CancellationTokenSource? _cts = null;
     private P3DFile? _p3dFile = null;
