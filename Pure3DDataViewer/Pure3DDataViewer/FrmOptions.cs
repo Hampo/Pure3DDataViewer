@@ -30,6 +30,8 @@ public partial class FrmOptions : Form
         CBDarkMode.Checked = Settings.DarkMode;
         CBLargeFont.Checked = Settings.LargeFont;
         NUDChunkBatchSize.Value = Settings.ChunkBatchSize;
+        CBIncludeChunkTypeInString.Checked = Settings.IncludeChunkTypeInString;
+        CBIncludeChunkIDInString.Checked = Settings.IncludeChunkIDInString;
         _loading = false;
     }
 
@@ -182,5 +184,21 @@ public partial class FrmOptions : Form
             return;
 
         Settings.ChunkBatchSize = (int)NUDChunkBatchSize.Value;
+    }
+
+    private void CBIncludeChunkTypeInString_CheckedChanged(object sender, EventArgs e)
+    {
+        if (_loading)
+            return;
+
+        Settings.IncludeChunkTypeInString = CBIncludeChunkTypeInString.Checked;
+    }
+
+    private void CBIncludeChunkIDInString_CheckedChanged(object sender, EventArgs e)
+    {
+        if (_loading)
+            return;
+
+        Settings.IncludeChunkIDInString = CBIncludeChunkIDInString.Checked;
     }
 }

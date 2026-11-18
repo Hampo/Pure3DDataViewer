@@ -239,4 +239,34 @@ public static class Settings
         get => RegistryUtils.GetInt32("ChunkBatchSize", 50)!.Value;
         set => RegistryUtils.SetInt32("ChunkBatchSize", value);
     }
+
+    public static bool IncludeChunkTypeInString
+    {
+        get => RegistryUtils.GetBoolean("IncludeChunkTypeInString", true)!.Value;
+        set
+        {
+            if (value == IncludeChunkTypeInString)
+                return;
+
+            RegistryUtils.SetBoolean("IncludeChunkTypeInString", value);
+
+            Chunk.IncludeChunkTypeInString = value;
+            FrmMain.Instance.RefreshAllChunkNames();
+        }
+    }
+
+    public static bool IncludeChunkIDInString
+    {
+        get => RegistryUtils.GetBoolean("IncludeChunkIDInString", true)!.Value;
+        set
+        {
+            if (value == IncludeChunkIDInString)
+                return;
+
+            RegistryUtils.SetBoolean("IncludeChunkIDInString", value);
+
+            Chunk.IncludeChunkIDInString = value;
+            FrmMain.Instance.RefreshAllChunkNames();
+        }
+    }
 }

@@ -21,6 +21,8 @@ namespace Pure3DDataViewer;
 
 public partial class FrmMain : Form
 {
+    public static FrmMain Instance { get; private set; }
+
     private CancellationTokenSource? _cts = null;
     private P3DFile? _p3dFile = null;
     private P3DFile P3DFile
@@ -141,6 +143,8 @@ public partial class FrmMain : Form
 
     public FrmMain()
     {
+        Instance = this;
+
         InitializeComponent();
         typeof(DataGridView).InvokeMember("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty, null, DGVValues, [true]);
 
@@ -164,6 +168,9 @@ public partial class FrmMain : Form
 
         Theming.ApplyTheme(this, Settings.DarkMode ? Theming.ThemeMode.Dark : Theming.ThemeMode.Light, Settings.LargeFont ? Theming.FontMode.Large : Theming.FontMode.Normal);
         SC1.SplitterDistance = Settings.SplitterDistance;
+
+        Chunk.IncludeChunkTypeInString = Settings.IncludeChunkTypeInString;
+        Chunk.IncludeChunkIDInString = Settings.IncludeChunkIDInString;
 
         PluginLoader.LoadPlugins(Path.Combine(AppContext.BaseDirectory, "Plugins"));
         if (PluginLoader.Plugins.Count == 0)
@@ -536,7 +543,6 @@ public partial class FrmMain : Form
         });
     }
 
-    private static readonly HashSet<string> ExcludedProperties = ["DataBytes", "DataLength", "ID", "ParentFile", "ParentChunk", "IndexInParent", "Children", "AllChildren", "HeaderSize", "Size", "Bytes"];
     private bool _afterSelectUpdating = false;
     private void TVChunks_AfterSelect(object sender, TreeViewEventArgs e)
     {
@@ -702,7 +708,7 @@ public partial class FrmMain : Form
 
                 foreach (var property in properties)
                 {
-                    if (ExcludedProperties.Contains(property.Name))
+                    if (property.GetCustomAttribute<BrowsableAttribute>() is { Browsable: false })
                         continue;
 
                     object? value = property.GetValue(chunk);
@@ -1347,7 +1353,7 @@ public partial class FrmMain : Form
         var properties = PropertyHelper.GetProperties(type);
         foreach (var property in properties)
         {
-            if (ExcludedProperties.Contains(property.Name))
+            if (property.GetCustomAttribute<BrowsableAttribute>() is { Browsable: false })
                 continue;
 
             object? value = property.GetValue(chunk);
@@ -2822,6 +2828,8 @@ public partial class FrmMain : Form
         }
         TVChunks.EndUpdate();
     }
+
+    public void RefreshAllChunkNames() => UpdateChunkIndices(TVChunks.Nodes[0], 0);
 
     private async Task<TreeNode?> GetTreeNodeFromChunk(Chunk chunk, int timeoutMs = 5000)
     {

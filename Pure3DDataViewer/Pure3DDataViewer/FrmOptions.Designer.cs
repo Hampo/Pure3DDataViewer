@@ -48,6 +48,8 @@ partial class FrmOptions
         NUDChunkBatchSize = new NumericUpDown();
         PnlButtons = new Panel();
         BtnOK = new Button();
+        CBIncludeChunkTypeInString = new CheckBox();
+        CBIncludeChunkIDInString = new CheckBox();
         TCOptions.SuspendLayout();
         TPChunkColours.SuspendLayout();
         CMSChunkColours.SuspendLayout();
@@ -180,6 +182,8 @@ partial class FrmOptions
         // 
         // TPMiscellaneous
         // 
+        TPMiscellaneous.Controls.Add(CBIncludeChunkIDInString);
+        TPMiscellaneous.Controls.Add(CBIncludeChunkTypeInString);
         TPMiscellaneous.Controls.Add(LblChunkBatchSize);
         TPMiscellaneous.Controls.Add(NUDChunkBatchSize);
         TPMiscellaneous.Location = new Point(4, 24);
@@ -229,6 +233,28 @@ partial class FrmOptions
         BtnOK.Text = "OK";
         BtnOK.UseVisualStyleBackColor = true;
         // 
+        // CBIncludeChunkTypeInString
+        // 
+        CBIncludeChunkTypeInString.AutoSize = true;
+        CBIncludeChunkTypeInString.Location = new Point(8, 35);
+        CBIncludeChunkTypeInString.Name = "CBIncludeChunkTypeInString";
+        CBIncludeChunkTypeInString.Size = new Size(177, 19);
+        CBIncludeChunkTypeInString.TabIndex = 2;
+        CBIncludeChunkTypeInString.Text = "Include Chunk Type in String";
+        CBIncludeChunkTypeInString.UseVisualStyleBackColor = true;
+        CBIncludeChunkTypeInString.CheckedChanged += CBIncludeChunkTypeInString_CheckedChanged;
+        // 
+        // CBIncludeChunkIDInString
+        // 
+        CBIncludeChunkIDInString.AutoSize = true;
+        CBIncludeChunkIDInString.Location = new Point(8, 60);
+        CBIncludeChunkIDInString.Name = "CBIncludeChunkIDInString";
+        CBIncludeChunkIDInString.Size = new Size(164, 19);
+        CBIncludeChunkIDInString.TabIndex = 3;
+        CBIncludeChunkIDInString.Text = "Include Chunk ID in String";
+        CBIncludeChunkIDInString.UseVisualStyleBackColor = true;
+        CBIncludeChunkIDInString.CheckedChanged += CBIncludeChunkIDInString_CheckedChanged;
+        // 
         // FrmOptions
         // 
         AcceptButton = BtnOK;
@@ -277,4 +303,6 @@ partial class FrmOptions
     private TabPage TPMiscellaneous;
     private Label LblChunkBatchSize;
     private NumericUpDown NUDChunkBatchSize;
+    private CheckBox CBIncludeChunkIDInString;
+    private CheckBox CBIncludeChunkTypeInString;
 }
